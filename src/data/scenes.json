@@ -1,0 +1,20 @@
+{
+  "_schema_doc": {
+    "description": "Curated catalog of notable (often violent) scenes per anime.",
+    "entry_shape": {
+      "id": "unique slug, e.g. 'aot-s1e5-titan-attack'",
+      "mal_id": "MyAnimeList id (number) so we can join to anime data",
+      "anime_title": "human-readable title for display",
+      "season": 1,
+      "episode": 5,
+      "timestamp": "12:34 (mm:ss into the episode)",
+      "title": "Short scene title",
+      "description": "1-3 sentence editorial description",
+      "severity": "one of: mild | moderate | graphic | extreme",
+      "tags": ["combat", "blood", "psychological"],
+      "image": "/scenes/<id>.jpg  (local screenshot you supply, optional)",
+      "spoiler": true
+    }
+  },
+  "scenes": []
+}
