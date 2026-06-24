@@ -58,6 +58,44 @@ export async function getRecommendations(malId) {
   return data?.data ?? [];
 }
 
+export async function getTopCharacters(page = 1) {
+  const data = await jget(`/top/characters?page=${page}`);
+  return data?.data ?? [];
+}
+
+export async function getCharacterFull(id) {
+  if (!id) return null;
+  const data = await jget(`/characters/${id}/full`);
+  return data?.data ?? null;
+}
+
+export async function searchCharacters(query, limit = 20) {
+  if (!query) return [];
+  const data = await jget(
+    `/characters?q=${encodeURIComponent(query)}&limit=${limit}&order_by=favorites&sort=desc`
+  );
+  return data?.data ?? [];
+}
+
+export async function getTopPeople(page = 1) {
+  const data = await jget(`/top/people?page=${page}`);
+  return data?.data ?? [];
+}
+
+export async function getPersonFull(id) {
+  if (!id) return null;
+  const data = await jget(`/people/${id}/full`);
+  return data?.data ?? null;
+}
+
+export async function searchPeople(query, limit = 20) {
+  if (!query) return [];
+  const data = await jget(
+    `/people?q=${encodeURIComponent(query)}&limit=${limit}&order_by=favorites&sort=desc`
+  );
+  return data?.data ?? [];
+}
+
 export async function resolveFromTitles(entries) {
   const results = [];
   for (const entry of entries) {
