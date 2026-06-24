@@ -1,0 +1,165 @@
+const baseProps = {
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.8,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+  viewBox: "0 0 24 24",
+};
+
+export function IconSearch(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  );
+}
+
+export function IconImage(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="9" cy="9" r="2" />
+      <path d="m21 15-5-5L5 21" />
+    </svg>
+  );
+}
+
+export function IconPlay(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="m10 9 5 3-5 3z" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function IconEye(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+export function IconStar(props) {
+  return (
+    <svg {...baseProps} {...props} fill="currentColor" stroke="none">
+      <path d="M12 2.5l2.95 6 6.6.95-4.78 4.66 1.13 6.58L12 17.6l-5.9 3.1 1.13-6.58L2.45 9.45l6.6-.95z" />
+    </svg>
+  );
+}
+
+export function IconStarOutline(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M12 2.5l2.95 6 6.6.95-4.78 4.66 1.13 6.58L12 17.6l-5.9 3.1 1.13-6.58L2.45 9.45l6.6-.95z" />
+    </svg>
+  );
+}
+
+export function IconHeart(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
+}
+
+export function IconFlag(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M4 22V4" />
+      <path d="M4 4h12l-2 4 2 4H4" />
+    </svg>
+  );
+}
+
+export function IconChevronRight(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  );
+}
+
+export function IconChevronDown(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
+
+export function IconMenu(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M3 6h18M3 12h18M3 18h18" />
+    </svg>
+  );
+}
+
+export function IconUser(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21a8 8 0 0 1 16 0" />
+    </svg>
+  );
+}
+
+export function IconGrid(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <rect x="14" y="14" width="7" height="7" rx="1" />
+    </svg>
+  );
+}
+
+export function IconSliders(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M4 6h16M4 12h16M4 18h16" />
+      <circle cx="8" cy="6" r="2" fill="#0a0a0b" />
+      <circle cx="16" cy="12" r="2" fill="#0a0a0b" />
+      <circle cx="10" cy="18" r="2" fill="#0a0a0b" />
+    </svg>
+  );
+}
+
+export function IconAlert(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.4 0z" />
+      <path d="M12 9v4" />
+      <path d="M12 17h.01" />
+    </svg>
+  );
+}
+
+export function StarRating({ value = 0, max = 5, className = "" }) {
+  const filled = Math.round(value);
+  return (
+    <div className={`flex items-center gap-0.5 text-amber-400 ${className}`}>
+      {Array.from({ length: max }).map((_, i) =>
+        i < filled ? (
+          <IconStar key={i} className="h-4 w-4" />
+        ) : (
+          <IconStarOutline key={i} className="h-4 w-4 text-zinc-600" />
+        )
+      )}
+    </div>
+  );
+}
+
+export function formatCompact(n) {
+  if (n == null || isNaN(n)) return "—";
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+  return String(n);
+}

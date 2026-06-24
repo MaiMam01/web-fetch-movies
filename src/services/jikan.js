@@ -52,6 +52,12 @@ export async function getTopAnime(limit = 25) {
   return data?.data ?? [];
 }
 
+export async function getRecommendations(malId) {
+  if (!malId) return [];
+  const data = await jget(`/anime/${malId}/recommendations`);
+  return data?.data ?? [];
+}
+
 export async function resolveFromTitles(entries) {
   const results = [];
   for (const entry of entries) {

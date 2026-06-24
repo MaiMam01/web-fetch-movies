@@ -1,10 +1,12 @@
 {
   "_schema_doc": {
-    "description": "Curated catalog of notable (often violent) scenes per anime.",
+    "description": "Curated catalog of notable (often violent) scenes per anime, grouped by character on detail pages.",
     "entry_shape": {
       "id": "unique slug, e.g. 'aot-s1e5-titan-attack'",
       "mal_id": "MyAnimeList id (number) so we can join to anime data",
       "anime_title": "human-readable title for display",
+      "character": "Character name this scene focuses on (used for grouping on detail page)",
+      "role": "Optional. Main | Supporting | Antagonist | etc.",
       "season": 1,
       "episode": 5,
       "timestamp": "12:34 (mm:ss into the episode)",
@@ -13,8 +15,58 @@
       "severity": "one of: mild | moderate | graphic | extreme",
       "tags": ["combat", "blood", "psychological"],
       "image": "/scenes/<id>.jpg  (local screenshot you supply, optional)",
+      "kind": "video | image  (defaults to image if omitted)",
       "spoiler": true
     }
   },
-  "scenes": []
+  "scenes": [
+    {
+      "id": "aot-s1e5-eren-transforms",
+      "mal_id": 16498,
+      "anime_title": "Attack on Titan",
+      "character": "Eren Yeager",
+      "role": "Main",
+      "season": 1,
+      "episode": 5,
+      "timestamp": "18:42",
+      "title": "Eren's first titan transformation",
+      "description": "After being swallowed during the Trost breach, Eren erupts from inside a titan's belly. The framing makes the moment feel less like a victory and more like a horror.",
+      "severity": "graphic",
+      "tags": ["transformation", "blood", "body-horror"],
+      "kind": "video",
+      "spoiler": true
+    },
+    {
+      "id": "aot-s1e1-wall-breach",
+      "mal_id": 16498,
+      "anime_title": "Attack on Titan",
+      "character": "Colossal Titan",
+      "role": "Antagonist",
+      "season": 1,
+      "episode": 1,
+      "timestamp": "07:12",
+      "title": "The Colossal Titan breaches Wall Maria",
+      "description": "The series-defining opening shock: an impossibly large face appears over the wall, kicks the gate in, and unleashes the first wave of titans into a town that thought it was safe.",
+      "severity": "moderate",
+      "tags": ["destruction", "introduction"],
+      "kind": "video",
+      "spoiler": false
+    },
+    {
+      "id": "aot-s1e2-mom",
+      "mal_id": 16498,
+      "anime_title": "Attack on Titan",
+      "character": "Carla Yeager",
+      "role": "Supporting",
+      "season": 1,
+      "episode": 2,
+      "timestamp": "21:30",
+      "title": "Carla's final moments",
+      "description": "Trapped under the rubble of her home, Carla begs Eren and Mikasa to run as a smiling titan approaches. The camera lingers just long enough.",
+      "severity": "extreme",
+      "tags": ["loss", "family", "trauma"],
+      "kind": "video",
+      "spoiler": true
+    }
+  ]
 }
