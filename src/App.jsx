@@ -10,6 +10,8 @@ import VoiceActors from "./pages/VoiceActors.jsx";
 import VoiceActorDetail from "./pages/VoiceActorDetail.jsx";
 import Categories from "./pages/Categories.jsx";
 import CategoryDetail from "./pages/CategoryDetail.jsx";
+import Stories from "./pages/Stories.jsx";
+import SceneDetail from "./pages/SceneDetail.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
 export default function App() {
@@ -23,6 +25,8 @@ export default function App() {
           <Route path="/anime/:malId" element={<AnimeDetail />} />
           <Route path="/anime/:malId/scenes" element={<Scenes />} />
           <Route path="/scenes" element={<Scenes />} />
+          <Route path="/scenes/:id" element={<SceneDetail />} />
+          <Route path="/stories" element={<Stories />} />
           <Route path="/characters" element={<Characters />} />
           <Route path="/characters/:id" element={<CharacterDetail />} />
           <Route path="/voice-actors" element={<VoiceActors />} />

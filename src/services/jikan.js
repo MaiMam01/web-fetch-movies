@@ -101,6 +101,18 @@ export async function getGenres(filter = "genres") {
   return data?.data ?? [];
 }
 
+export async function getAnimeVideos(malId) {
+  if (!malId) return null;
+  const data = await jget(`/anime/${malId}/videos`);
+  return data?.data ?? null;
+}
+
+export async function getAnimePictures(malId) {
+  if (!malId) return [];
+  const data = await jget(`/anime/${malId}/pictures`);
+  return data?.data ?? [];
+}
+
 export async function getAnimeByGenre({
   genreId,
   page = 1,

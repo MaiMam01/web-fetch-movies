@@ -21,6 +21,7 @@ const NAV_ITEMS = [
   { to: "/films", label: "Films" },
   { to: "/characters", label: "Characters" },
   { to: "/scenes", label: "Scenes" },
+  { to: "/stories", label: "Stories" },
   { to: "/voice-actors", label: "Voice Actors" },
 ];
 

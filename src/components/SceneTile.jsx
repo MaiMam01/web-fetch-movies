@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { IconPlay, IconImage } from "./Icons.jsx";
 
 const SEVERITY_STYLES = {
@@ -11,12 +12,8 @@ export default function SceneTile({ scene, onClick }) {
   const sevClass = SEVERITY_STYLES[scene.severity] ?? SEVERITY_STYLES.moderate;
   const epLabel = `S${scene.season ?? 1}·E${scene.episode}`;
 
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="group relative block aspect-video w-full overflow-hidden rounded-md bg-zinc-900 text-left ring-1 ring-zinc-800 transition hover:ring-brand-500"
-    >
+  const inner = (
+    <>
       {scene.image ? (
         <img
           src={scene.image}
@@ -55,6 +52,23 @@ export default function SceneTile({ scene, onClick }) {
       <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 px-2 pb-7 text-xs font-semibold text-zinc-100 opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100">
         <span className="line-clamp-2">{scene.title}</span>
       </span>
-    </button>
+    </>
+  );
+
+  const className =
+    "group relative block aspect-video w-full overflow-hidden rounded-md bg-zinc-900 text-left ring-1 ring-zinc-800 transition hover:ring-brand-500";
+
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className={className}>
+        {inner}
+      </button>
+    );
+  }
+
+  return (
+    <Link to={`/scenes/${scene.id}`} className={className}>
+      {inner}
+    </Link>
   );
 }
