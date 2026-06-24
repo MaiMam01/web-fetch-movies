@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import AnimeCard from "../components/AnimeCard.jsx";
 import FeaturedCard from "../components/FeaturedCard.jsx";
 import { resolveFromTitles, getTopAnime } from "../services/jikan.js";
 import featured from "../data/featuredTitles.json";
 
 export default function Landing() {
+  const [params] = useSearchParams();
+  const typeFilter = params.get("type");
+  const showTv = !typeFilter || typeFilter === "tv";
+  const showFilms = !typeFilter || typeFilter === "movie";
   const [tv, setTv] = useState([]);
   const [films, setFilms] = useState([]);
   const [topList, setTopList] = useState([]);
@@ -48,37 +52,41 @@ export default function Landing() {
         </div>
       )}
 
-      <Section
-        eyebrow="Editor's List"
-        title="Top 10 TV Series"
-        subtitle="Hand-picked entries — every series ranked. Live ratings from MyAnimeList."
-      >
-        {loading && tv.length === 0 ? (
-          <FeaturedSkeletonGrid count={6} />
-        ) : (
-          <FeaturedGrid>
-            {tv.map((a, i) => (
-              <FeaturedCard key={a.mal_id} anime={a} rank={i + 1} />
-            ))}
-          </FeaturedGrid>
-        )}
-      </Section>
+      {showTv && (
+        <Section
+          eyebrow="Editor's List"
+          title="Top 10 TV Series"
+          subtitle="Hand-picked entries — every series ranked. Live ratings from MyAnimeList."
+        >
+          {loading && tv.length === 0 ? (
+            <FeaturedSkeletonGrid count={6} />
+          ) : (
+            <FeaturedGrid>
+              {tv.map((a, i) => (
+                <FeaturedCard key={a.mal_id} anime={a} rank={i + 1} />
+              ))}
+            </FeaturedGrid>
+          )}
+        </Section>
+      )}
 
-      <Section
-        eyebrow="Editor's List"
-        title="Top Films"
-        subtitle="From Ghibli classics to cyberpunk landmarks."
-      >
-        {loading && films.length === 0 ? (
-          <FeaturedSkeletonGrid count={4} />
-        ) : (
-          <FeaturedGrid>
-            {films.map((a, i) => (
-              <FeaturedCard key={a.mal_id} anime={a} rank={i + 1} />
-            ))}
-          </FeaturedGrid>
-        )}
-      </Section>
+      {showFilms && (
+        <Section
+          eyebrow="Editor's List"
+          title="Top Films"
+          subtitle="From Ghibli classics to cyberpunk landmarks."
+        >
+          {loading && films.length === 0 ? (
+            <FeaturedSkeletonGrid count={4} />
+          ) : (
+            <FeaturedGrid>
+              {films.map((a, i) => (
+                <FeaturedCard key={a.mal_id} anime={a} rank={i + 1} />
+              ))}
+            </FeaturedGrid>
+          )}
+        </Section>
+      )}
 
       <Section
         eyebrow="Live from MyAnimeList"

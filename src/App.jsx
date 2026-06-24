@@ -12,6 +12,8 @@ import Categories from "./pages/Categories.jsx";
 import CategoryDetail from "./pages/CategoryDetail.jsx";
 import Stories from "./pages/Stories.jsx";
 import SceneDetail from "./pages/SceneDetail.jsx";
+import Search from "./pages/Search.jsx";
+import About from "./pages/About.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
 export default function App() {
@@ -33,6 +35,20 @@ export default function App() {
           <Route path="/voice-actors/:id" element={<VoiceActorDetail />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/categories/:id" element={<CategoryDetail />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<About />} />
+          <Route path="/faq" element={<About />} />
+          <Route path="/status" element={<About />} />
+          <Route path="/request" element={<About />} />
+          <Route path="/feedback" element={<About />} />
+          <Route path="/cookie-policy" element={<About />} />
+          <Route path="/dmca" element={<About />} />
+          <Route path="/privacy" element={<About />} />
+          <Route path="/terms" element={<About />} />
+          <Route path="/safety" element={<About />} />
+          <Route path="/studios" element={<About />} />
+          <Route path="/a-z" element={<About />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

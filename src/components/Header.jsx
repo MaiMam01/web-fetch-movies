@@ -16,13 +16,11 @@ const NAV_ITEMS = [
   { to: "/", label: "Home", end: true },
   { to: "/top", label: "Top 100" },
   { to: "/categories", label: "Categories", dropdown: "categories" },
-  { to: "/a-z", label: "A-Z", hasDropdown: true },
-  { to: "/series", label: "Series" },
-  { to: "/films", label: "Films" },
   { to: "/characters", label: "Characters" },
+  { to: "/voice-actors", label: "Voice Actors" },
   { to: "/scenes", label: "Scenes" },
   { to: "/stories", label: "Stories" },
-  { to: "/voice-actors", label: "Voice Actors" },
+  { to: "/search", label: "Search" },
 ];
 
 const TRENDING_ITEMS = [

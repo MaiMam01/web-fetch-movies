@@ -14,18 +14,20 @@ const COL_RESOURCES = [
 ];
 
 const COL_BROWSE = [
-  ["All Anime", "/a-z"],
-  ["Top 100 Series", "/top?type=tv"],
-  ["Top 100 Films", "/top?type=movie"],
-  ["By Genre", "/categories"],
-  ["By Studio", "/studios"],
+  ["All Anime", "/top"],
+  ["Categories", "/categories"],
+  ["Characters", "/characters"],
+  ["Voice Actors", "/voice-actors"],
+  ["Studios", "/studios"],
+  ["A → Z", "/a-z"],
 ];
 
 const COL_FEATURED = [
-  ["Top 100 Scenes of all Time", "/scenes/top"],
-  ["Top 100 Voice Actors", "/voice-actors/top"],
-  ["Top 100 Characters", "/characters/top"],
-  ["Top 100 Anime of all Time", "/top"],
+  ["Top Anime of all Time", "/top"],
+  ["Top Scenes Catalog", "/scenes"],
+  ["Top Voice Actors", "/voice-actors"],
+  ["Top Characters", "/characters"],
+  ["Stories & Reels", "/stories"],
 ];
 
 export default function Footer() {
