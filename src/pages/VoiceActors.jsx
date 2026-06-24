@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import PersonCard from "../components/PersonCard.jsx";
+import SortDropdown from "../components/SortDropdown.jsx";
 import { getTopPeople } from "../services/jikan.js";
-import { IconChevronDown } from "../components/Icons.jsx";
+
+const SORT_OPTIONS = [
+  { value: "trending", label: "Trending" },
+  { value: "favorites", label: "Most Favorited" },
+  { value: "alphabetical", label: "A → Z" },
+];
 
 const QUICK_TAGS = [
   "Japanese",
@@ -81,18 +87,7 @@ export default function VoiceActors() {
           </p>
         </div>
 
-        <div className="relative">
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-            className="appearance-none rounded-md border border-zinc-800 bg-zinc-900 py-2 pl-3 pr-9 text-xs font-semibold text-zinc-200 hover:bg-zinc-800 focus:border-brand-500 focus:outline-none"
-          >
-            <option value="trending">Sort by: Trending</option>
-            <option value="favorites">Sort by: Most Favorited</option>
-            <option value="alphabetical">Sort by: A → Z</option>
-          </select>
-          <IconChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-        </div>
+        <SortDropdown value={sort} onChange={setSort} options={SORT_OPTIONS} />
       </div>
 
       {error && (

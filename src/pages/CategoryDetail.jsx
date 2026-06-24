@@ -4,10 +4,10 @@ import AnimeCard from "../components/AnimeCard.jsx";
 import GenreChipRow from "../components/GenreChipRow.jsx";
 import Pagination from "../components/Pagination.jsx";
 import {
-  IconChevronDown,
   IconChevronRight,
   IconImage,
 } from "../components/Icons.jsx";
+import SharedSortDropdown from "../components/SortDropdown.jsx";
 import { getGenres, getAnimeByGenre } from "../services/jikan.js";
 
 const TYPE_FILTERS = [
@@ -145,9 +145,10 @@ export default function CategoryDetail() {
             value={type}
             onChange={(v) => updateParams({ type: v, page: 1 })}
           />
-          <SortDropdown
+          <SharedSortDropdown
             value={sortKey}
             onChange={(v) => updateParams({ sort: v, page: 1 })}
+            options={SORT_OPTIONS}
           />
         </div>
       </div>
@@ -241,25 +242,6 @@ function TypeSwitcher({ value, onChange }) {
           {t.label}
         </button>
       ))}
-    </div>
-  );
-}
-
-function SortDropdown({ value, onChange }) {
-  return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="appearance-none rounded-md border border-zinc-800 bg-zinc-900 py-2 pl-3 pr-9 text-xs font-semibold text-zinc-200 hover:bg-zinc-800 focus:border-brand-500 focus:outline-none"
-      >
-        {SORT_OPTIONS.map((o) => (
-          <option key={o.value} value={o.value}>
-            Sort by: {o.label}
-          </option>
-        ))}
-      </select>
-      <IconChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
     </div>
   );
 }

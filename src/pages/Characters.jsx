@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import PersonCard from "../components/PersonCard.jsx";
 import FilterPills from "../components/FilterPills.jsx";
+import SortDropdown from "../components/SortDropdown.jsx";
 import { getTopCharacters } from "../services/jikan.js";
-import { IconChevronDown } from "../components/Icons.jsx";
 
 const QUICK_TAGS = [
   "Main",
@@ -125,25 +125,6 @@ export default function Characters() {
       )}
 
       <Pagination page={page} onChange={setPage} canNext={characters.length > 0} />
-    </div>
-  );
-}
-
-function SortDropdown({ value, onChange, options }) {
-  return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="appearance-none rounded-md border border-zinc-800 bg-zinc-900 py-2 pl-3 pr-9 text-xs font-semibold text-zinc-200 hover:bg-zinc-800 focus:border-brand-500 focus:outline-none"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            Sort by: {o.label}
-          </option>
-        ))}
-      </select>
-      <IconChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
     </div>
   );
 }
