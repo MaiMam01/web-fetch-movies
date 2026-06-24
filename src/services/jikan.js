@@ -96,6 +96,32 @@ export async function searchPeople(query, limit = 20) {
   return data?.data ?? [];
 }
 
+export async function getGenres(filter = "genres") {
+  const data = await jget(`/genres/anime?filter=${filter}`);
+  return data?.data ?? [];
+}
+
+export async function getAnimeByGenre({
+  genreId,
+  page = 1,
+  limit = 24,
+  type = null,
+  orderBy = "score",
+  sort = "desc",
+}) {
+  if (!genreId) return { data: [], pagination: null };
+  const params = new URLSearchParams({
+    genres: String(genreId),
+    page: String(page),
+    limit: String(limit),
+    order_by: orderBy,
+    sort,
+  });
+  if (type) params.set("type", type);
+  const json = await jget(`/anime?${params.toString()}`);
+  return { data: json?.data ?? [], pagination: json?.pagination ?? null };
+}
+
 export async function resolveFromTitles(entries) {
   const results = [];
   for (const entry of entries) {

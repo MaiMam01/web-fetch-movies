@@ -8,6 +8,8 @@ import Characters from "./pages/Characters.jsx";
 import CharacterDetail from "./pages/CharacterDetail.jsx";
 import VoiceActors from "./pages/VoiceActors.jsx";
 import VoiceActorDetail from "./pages/VoiceActorDetail.jsx";
+import Categories from "./pages/Categories.jsx";
+import CategoryDetail from "./pages/CategoryDetail.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
 export default function App() {
@@ -25,6 +27,8 @@ export default function App() {
           <Route path="/characters/:id" element={<CharacterDetail />} />
           <Route path="/voice-actors" element={<VoiceActors />} />
           <Route path="/voice-actors/:id" element={<VoiceActorDetail />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/categories/:id" element={<CategoryDetail />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
