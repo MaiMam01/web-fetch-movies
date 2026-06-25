@@ -200,6 +200,22 @@ export function IconMessage(props) {
   );
 }
 
+export function IconCheck(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+  );
+}
+
+export function IconPlus(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
 export function IconAlert(props) {
   return (
     <svg {...baseProps} {...props}>

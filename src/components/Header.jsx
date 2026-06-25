@@ -51,6 +51,7 @@ const NAV_ITEMS = [
   { to: "/voice-actors", label: "Voice Actors" },
   { to: "/scenes", label: "Scenes" },
   { to: "/stories", label: "Stories" },
+  { to: "/community", label: "Community" },
   { to: "/search", label: "Search" },
 ];
 

@@ -14,6 +14,7 @@ import Stories from "./pages/Stories.jsx";
 import SceneDetail from "./pages/SceneDetail.jsx";
 import Search from "./pages/Search.jsx";
 import About from "./pages/About.jsx";
+import Community from "./pages/Community.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
 export default function App() {
@@ -36,6 +37,8 @@ export default function App() {
           <Route path="/categories" element={<Categories />} />
           <Route path="/categories/:id" element={<CategoryDetail />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/community/:username" element={<Community />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<About />} />
           <Route path="/faq" element={<About />} />
