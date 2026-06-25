@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { getGenres, getTopAnime } from "../services/jikan.js";
+import AuthModal from "./AuthModal.jsx";
 import {
   IconMenu,
   IconSearch,
@@ -18,6 +19,13 @@ import {
   IconAlert,
   IconMessage,
   IconPlus,
+  IconUserPlus,
+  IconThumbsUp,
+  IconUpload,
+  IconGlobe,
+  IconLocation,
+  IconHelp,
+  IconRss,
 } from "./Icons.jsx";
 
 const DISCOVER_ITEMS = [
@@ -111,6 +119,8 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [trendingOpen, setTrendingOpen] = useState(false);
   const [openNav, setOpenNav] = useState(null);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [authMode, setAuthMode] = useState(null);
   const [genres, setGenres] = useState([]);
   const [themes, setThemes] = useState([]);
   const [demographics, setDemographics] = useState([]);
@@ -119,6 +129,7 @@ export default function Header() {
 
   const trendingRef = useRef(null);
   const navRef = useRef(null);
+  const accountRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -153,11 +164,15 @@ export default function Header() {
       if (openNav && navRef.current && !navRef.current.contains(e.target)) {
         setOpenNav(null);
       }
+      if (accountOpen && accountRef.current && !accountRef.current.contains(e.target)) {
+        setAccountOpen(false);
+      }
     }
     function onKey(e) {
       if (e.key === "Escape") {
         setTrendingOpen(false);
         setOpenNav(null);
+        setAccountOpen(false);
       }
     }
     document.addEventListener("mousedown", onClickOutside);
@@ -166,7 +181,12 @@ export default function Header() {
       document.removeEventListener("mousedown", onClickOutside);
       document.removeEventListener("keydown", onKey);
     };
-  }, [trendingOpen, openNav]);
+  }, [trendingOpen, openNav, accountOpen]);
+
+  const openAuth = (mode) => {
+    setAccountOpen(false);
+    setAuthMode(mode);
+  };
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -259,13 +279,33 @@ export default function Header() {
               Region
               <IconChevronDown className="h-3.5 w-3.5" />
             </button>
-            <button
-              type="button"
-              className="grid h-9 w-9 place-items-center rounded-full border border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800"
-              aria-label="Account"
-            >
-              <IconUser className="h-4 w-4" />
-            </button>
+            <div className="relative" ref={accountRef}>
+              <button
+                type="button"
+                onClick={() => {
+                  setAccountOpen((s) => !s);
+                  setTrendingOpen(false);
+                  setOpenNav(null);
+                }}
+                className={`grid h-9 w-9 place-items-center rounded-full border transition ${
+                  accountOpen
+                    ? "border-brand-500 bg-zinc-800 text-brand-500"
+                    : "border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800"
+                }`}
+                aria-label="Account"
+                aria-expanded={accountOpen}
+              >
+                <IconUser className="h-4 w-4" />
+              </button>
+
+              {accountOpen && (
+                <AccountDropdown
+                  onClose={() => setAccountOpen(false)}
+                  onSignUp={() => openAuth("signup")}
+                  onLogIn={() => openAuth("login")}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -345,6 +385,16 @@ export default function Header() {
         </ul>
       </nav>
 
+      {authMode && (
+        <AuthModal
+          mode={authMode}
+          onClose={() => setAuthMode(null)}
+          onSwitchMode={() =>
+            setAuthMode((m) => (m === "signup" ? "login" : "signup"))
+          }
+        />
+      )}
+
       {mobileOpen && (
         <div className="border-t border-zinc-900 bg-zinc-950 md:hidden">
           <form onSubmit={onSubmit} className="relative px-4 py-3">
@@ -380,6 +430,155 @@ export default function Header() {
         </div>
       )}
     </header>
+  );
+}
+
+function AccountDropdown({ onClose, onSignUp, onLogIn }) {
+  const [language, setLanguage] = useState("English");
+  const [region, setRegion] = useState("United States");
+
+  return (
+    <div
+      className="absolute right-0 top-12 z-50 w-[min(94vw,320px)] origin-top-right overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950 p-4 shadow-2xl"
+      role="menu"
+    >
+      <div className="grid grid-cols-3 gap-2">
+        <AccountIconButton
+          icon={<IconUserPlus className="h-5 w-5" />}
+          label="Sign Up"
+          onClick={onSignUp}
+          accent
+        />
+        <AccountIconButton
+          icon={<IconUser className="h-5 w-5" />}
+          label="Log In"
+          onClick={onLogIn}
+        />
+        <AccountIconButton
+          icon={<IconThumbsUp className="h-5 w-5" />}
+          label="Watchlist"
+          to="/community"
+          onClose={onClose}
+        />
+      </div>
+
+      <ul className="mt-4 space-y-0.5 border-t border-zinc-900 pt-3">
+        <DropdownRow
+          icon={<IconRss className="h-4 w-4" />}
+          label="Activity Feed"
+          to="/community"
+          onClose={onClose}
+        />
+        <DropdownRow
+          icon={<IconUpload className="h-4 w-4" />}
+          label="Submit a Scene"
+          to="/request"
+          onClose={onClose}
+        />
+        <DropdownRow
+          icon={<IconGlobe className="h-4 w-4" />}
+          label={language}
+          chevron
+          onClick={() =>
+            setLanguage((l) =>
+              l === "English" ? "Japanese" : l === "Japanese" ? "Spanish" : "English"
+            )
+          }
+        />
+        <DropdownRow
+          icon={<IconLocation className="h-4 w-4" />}
+          label={region}
+          chevron
+          onClick={() =>
+            setRegion((r) =>
+              r === "United States"
+                ? "Japan"
+                : r === "Japan"
+                ? "United Kingdom"
+                : "United States"
+            )
+          }
+        />
+        <DropdownRow
+          icon={<IconHelp className="h-4 w-4" />}
+          label="FAQ"
+          to="/faq"
+          onClose={onClose}
+        />
+        <DropdownRow
+          icon={<IconMessage className="h-4 w-4" />}
+          label="Contact Support"
+          to="/contact"
+          onClose={onClose}
+        />
+      </ul>
+    </div>
+  );
+}
+
+function AccountIconButton({ icon, label, onClick, to, onClose, accent = false }) {
+  const ringClass = accent
+    ? "ring-brand-500/60 text-brand-500 group-hover:bg-brand-500 group-hover:text-zinc-950"
+    : "ring-zinc-800 text-zinc-200 group-hover:bg-zinc-800 group-hover:text-white";
+
+  const inner = (
+    <div className="group flex flex-col items-center gap-1.5">
+      <span
+        className={`grid h-12 w-12 place-items-center rounded-full bg-zinc-900 ring-1 transition ${ringClass}`}
+      >
+        {icon}
+      </span>
+      <span className="text-[11px] font-bold text-zinc-200">{label}</span>
+    </div>
+  );
+
+  if (to) {
+    return (
+      <Link to={to} onClick={onClose} className="block">
+        {inner}
+      </Link>
+    );
+  }
+  return (
+    <button type="button" onClick={onClick} className="block w-full">
+      {inner}
+    </button>
+  );
+}
+
+function DropdownRow({ icon, label, to, onClick, onClose, chevron = false }) {
+  const content = (
+    <span className="flex w-full items-center gap-3">
+      <span className="text-zinc-400">{icon}</span>
+      <span className="flex-1 text-sm font-semibold text-zinc-100">{label}</span>
+      {chevron && <IconChevronDown className="h-3.5 w-3.5 text-zinc-500" />}
+    </span>
+  );
+
+  if (to) {
+    return (
+      <li>
+        <Link
+          to={to}
+          onClick={onClose}
+          className="group flex items-center rounded px-2 py-2.5 transition hover:bg-zinc-900"
+        >
+          {content}
+        </Link>
+      </li>
+    );
+  }
+
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onClick}
+        className="group flex w-full items-center rounded px-2 py-2.5 transition hover:bg-zinc-900"
+      >
+        {content}
+      </button>
+    </li>
   );
 }
 
