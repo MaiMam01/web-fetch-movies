@@ -16,11 +16,23 @@ const SEVERITY_FILTERS = (counts) => [
   { value: "extreme", label: "Extreme", count: counts.extreme },
 ];
 
+const KIND_FILTERS = (counts) => [
+  { value: "all", label: "All", count: counts.all },
+  { value: "image", label: "Photo", count: counts.image },
+  { value: "video", label: "Video", count: counts.video },
+];
+
+function getKind(s) {
+  return s.kind === "video" ? "video" : "image";
+}
+
 export default function Scenes() {
   const { malId } = useParams();
   const [anime, setAnime] = useState(null);
   const [characters, setCharacters] = useState([]);
+  const [posters, setPosters] = useState({});
   const [sevFilter, setSevFilter] = useState("all");
+  const [kindFilter, setKindFilter] = useState("all");
 
   const all = scenesData.scenes ?? [];
   const baseScenes = useMemo(
@@ -28,7 +40,7 @@ export default function Scenes() {
     [all, malId]
   );
 
-  const counts = useMemo(() => {
+  const severityCounts = useMemo(() => {
     const c = { all: baseScenes.length, mild: 0, moderate: 0, graphic: 0, extreme: 0 };
     baseScenes.forEach((s) => {
       if (s.severity && c[s.severity] != null) c[s.severity] += 1;
@@ -36,13 +48,20 @@ export default function Scenes() {
     return c;
   }, [baseScenes]);
 
-  const scenes = useMemo(
-    () =>
-      sevFilter === "all"
-        ? baseScenes
-        : baseScenes.filter((s) => s.severity === sevFilter),
-    [baseScenes, sevFilter]
-  );
+  const kindCounts = useMemo(() => {
+    const c = { all: baseScenes.length, image: 0, video: 0 };
+    baseScenes.forEach((s) => {
+      c[getKind(s)] += 1;
+    });
+    return c;
+  }, [baseScenes]);
+
+  const scenes = useMemo(() => {
+    let list = baseScenes;
+    if (kindFilter !== "all") list = list.filter((s) => getKind(s) === kindFilter);
+    if (sevFilter !== "all") list = list.filter((s) => s.severity === sevFilter);
+    return list;
+  }, [baseScenes, sevFilter, kindFilter]);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,6 +80,33 @@ export default function Scenes() {
       cancelled = true;
     };
   }, [malId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const uniqueIds = Array.from(
+      new Set(baseScenes.map((s) => s.mal_id).filter(Boolean))
+    );
+    if (uniqueIds.length === 0) return undefined;
+    Promise.all(
+      uniqueIds.map((id) =>
+        getAnimeById(id)
+          .then((a) => [id, a])
+          .catch(() => [id, null])
+      )
+    ).then((entries) => {
+      if (cancelled) return;
+      const next = {};
+      for (const [id, a] of entries) {
+        if (!a) continue;
+        next[id] =
+          a.images?.webp?.large_image_url ?? a.images?.jpg?.large_image_url;
+      }
+      setPosters(next);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [baseScenes]);
 
   const grouped = useMemo(() => {
     const byKey = new Map();
@@ -93,12 +139,23 @@ export default function Scenes() {
         )}
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+          <KindFilterPills
+            value={kindFilter}
+            onChange={setKindFilter}
+            options={KIND_FILTERS(kindCounts)}
+          />
+          <SortBar />
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+            Severity
+          </span>
           <FilterPills
             value={sevFilter}
             onChange={setSevFilter}
-            options={SEVERITY_FILTERS(counts)}
+            options={SEVERITY_FILTERS(severityCounts)}
           />
-          <SortBar />
         </div>
 
         {scenes.length === 0 ? (
@@ -118,7 +175,11 @@ export default function Scenes() {
                 )}
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                   {group.map((s) => (
-                    <SceneTile key={s.id} scene={s} />
+                    <SceneTile
+                      key={s.id}
+                      scene={s}
+                      posterFallback={posters[s.mal_id]}
+                    />
                   ))}
                 </div>
               </div>
@@ -219,6 +280,38 @@ function AnimeRowHeader({ title, malId }) {
       <span className="text-sm font-semibold text-brand-500">{title}</span>
       <IconChevronRight className="h-4 w-4 text-zinc-500 transition group-hover:translate-x-0.5 group-hover:text-brand-500" />
     </Link>
+  );
+}
+
+function KindFilterPills({ value, onChange, options }) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {options.map((opt) => {
+        const active = opt.value === value;
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onChange(opt.value)}
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition ${
+              active
+                ? "bg-brand-500 text-zinc-950 shadow-[0_0_0_3px_rgba(244,114,32,0.18)]"
+                : "bg-zinc-900 text-zinc-200 ring-1 ring-zinc-800 hover:bg-zinc-800 hover:text-white"
+            }`}
+            aria-pressed={active}
+          >
+            <span>{opt.label}</span>
+            <span
+              className={`text-xs tabular-nums ${
+                active ? "text-zinc-950/80" : "text-zinc-500"
+              }`}
+            >
+              {opt.count}
+            </span>
+          </button>
+        );
+      })}
+    </div>
   );
 }
 

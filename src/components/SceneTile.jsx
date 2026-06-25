@@ -8,9 +8,12 @@ const SEVERITY_STYLES = {
   extreme: "bg-red-600 text-zinc-50",
 };
 
-export default function SceneTile({ scene, onClick }) {
+export default function SceneTile({ scene, posterFallback, onClick }) {
   const sevClass = SEVERITY_STYLES[scene.severity] ?? SEVERITY_STYLES.moderate;
   const epLabel = `S${scene.season ?? 1}·E${scene.episode}`;
+  const isVideo = scene.kind === "video";
+  const KindIcon = isVideo ? IconPlay : IconImage;
+  const kindLabel = isVideo ? "Video" : "Photo";
 
   const inner = (
     <>
@@ -21,13 +24,24 @@ export default function SceneTile({ scene, onClick }) {
           loading="lazy"
           className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
         />
+      ) : posterFallback ? (
+        <>
+          <img
+            src={posterFallback}
+            alt={scene.anime_title || scene.title}
+            loading="lazy"
+            className="h-full w-full scale-110 object-cover opacity-40 blur-[1.5px] transition duration-500 group-hover:scale-[1.15] group-hover:opacity-55 group-hover:blur-[0.5px]"
+          />
+          <span className="pointer-events-none absolute inset-0 bg-gradient-to-br from-zinc-950/50 via-transparent to-zinc-950/40" />
+          <span className="pointer-events-none absolute inset-0 grid place-items-center">
+            <span className="grid h-12 w-12 place-items-center rounded-full bg-zinc-950/80 ring-2 ring-zinc-700 transition group-hover:ring-brand-500">
+              <KindIcon className="h-5 w-5 text-brand-500" />
+            </span>
+          </span>
+        </>
       ) : (
         <div className="grid h-full place-items-center text-zinc-700">
-          {scene.kind === "video" ? (
-            <IconPlay className="h-10 w-10" />
-          ) : (
-            <IconImage className="h-10 w-10" />
-          )}
+          <KindIcon className="h-10 w-10" />
         </div>
       )}
 
@@ -35,6 +49,11 @@ export default function SceneTile({ scene, onClick }) {
         className={`absolute left-1.5 top-1.5 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${sevClass}`}
       >
         {scene.severity ?? "scene"}
+      </span>
+
+      <span className="absolute right-1.5 top-1.5 inline-flex items-center gap-1 rounded bg-zinc-950/85 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-100">
+        <KindIcon className="h-2.5 w-2.5 text-brand-500" />
+        {kindLabel}
       </span>
 
       <span className="absolute right-1.5 bottom-1.5 flex items-center gap-1 rounded bg-zinc-950/90 px-1.5 py-0.5 text-[11px] font-semibold text-zinc-100">

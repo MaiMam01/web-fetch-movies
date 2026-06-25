@@ -239,9 +239,21 @@ export default function CharacterDetail() {
                       }}
                     />
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                      {g.scenes.map((s) => (
-                        <SceneTile key={s.id} scene={s} />
-                      ))}
+                      {g.scenes.map((s) => {
+                        const sourceAnime = animeAppearances.find(
+                          (a) => a.anime.mal_id === s.mal_id
+                        )?.anime;
+                        const poster =
+                          sourceAnime?.images?.webp?.large_image_url ??
+                          sourceAnime?.images?.jpg?.large_image_url;
+                        return (
+                          <SceneTile
+                            key={s.id}
+                            scene={s}
+                            posterFallback={poster}
+                          />
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
