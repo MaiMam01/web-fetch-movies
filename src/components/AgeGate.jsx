@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const STORAGE_KEY = "animedb_age_confirmed_v1";
 
@@ -36,12 +37,12 @@ export default function AgeGate({ children, title = "Mature Content Ahead" }) {
           >
             I am 18+ — Continue
           </button>
-          <a
-            href="/"
+          <Link
+            to="/"
             className="rounded-md border border-zinc-700 px-5 py-2.5 text-sm font-semibold text-zinc-200 transition hover:bg-zinc-800"
           >
             Go back
-          </a>
+          </Link>
         </div>
       </div>
     </div>

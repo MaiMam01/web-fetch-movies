@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import CategoryTile from "../components/CategoryTile.jsx";
 import SortDropdown from "../components/SortDropdown.jsx";
 import { getGenres, getAnimeByGenre } from "../services/jikan.js";
@@ -178,9 +179,9 @@ export default function Categories() {
           </div>
           <div className="flex flex-wrap gap-2">
             {rest.map((g) => (
-              <a
+              <Link
                 key={g.mal_id}
-                href={`/categories/${g.mal_id}`}
+                to={`/categories/${g.mal_id}`}
                 className="inline-flex items-center gap-1.5 rounded-full bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-200 ring-1 ring-zinc-800 transition hover:bg-zinc-800 hover:text-white"
               >
                 {g.name}
@@ -189,7 +190,7 @@ export default function Categories() {
                     {g.count.toLocaleString()}
                   </span>
                 )}
-              </a>
+              </Link>
             ))}
           </div>
         </section>

@@ -59,6 +59,11 @@ export default function VoiceActorDetail() {
     return Array.from(m.values());
   }, [voiceRoles]);
 
+  const suggestedAnimeList = useMemo(
+    () => voiceRoles.map((v) => ({ anime: v.anime })).filter((x) => x.anime),
+    [voiceRoles]
+  );
+
   if (loading && !person) return <Skeleton />;
   if (error || !person) {
     return (
@@ -226,8 +231,8 @@ export default function VoiceActorDetail() {
           <section className="mt-2">
             <SectionTitle title="Voice Roles" count={voiceRoles.length} />
             <div className="space-y-10">
-              {groupedByAnime.map((g) => (
-                <div key={g.anime?.mal_id ?? Math.random()}>
+              {groupedByAnime.map((g, gi) => (
+                <div key={g.anime?.mal_id ?? `group-${gi}`}>
                   {g.anime && (
                     <AnimeGroupHeader
                       anime={{
@@ -239,8 +244,11 @@ export default function VoiceActorDetail() {
                     />
                   )}
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                    {g.roles.map((r) => (
-                      <VoiceRoleCard key={r.character?.mal_id} role={r} />
+                    {g.roles.map((r, ri) => (
+                      <VoiceRoleCard
+                        key={`${r.character?.mal_id ?? "x"}-${r.role ?? ""}-${ri}`}
+                        role={r}
+                      />
                     ))}
                   </div>
                 </div>
@@ -262,15 +270,18 @@ export default function VoiceActorDetail() {
                       className="group block overflow-hidden rounded-md bg-zinc-900 ring-1 ring-zinc-800 transition hover:ring-brand-500"
                     >
                       <div className="aspect-[2/3] w-full overflow-hidden bg-zinc-800">
-                        <img
-                          src={
-                            g.anime.images?.webp?.large_image_url ??
-                            g.anime.images?.jpg?.large_image_url
-                          }
-                          alt={g.anime.title}
-                          loading="lazy"
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
-                        />
+                        {(g.anime.images?.webp?.large_image_url ||
+                          g.anime.images?.jpg?.large_image_url) && (
+                          <img
+                            src={
+                              g.anime.images?.webp?.large_image_url ??
+                              g.anime.images?.jpg?.large_image_url
+                            }
+                            alt={g.anime.title}
+                            loading="lazy"
+                            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+                          />
+                        )}
                       </div>
                       <div className="p-2">
                         <p className="line-clamp-1 text-xs font-semibold group-hover:text-brand-500">
@@ -298,15 +309,18 @@ export default function VoiceActorDetail() {
                   className="group block overflow-hidden rounded-md bg-zinc-900 ring-1 ring-zinc-800 transition hover:ring-brand-500"
                 >
                   <div className="aspect-[2/3] w-full overflow-hidden bg-zinc-800">
-                    <img
-                      src={
-                        entry.anime.images?.webp?.large_image_url ??
-                        entry.anime.images?.jpg?.large_image_url
-                      }
-                      alt={entry.anime.title}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
-                    />
+                    {(entry.anime.images?.webp?.large_image_url ||
+                      entry.anime.images?.jpg?.large_image_url) && (
+                      <img
+                        src={
+                          entry.anime.images?.webp?.large_image_url ??
+                          entry.anime.images?.jpg?.large_image_url
+                        }
+                        alt={entry.anime.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+                      />
+                    )}
                   </div>
                   <div className="p-2">
                     <p className="line-clamp-1 text-xs font-semibold group-hover:text-brand-500">
@@ -339,7 +353,7 @@ export default function VoiceActorDetail() {
       </div>
 
       <SuggestedReels
-        animeList={voiceRoles.map((v) => ({ anime: v.anime })).filter((x) => x.anime)}
+        animeList={suggestedAnimeList}
         title="Suggested Scenes & Reels"
         subtitle={`Trailers, OPs, and clips from anime featuring ${person.name}`}
       />
@@ -367,12 +381,14 @@ function VoiceRoleCard({ role }) {
       className="group block overflow-hidden rounded-md bg-zinc-900 ring-1 ring-zinc-800 transition hover:ring-brand-500"
     >
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-zinc-800">
-        <img
-          src={c.images?.webp?.image_url ?? c.images?.jpg?.image_url}
-          alt={c.name}
-          loading="lazy"
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
-        />
+        {(c.images?.webp?.image_url || c.images?.jpg?.image_url) && (
+          <img
+            src={c.images?.webp?.image_url ?? c.images?.jpg?.image_url}
+            alt={c.name}
+            loading="lazy"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+          />
+        )}
         <span className="absolute right-1.5 top-1.5 rounded bg-zinc-950/85 px-1.5 py-0.5 text-[10px] font-bold text-brand-500">
           {role.role}
         </span>

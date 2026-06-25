@@ -227,21 +227,23 @@ function FeatureStrip({ backdrop, name, total }) {
 
 function TypeSwitcher({ value, onChange }) {
   return (
-    <div className="inline-flex items-center gap-1 rounded-md border border-zinc-800 bg-zinc-900 p-1 text-xs">
-      {TYPE_FILTERS.map((t) => (
-        <button
-          key={t.value}
-          type="button"
-          onClick={() => onChange(t.value)}
-          className={`rounded px-2.5 py-1.5 font-semibold transition ${
-            value === t.value
-              ? "bg-brand-500 text-zinc-950"
-              : "text-zinc-300 hover:text-zinc-100"
-          }`}
-        >
-          {t.label}
-        </button>
-      ))}
+    <div className="-mx-1 max-w-full overflow-x-auto px-1 scrollbar-thin">
+      <div className="inline-flex w-max items-center gap-1 rounded-md border border-zinc-800 bg-zinc-900 p-1 text-xs">
+        {TYPE_FILTERS.map((t) => (
+          <button
+            key={t.value}
+            type="button"
+            onClick={() => onChange(t.value)}
+            className={`whitespace-nowrap rounded px-2.5 py-1.5 font-semibold transition ${
+              value === t.value
+                ? "bg-brand-500 text-zinc-950"
+                : "text-zinc-300 hover:text-zinc-100"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

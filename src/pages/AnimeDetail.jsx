@@ -173,12 +173,14 @@ export default function AnimeDetail() {
         <RecommendedRail items={recommendations} />
 
         <TagChips
-          tags={[
-            ...(anime.genres ?? []).map((g) => g.name),
-            ...(anime.themes ?? []).map((t) => t.name),
-            ...(anime.demographics ?? []).map((d) => d.name),
-            ...(anime.studios ?? []).map((s) => s.name),
-          ]}
+          tags={Array.from(
+            new Set([
+              ...(anime.genres ?? []).map((g) => g.name),
+              ...(anime.themes ?? []).map((t) => t.name),
+              ...(anime.demographics ?? []).map((d) => d.name),
+              ...(anime.studios ?? []).map((s) => s.name),
+            ])
+          )}
         />
       </div>
     </div>

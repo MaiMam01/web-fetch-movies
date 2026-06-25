@@ -1,10 +1,29 @@
 @import "tailwindcss";
 
 @theme {
+  /* Brand (kept as warm amber) */
   --color-brand-50: #fff7ed;
   --color-brand-500: #f59e0b;
   --color-brand-600: #d97706;
   --color-brand-700: #b45309;
+
+  /* Funky 10-color accent palette
+     Used across the site to give each section/feature its own personality. */
+  --color-funk-violet: #a855f7;
+  --color-funk-fuchsia: #e879f9;
+  --color-funk-pink: #fb7185;
+  --color-funk-coral: #fb923c;
+  --color-funk-amber: #fbbf24;
+  --color-funk-lime: #a3e635;
+  --color-funk-emerald: #34d399;
+  --color-funk-cyan: #22d3ee;
+  --color-funk-sky: #38bdf8;
+  --color-funk-indigo: #818cf8;
+
+  /* Deep cosmic ink (slightly violet-tinted base) */
+  --color-ink-950: #0a0814;
+  --color-ink-900: #131022;
+
   --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
@@ -16,6 +35,51 @@ body,
 
 body {
   font-family: var(--font-display);
+  background-color: #09090b; /* zinc-950 fallback */
+  background-image:
+    radial-gradient(
+      1100px 600px at 8% -10%,
+      rgba(168, 85, 247, 0.16),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 100% 0%,
+      rgba(34, 211, 238, 0.10),
+      transparent 60%
+    ),
+    radial-gradient(
+      1000px 700px at 50% 105%,
+      rgba(232, 121, 249, 0.10),
+      transparent 65%
+    );
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* Reusable gradient text — used for headline / logo accents */
+.text-funk-gradient {
+  background-image: linear-gradient(
+    90deg,
+    #e879f9 0%,
+    #a855f7 35%,
+    #22d3ee 70%,
+    #34d399 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-funk-warm {
+  background-image: linear-gradient(
+    90deg,
+    #fbbf24 0%,
+    #fb923c 50%,
+    #fb7185 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .scrollbar-thin::-webkit-scrollbar {

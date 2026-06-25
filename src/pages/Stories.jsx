@@ -24,7 +24,7 @@ export default function Stories() {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [playerIndex, setPlayerIndex] = useState(null);
+  const [playerId, setPlayerId] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -152,8 +152,8 @@ export default function Stories() {
         <Skeleton />
       ) : (
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
-          {filtered.map((s, i) => (
-            <StoryReel key={s.id} story={s} onClick={() => setPlayerIndex(i)} />
+          {filtered.map((s) => (
+            <StoryReel key={s.id} story={s} onClick={() => setPlayerId(s.id)} />
           ))}
         </div>
       )}
@@ -164,14 +164,22 @@ export default function Stories() {
         </p>
       )}
 
-      {playerIndex != null && (
-        <StoryPlayer
-          stories={filtered}
-          index={Math.min(playerIndex, filtered.length - 1)}
-          onClose={() => setPlayerIndex(null)}
-          onChange={setPlayerIndex}
-        />
-      )}
+      {(() => {
+        if (playerId == null || filtered.length === 0) return null;
+        const idx = filtered.findIndex((s) => s.id === playerId);
+        if (idx < 0) return null;
+        return (
+          <StoryPlayer
+            stories={filtered}
+            index={idx}
+            onClose={() => setPlayerId(null)}
+            onChange={(nextIdx) => {
+              const nextStory = filtered[nextIdx];
+              if (nextStory) setPlayerId(nextStory.id);
+            }}
+          />
+        );
+      })()}
     </div>
   );
 }

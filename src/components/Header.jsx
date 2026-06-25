@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   getGenres,
   getTopAnime,
@@ -152,6 +152,7 @@ export default function Header() {
   const [demographics, setDemographics] = useState([]);
   const [topAnime, setTopAnime] = useState([]);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const trendingRef = useRef(null);
   const navRef = useRef(null);
@@ -182,6 +183,14 @@ export default function Header() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    setMobileOpen(false);
+    setTrendingOpen(false);
+    setOpenNav(null);
+    setAccountOpen(false);
+    setSearchFocused(false);
+  }, [location.pathname, location.search]);
 
   useEffect(() => {
     function onClickOutside(e) {
@@ -264,7 +273,28 @@ export default function Header() {
     <header className="sticky top-0 z-40 border-b border-zinc-800/80 bg-zinc-950/95 backdrop-blur">
       <div className="border-b border-zinc-900 bg-zinc-950">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-3 sm:px-6 lg:px-8">
-          <div className="relative" ref={trendingRef}>
+          {/* Mobile hamburger — opens full nav drawer */}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileOpen((s) => !s);
+              setTrendingOpen(false);
+              setOpenNav(null);
+              setAccountOpen(false);
+            }}
+            className={`grid h-10 w-10 place-items-center rounded transition md:hidden ${
+              mobileOpen
+                ? "bg-zinc-800 text-zinc-50"
+                : "text-zinc-300 hover:bg-zinc-800"
+            }`}
+            aria-label="Open navigation"
+            aria-expanded={mobileOpen}
+          >
+            <IconMenu className="h-5 w-5" />
+          </button>
+
+          {/* Desktop trending dropdown */}
+          <div className="relative hidden md:block" ref={trendingRef}>
             <button
               type="button"
               onClick={() => {
@@ -276,7 +306,7 @@ export default function Header() {
                   ? "bg-zinc-800 text-zinc-50"
                   : "text-zinc-300 hover:bg-zinc-800"
               }`}
-              aria-label="Open menu"
+              aria-label="Open trending menu"
               aria-expanded={trendingOpen}
             >
               <IconMenu className="h-5 w-5" />
@@ -303,9 +333,11 @@ export default function Header() {
           </div>
 
           <Link to="/" className="flex shrink-0 items-center gap-1.5">
-            <span className="font-black tracking-tight">
-              <span className="text-zinc-100">Anime</span>
-              <span className="rounded-sm bg-brand-500 px-1 text-zinc-950">DB</span>
+            <span className="text-lg font-black tracking-tight">
+              <span className="text-funk-gradient">Anime</span>
+              <span className="ml-0.5 rounded-md bg-gradient-to-br from-fuchsia-500 via-violet-500 to-cyan-400 px-1.5 py-0.5 text-zinc-950 shadow-lg shadow-fuchsia-500/30">
+                DB
+              </span>
             </span>
           </Link>
 
@@ -352,7 +384,7 @@ export default function Header() {
           <div className="ml-auto flex items-center gap-2">
             <Link
               to="/scenes"
-              className="hidden rounded-md bg-brand-500 px-3 py-2 text-xs font-bold uppercase tracking-wider text-zinc-950 transition hover:bg-amber-400 sm:inline-flex"
+              className="hidden rounded-md bg-gradient-to-r from-fuchsia-500 to-violet-500 px-3 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-fuchsia-500/20 transition hover:from-fuchsia-400 hover:to-violet-400 sm:inline-flex"
             >
               Top Scenes
             </Link>
@@ -488,11 +520,11 @@ export default function Header() {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search…"
-              className="w-full rounded-md border border-zinc-800 bg-zinc-900 py-2 pl-9 pr-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-brand-500 focus:outline-none"
+              placeholder="Search anime, characters…"
+              className="w-full rounded-md border border-zinc-800 bg-zinc-900 py-2.5 pl-9 pr-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-brand-500 focus:outline-none"
             />
           </form>
-          <ul className="flex flex-col px-2 pb-3">
+          <ul className="flex flex-col gap-0.5 px-2 pb-3">
             {NAV_ITEMS.map((item) => (
               <li key={item.to}>
                 <NavLink
@@ -500,7 +532,7 @@ export default function Header() {
                   end={item.end}
                   onClick={() => setMobileOpen(false)}
                   className={({ isActive }) =>
-                    `block rounded px-3 py-2 text-sm ${
+                    `block rounded px-3 py-2.5 text-sm font-medium ${
                       isActive
                         ? "bg-brand-500/10 text-brand-500"
                         : "text-zinc-200 hover:bg-zinc-900"
@@ -512,6 +544,25 @@ export default function Header() {
               </li>
             ))}
           </ul>
+          <div className="border-t border-zinc-900 px-2 py-2">
+            <p className="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+              Trending
+            </p>
+            <ul className="flex flex-col gap-0.5">
+              {TRENDING_ITEMS.map((item) => (
+                <li key={item.to}>
+                  <Link
+                    to={item.to}
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-2.5 rounded px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900 hover:text-brand-500"
+                  >
+                    {item.icon}
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
     </header>

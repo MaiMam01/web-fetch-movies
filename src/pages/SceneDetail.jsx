@@ -48,11 +48,13 @@ function SceneDetailBody({ scene }) {
 
   const allScenes = scenesData.scenes ?? [];
   const sameAnime = allScenes.filter(
-    (s) => s.mal_id === scene.mal_id && s.id !== scene.id
+    (s) => String(s.mal_id) === String(scene.mal_id) && s.id !== scene.id
   );
   const recommended = allScenes
     .filter(
-      (s) => s.mal_id !== scene.mal_id && s.severity === scene.severity
+      (s) =>
+        String(s.mal_id) !== String(scene.mal_id) &&
+        s.severity === scene.severity
     )
     .slice(0, 12);
 
@@ -195,24 +197,29 @@ function SceneDetailBody({ scene }) {
 
 function Breadcrumbs({ anime, sceneTitle }) {
   return (
-    <nav className="mb-3 flex items-center gap-1 text-xs text-zinc-500">
-      <Link to="/" className="hover:text-zinc-300">
+    <nav className="mb-3 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs text-zinc-500">
+      <Link to="/" className="shrink-0 hover:text-zinc-300">
         Home
       </Link>
-      <IconChevronRight className="h-3 w-3" />
-      <Link to="/scenes" className="hover:text-zinc-300">
+      <IconChevronRight className="h-3 w-3 shrink-0" />
+      <Link to="/scenes" className="shrink-0 hover:text-zinc-300">
         Scenes
       </Link>
       {anime && (
         <>
-          <IconChevronRight className="h-3 w-3" />
-          <Link to={`/anime/${anime.mal_id}`} className="hover:text-zinc-300">
+          <IconChevronRight className="h-3 w-3 shrink-0" />
+          <Link
+            to={`/anime/${anime.mal_id}`}
+            className="line-clamp-1 max-w-[160px] hover:text-zinc-300 sm:max-w-xs"
+          >
             {anime.title}
           </Link>
         </>
       )}
-      <IconChevronRight className="h-3 w-3" />
-      <span className="line-clamp-1 max-w-xs text-zinc-300">{sceneTitle}</span>
+      <IconChevronRight className="h-3 w-3 shrink-0" />
+      <span className="line-clamp-1 max-w-[180px] text-zinc-300 sm:max-w-xs">
+        {sceneTitle}
+      </span>
     </nav>
   );
 }
@@ -238,7 +245,9 @@ function Player({ scene, youtubeId, fallbackImage }) {
     <button
       type="button"
       onClick={() => youtubeId && setPlaying(true)}
-      className="group relative block aspect-video w-full overflow-hidden rounded-xl bg-zinc-900 ring-1 ring-zinc-800"
+      aria-label={youtubeId ? `Play trailer for ${scene.title}` : `${scene.title} (trailer unavailable)`}
+      disabled={!youtubeId}
+      className="group relative block aspect-video w-full overflow-hidden rounded-xl bg-zinc-900 ring-1 ring-zinc-800 disabled:cursor-default"
     >
       {fallbackImage && (
         <img
@@ -344,7 +353,7 @@ function SceneMeta({ scene, anime, characters }) {
       <h1 className="text-lg font-bold sm:text-xl">
         {scene.character && (
           <Link
-            to={`/characters?q=${encodeURIComponent(scene.character)}`}
+            to={`/search?q=${encodeURIComponent(scene.character)}&tab=characters`}
             className="text-brand-500 hover:underline"
           >
             {scene.character}

@@ -174,12 +174,13 @@ export default function Community() {
 
   const handleTab = (id) => {
     setTab(id);
+    const next = new URLSearchParams(searchParams);
     if (id === "feed") {
-      searchParams.delete("tab");
+      next.delete("tab");
     } else {
-      searchParams.set("tab", id);
+      next.set("tab", id);
     }
-    setSearchParams(searchParams, { replace: true });
+    setSearchParams(next, { replace: true });
   };
 
   const filteredFeed = useMemo(() => {

@@ -118,11 +118,11 @@ export default function CharacterDetail() {
     },
   ];
 
-  const linksList = japaneseVA
+  const linksList = japaneseVA?.person?.url
     ? [
         {
           label: `Voiced by ${japaneseVA.person.name}`,
-          href: japaneseVA.person.url ?? "#",
+          href: japaneseVA.person.url,
           icon: <IconUser className="h-4 w-4" />,
         },
       ]

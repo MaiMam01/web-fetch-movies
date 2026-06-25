@@ -314,14 +314,24 @@ function CatalogHero({ count }) {
 }
 
 function AnimeRowHeader({ title, malId }) {
+  const content = (
+    <>
+      <span className="block h-5 w-1 rounded bg-brand-500" />
+      <span className="text-sm font-semibold text-brand-500">{title}</span>
+      {malId && (
+        <IconChevronRight className="h-4 w-4 text-zinc-500 transition group-hover:translate-x-0.5 group-hover:text-brand-500" />
+      )}
+    </>
+  );
+  if (!malId) {
+    return <div className="mb-3 inline-flex items-center gap-2">{content}</div>;
+  }
   return (
     <Link
       to={`/anime/${malId}`}
       className="group mb-3 inline-flex items-center gap-2"
     >
-      <span className="block h-5 w-1 rounded bg-brand-500" />
-      <span className="text-sm font-semibold text-brand-500">{title}</span>
-      <IconChevronRight className="h-4 w-4 text-zinc-500 transition group-hover:translate-x-0.5 group-hover:text-brand-500" />
+      {content}
     </Link>
   );
 }
@@ -364,14 +374,18 @@ function EmptyState({ malId }) {
       <p className="text-lg font-semibold text-zinc-200">
         No scenes match this filter yet.
       </p>
-      <p className="mt-2 text-sm text-zinc-400">
+      <p className="mt-2 break-words text-sm text-zinc-400">
         Add entries to{" "}
-        <code className="text-brand-500">src/data/scenes.json</code>. Required
-        fields per entry:{" "}
-        <code>id, mal_id, anime_title, season, episode, timestamp, title, description, severity</code>
+        <code className="break-all text-brand-500">src/data/scenes.json</code>.
+        Required fields per entry:{" "}
+        <code className="break-words">
+          id, mal_id, anime_title, season, episode, timestamp, title,
+          description, severity
+        </code>
         {malId && (
           <>
-            . Match <code>mal_id: {malId}</code> to surface them on this page.
+            . Match <code className="break-all">mal_id: {malId}</code> to
+            surface them on this page.
           </>
         )}
       </p>

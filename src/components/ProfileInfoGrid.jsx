@@ -45,21 +45,25 @@ export default function ProfileInfoGrid({
           <div className="lg:col-span-3">
             <h3 className="sr-only">{linksTitle}</h3>
             <ul className="space-y-2 text-sm">
-              {links.map((l) => (
-                <li key={l.label}>
-                  <a
-                    href={l.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group inline-flex items-center gap-2.5 text-zinc-300 transition hover:text-brand-500"
-                  >
-                    <span className="grid h-7 w-7 place-items-center rounded text-zinc-400 group-hover:text-brand-500">
-                      {l.icon}
-                    </span>
-                    <span className="font-semibold">{l.label}</span>
-                  </a>
-                </li>
-              ))}
+              {links
+                .filter(
+                  (l) => l && l.href && l.href !== "#" && /^https?:/i.test(l.href)
+                )
+                .map((l) => (
+                  <li key={l.label}>
+                    <a
+                      href={l.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group inline-flex items-center gap-2.5 text-zinc-300 transition hover:text-brand-500"
+                    >
+                      <span className="grid h-7 w-7 place-items-center rounded text-zinc-400 group-hover:text-brand-500">
+                        {l.icon}
+                      </span>
+                      <span className="font-semibold">{l.label}</span>
+                    </a>
+                  </li>
+                ))}
             </ul>
           </div>
         )}
