@@ -15,6 +15,9 @@ import {
   IconEye,
   IconCalendar,
   IconGrid,
+  IconAlert,
+  IconMessage,
+  IconPlus,
 } from "./Icons.jsx";
 
 const DISCOVER_ITEMS = [
@@ -45,15 +48,55 @@ const TRENDING_CHIPS = [
 
 const NAV_ITEMS = [
   { to: "/", label: "Home", end: true },
-  { to: "/top", label: "Top 100" },
+  { to: "/top", label: "Top 100", dropdown: "top" },
   { to: "/categories", label: "Categories", dropdown: "categories" },
-  { to: "/characters", label: "Characters" },
-  { to: "/voice-actors", label: "Voice Actors" },
-  { to: "/scenes", label: "Scenes" },
-  { to: "/stories", label: "Stories" },
-  { to: "/community", label: "Community" },
+  { to: "/characters", label: "Characters", dropdown: "characters" },
+  { to: "/voice-actors", label: "Voice Actors", dropdown: "voice-actors" },
+  { to: "/scenes", label: "Scenes", dropdown: "scenes" },
+  { to: "/stories", label: "Stories", dropdown: "stories", align: "right" },
+  { to: "/community", label: "Community", dropdown: "community", align: "right" },
   { to: "/search", label: "Search" },
 ];
+
+const MINI_DROPDOWNS = {
+  top: [
+    { to: "/top", icon: <IconStar className="h-4 w-4" />, label: "All-time Top 100", hint: "Highest-rated anime ever" },
+    { to: "/top?type=tv", icon: <IconImage className="h-4 w-4" />, label: "Top TV Series", hint: "Series-only ranking" },
+    { to: "/top?type=movie", icon: <IconImage className="h-4 w-4" />, label: "Top Films", hint: "Theatrical & feature releases" },
+    { to: "/categories", icon: <IconGrid className="h-4 w-4" />, label: "Browse by Category", hint: "Filter by genre or theme" },
+    { to: "/", icon: <IconHome className="h-4 w-4" />, label: "Editor's Picks", hint: "Curated featured titles" },
+  ],
+  characters: [
+    { to: "/characters", icon: <IconUser className="h-4 w-4" />, label: "Browse All Characters", hint: "Full catalog" },
+    { to: "/characters?sort=favorites", icon: <IconHeart className="h-4 w-4" />, label: "Most Favorited", hint: "Fan-favorite leads" },
+    { to: "/characters?sort=name", icon: <IconGrid className="h-4 w-4" />, label: "Alphabetical A → Z", hint: "Find by name" },
+    { to: "/search?q=character", icon: <IconSearch className="h-4 w-4" />, label: "Search Characters", hint: "Find a specific role" },
+  ],
+  "voice-actors": [
+    { to: "/voice-actors", icon: <IconUser className="h-4 w-4" />, label: "Browse All Voice Actors", hint: "Complete VA roster" },
+    { to: "/voice-actors?sort=favorites", icon: <IconHeart className="h-4 w-4" />, label: "Most Favorited", hint: "Top fan favorites" },
+    { to: "/voice-actors?sort=name", icon: <IconGrid className="h-4 w-4" />, label: "Alphabetical A → Z", hint: "Find by name" },
+    { to: "/search?q=voice", icon: <IconSearch className="h-4 w-4" />, label: "Search Voice Actors", hint: "Find a specific VA" },
+  ],
+  scenes: [
+    { to: "/scenes", icon: <IconPlay className="h-4 w-4" />, label: "All Scenes", hint: "Full curated catalog" },
+    { to: "/scenes?severity=extreme", icon: <IconAlert className="h-4 w-4" />, label: "Extreme Violence", hint: "18+ heaviest content" },
+    { to: "/scenes?severity=high", icon: <IconHeart className="h-4 w-4" />, label: "High Intensity", hint: "Battle & combat scenes" },
+    { to: "/scenes?sort=newest", icon: <IconCalendar className="h-4 w-4" />, label: "Latest Additions", hint: "Most recently catalogued" },
+  ],
+  stories: [
+    { to: "/stories", icon: <IconPlay className="h-4 w-4" />, label: "All Reels", hint: "OPs, EDs, and promos" },
+    { to: "/stories?type=music", icon: <IconStar className="h-4 w-4" />, label: "OP & ED Themes", hint: "Opening & ending songs" },
+    { to: "/stories?type=promo", icon: <IconImage className="h-4 w-4" />, label: "Promos & Trailers", hint: "Official previews" },
+    { to: "/stories?sort=trending", icon: <IconHeart className="h-4 w-4" />, label: "Trending Reels", hint: "What fans are watching" },
+  ],
+  community: [
+    { to: "/community", icon: <IconHome className="h-4 w-4" />, label: "Community Feed", hint: "Latest reviews & takes" },
+    { to: "/community?tab=members", icon: <IconUser className="h-4 w-4" />, label: "Discover Members", hint: "Verified reviewers" },
+    { to: "/community?tab=search", icon: <IconSearch className="h-4 w-4" />, label: "Advanced Search", hint: "Find by taste & stats" },
+    { to: "/community", icon: <IconPlus className="h-4 w-4" />, label: "Create Account", hint: "Join the community" },
+  ],
+};
 
 const TRENDING_ITEMS = [
   { to: "/top", label: "Trending Anime", icon: <IconStar className="h-4 w-4 text-amber-400" /> },
@@ -67,7 +110,7 @@ export default function Header() {
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [trendingOpen, setTrendingOpen] = useState(false);
-  const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [openNav, setOpenNav] = useState(null);
   const [genres, setGenres] = useState([]);
   const [themes, setThemes] = useState([]);
   const [demographics, setDemographics] = useState([]);
@@ -75,7 +118,7 @@ export default function Header() {
   const navigate = useNavigate();
 
   const trendingRef = useRef(null);
-  const categoriesRef = useRef(null);
+  const navRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -107,14 +150,14 @@ export default function Header() {
       if (trendingOpen && trendingRef.current && !trendingRef.current.contains(e.target)) {
         setTrendingOpen(false);
       }
-      if (categoriesOpen && categoriesRef.current && !categoriesRef.current.contains(e.target)) {
-        setCategoriesOpen(false);
+      if (openNav && navRef.current && !navRef.current.contains(e.target)) {
+        setOpenNav(null);
       }
     }
     function onKey(e) {
       if (e.key === "Escape") {
         setTrendingOpen(false);
-        setCategoriesOpen(false);
+        setOpenNav(null);
       }
     }
     document.addEventListener("mousedown", onClickOutside);
@@ -123,7 +166,7 @@ export default function Header() {
       document.removeEventListener("mousedown", onClickOutside);
       document.removeEventListener("keydown", onKey);
     };
-  }, [trendingOpen, categoriesOpen]);
+  }, [trendingOpen, openNav]);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -140,7 +183,7 @@ export default function Header() {
               type="button"
               onClick={() => {
                 setTrendingOpen((s) => !s);
-                setCategoriesOpen(false);
+                setOpenNav(null);
               }}
               className={`grid h-9 w-9 place-items-center rounded transition ${
                 trendingOpen
@@ -228,39 +271,54 @@ export default function Header() {
       </div>
 
       <nav className="hidden md:block">
-        <ul className="mx-auto flex h-12 max-w-7xl items-center gap-1 px-4 sm:px-6 lg:px-8">
+        <ul
+          ref={navRef}
+          className="mx-auto flex h-12 max-w-7xl items-center gap-1 px-4 sm:px-6 lg:px-8"
+        >
           {NAV_ITEMS.map((item) => {
-            if (item.dropdown === "categories") {
+            if (item.dropdown) {
+              const open = openNav === item.dropdown;
+              const toggle = () => {
+                setOpenNav(open ? null : item.dropdown);
+                setTrendingOpen(false);
+              };
               return (
-                <li key={item.to} className="relative" ref={categoriesRef}>
+                <li key={item.to} className="relative">
                   <button
                     type="button"
-                    onClick={() => {
-                      setCategoriesOpen((s) => !s);
-                      setTrendingOpen(false);
-                    }}
+                    onClick={toggle}
                     className={`inline-flex items-center gap-1 rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-                      categoriesOpen
+                      open
                         ? "bg-zinc-900 text-brand-500"
                         : "text-zinc-300 hover:text-white"
                     }`}
-                    aria-expanded={categoriesOpen}
+                    aria-expanded={open}
+                    aria-haspopup="menu"
                   >
                     {item.label}
                     <IconChevronDown
                       className={`h-3.5 w-3.5 transition ${
-                        categoriesOpen ? "rotate-180" : ""
+                        open ? "rotate-180" : ""
                       }`}
                     />
                   </button>
 
-                  {categoriesOpen && (
+                  {open && item.dropdown === "categories" && (
                     <CategoryMegaPanel
-                      onClose={() => setCategoriesOpen(false)}
+                      onClose={() => setOpenNav(null)}
                       genres={genres}
                       themes={themes}
                       demographics={demographics}
                       topAnime={topAnime}
+                    />
+                  )}
+                  {open && item.dropdown !== "categories" && (
+                    <MiniDropdown
+                      title={item.label}
+                      items={MINI_DROPDOWNS[item.dropdown] ?? []}
+                      viewAllTo={item.to}
+                      align={item.align ?? "left"}
+                      onClose={() => setOpenNav(null)}
                     />
                   )}
                 </li>
@@ -280,9 +338,6 @@ export default function Header() {
                   }
                 >
                   {item.label}
-                  {item.hasDropdown && (
-                    <IconChevronDown className="h-3.5 w-3.5 opacity-70" />
-                  )}
                 </NavLink>
               </li>
             );
@@ -325,6 +380,57 @@ export default function Header() {
         </div>
       )}
     </header>
+  );
+}
+
+function MiniDropdown({ title, items, viewAllTo, align = "left", onClose }) {
+  const sideClass = align === "right" ? "right-0" : "left-0";
+  return (
+    <div
+      className={`absolute ${sideClass} top-11 z-50 w-[min(94vw,320px)] origin-top overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950 shadow-2xl`}
+      role="menu"
+    >
+      <div className="flex items-center justify-between border-b border-zinc-900 px-4 py-2.5">
+        <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-100">
+          {title}
+        </h3>
+        {viewAllTo && (
+          <Link
+            to={viewAllTo}
+            onClick={onClose}
+            className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-500 hover:underline"
+          >
+            View all
+            <IconChevronRight className="h-3 w-3" />
+          </Link>
+        )}
+      </div>
+      <ul className="p-1.5">
+        {items.map((it) => (
+          <li key={it.label}>
+            <Link
+              to={it.to}
+              onClick={onClose}
+              className="group flex items-start gap-3 rounded px-3 py-2.5 transition hover:bg-zinc-900"
+            >
+              <span className="mt-0.5 text-zinc-500 group-hover:text-brand-500">
+                {it.icon}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold text-zinc-100 group-hover:text-brand-500">
+                  {it.label}
+                </span>
+                {it.hint && (
+                  <span className="mt-0.5 block text-[11px] text-zinc-500">
+                    {it.hint}
+                  </span>
+                )}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

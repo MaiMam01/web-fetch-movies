@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import SortDropdown from "../components/SortDropdown.jsx";
 import {
   IconCheck,
@@ -158,8 +158,29 @@ function timeAgo(min) {
 }
 
 export default function Community() {
-  const [tab, setTab] = useState("feed");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = TABS.some((t) => t.id === searchParams.get("tab"))
+    ? searchParams.get("tab")
+    : "feed";
+  const [tab, setTab] = useState(initialTab);
   const [filter, setFilter] = useState("all");
+
+  useEffect(() => {
+    const urlTab = searchParams.get("tab");
+    if (urlTab && TABS.some((t) => t.id === urlTab) && urlTab !== tab) {
+      setTab(urlTab);
+    }
+  }, [searchParams, tab]);
+
+  const handleTab = (id) => {
+    setTab(id);
+    if (id === "feed") {
+      searchParams.delete("tab");
+    } else {
+      searchParams.set("tab", id);
+    }
+    setSearchParams(searchParams, { replace: true });
+  };
 
   const filteredFeed = useMemo(() => {
     if (filter === "all") return FEED_ACTIVITY;
@@ -171,7 +192,7 @@ export default function Community() {
       <CommunityHero />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <CommunityTabs tab={tab} onTab={setTab} />
+        <CommunityTabs tab={tab} onTab={handleTab} />
 
         {tab === "feed" && (
           <div className="grid gap-6 py-6 lg:grid-cols-[1fr_320px]">
