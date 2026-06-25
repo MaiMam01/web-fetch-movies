@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { getGenres, getTopAnime } from "../services/jikan.js";
+import {
+  getGenres,
+  getTopAnime,
+  searchAnime,
+  searchCharacters,
+  searchPeople,
+} from "../services/jikan.js";
 import AuthModal from "./AuthModal.jsx";
 import {
   IconMenu,
@@ -52,6 +58,19 @@ const TRENDING_CHIPS = [
   "Slice of Life",
   "Cyberpunk",
   "Mecha",
+];
+
+const TRENDING_SEARCHES = [
+  "attack on titan",
+  "demon slayer",
+  "frieren",
+  "jujutsu kaisen",
+  "solo leveling",
+  "chainsaw man",
+  "spy x family",
+  "dandadan",
+  "one piece",
+  "studio ghibli",
 ];
 
 const NAV_ITEMS = [
@@ -121,6 +140,13 @@ export default function Header() {
   const [openNav, setOpenNav] = useState(null);
   const [accountOpen, setAccountOpen] = useState(false);
   const [authMode, setAuthMode] = useState(null);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [searchResults, setSearchResults] = useState({
+    anime: [],
+    chars: [],
+    people: [],
+    loading: false,
+  });
   const [genres, setGenres] = useState([]);
   const [themes, setThemes] = useState([]);
   const [demographics, setDemographics] = useState([]);
@@ -130,6 +156,7 @@ export default function Header() {
   const trendingRef = useRef(null);
   const navRef = useRef(null);
   const accountRef = useRef(null);
+  const searchRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -167,12 +194,16 @@ export default function Header() {
       if (accountOpen && accountRef.current && !accountRef.current.contains(e.target)) {
         setAccountOpen(false);
       }
+      if (searchFocused && searchRef.current && !searchRef.current.contains(e.target)) {
+        setSearchFocused(false);
+      }
     }
     function onKey(e) {
       if (e.key === "Escape") {
         setTrendingOpen(false);
         setOpenNav(null);
         setAccountOpen(false);
+        setSearchFocused(false);
       }
     }
     document.addEventListener("mousedown", onClickOutside);
@@ -181,7 +212,42 @@ export default function Header() {
       document.removeEventListener("mousedown", onClickOutside);
       document.removeEventListener("keydown", onKey);
     };
-  }, [trendingOpen, openNav, accountOpen]);
+  }, [trendingOpen, openNav, accountOpen, searchFocused]);
+
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setSearchResults({ anime: [], chars: [], people: [], loading: false });
+      return undefined;
+    }
+    let cancelled = false;
+    setSearchResults((prev) => ({ ...prev, loading: true }));
+    const timer = setTimeout(async () => {
+      try {
+        const [anime, chars, people] = await Promise.all([
+          searchAnime(q, 4).catch(() => []),
+          searchCharacters(q, 4).catch(() => []),
+          searchPeople(q, 3).catch(() => []),
+        ]);
+        if (!cancelled) {
+          setSearchResults({
+            anime: Array.isArray(anime) ? anime : [],
+            chars: Array.isArray(chars) ? chars : [],
+            people: Array.isArray(people) ? people : [],
+            loading: false,
+          });
+        }
+      } catch {
+        if (!cancelled) {
+          setSearchResults({ anime: [], chars: [], people: [], loading: false });
+        }
+      }
+    }, 280);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [query]);
 
   const openAuth = (mode) => {
     setAccountOpen(false);
@@ -244,7 +310,11 @@ export default function Header() {
           </Link>
 
           <form
-            onSubmit={onSubmit}
+            ref={searchRef}
+            onSubmit={(e) => {
+              onSubmit(e);
+              setSearchFocused(false);
+            }}
             className="relative ml-2 hidden flex-1 max-w-xl items-center md:flex"
           >
             <IconSearch className="pointer-events-none absolute left-3 h-4 w-4 text-zinc-500" />
@@ -252,6 +322,12 @@ export default function Header() {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => {
+                setSearchFocused(true);
+                setOpenNav(null);
+                setAccountOpen(false);
+                setTrendingOpen(false);
+              }}
               placeholder="Search anime, characters, voice actors…"
               className="w-full rounded-md border border-zinc-800 bg-zinc-900 py-2 pl-9 pr-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-brand-500 focus:outline-none"
             />
@@ -262,6 +338,15 @@ export default function Header() {
             >
               <IconSearch className="h-4 w-4" />
             </button>
+
+            {searchFocused && (
+              <SearchSuggestionsPanel
+                query={query}
+                topAnime={topAnime}
+                results={searchResults}
+                onClose={() => setSearchFocused(false)}
+              />
+            )}
           </form>
 
           <div className="ml-auto flex items-center gap-2">
@@ -430,6 +515,227 @@ export default function Header() {
         </div>
       )}
     </header>
+  );
+}
+
+function SearchSuggestionsPanel({ query, topAnime, results, onClose }) {
+  const q = query.trim();
+  const showTrending = q.length < 2;
+
+  return (
+    <div className="absolute left-0 right-0 top-12 z-50 max-h-[75vh] w-full overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-950 p-5 shadow-2xl">
+      {showTrending ? (
+        <>
+          <SuggestSection title="Trending Searches">
+            <ul className="space-y-1.5">
+              {TRENDING_SEARCHES.map((t) => (
+                <li key={t}>
+                  <Link
+                    to={`/search?q=${encodeURIComponent(t)}`}
+                    onClick={onClose}
+                    className="block rounded px-1 py-0.5 text-sm text-zinc-200 transition hover:text-brand-500"
+                  >
+                    {t}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </SuggestSection>
+
+          {topAnime.length > 0 && (
+            <SuggestSection
+              title="Trending Anime"
+              viewAllTo="/top"
+              onClose={onClose}
+              className="mt-5"
+            >
+              <ul className="space-y-1">
+                {topAnime.slice(0, 4).map((a) => {
+                  const img =
+                    a.images?.webp?.image_url ?? a.images?.jpg?.image_url;
+                  return (
+                    <li key={a.mal_id}>
+                      <Link
+                        to={`/anime/${a.mal_id}`}
+                        onClick={onClose}
+                        className="group flex items-center gap-3 rounded p-1.5 transition hover:bg-zinc-900"
+                      >
+                        <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-zinc-800 ring-1 ring-zinc-800">
+                          {img && (
+                            <img
+                              src={img}
+                              alt={a.title}
+                              loading="lazy"
+                              className="h-full w-full object-cover"
+                            />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="line-clamp-1 text-sm font-semibold text-zinc-100 group-hover:text-brand-500">
+                            {a.title}
+                          </p>
+                          <p className="text-[11px] text-zinc-500">
+                            {a.type ?? "TV"} · ★ {a.score?.toFixed(1) ?? "—"}
+                          </p>
+                        </div>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </SuggestSection>
+          )}
+        </>
+      ) : (
+        <>
+          {results.loading && (
+            <p className="px-1 text-xs uppercase tracking-widest text-zinc-500">
+              Searching…
+            </p>
+          )}
+
+          {!results.loading &&
+            results.anime.length === 0 &&
+            results.chars.length === 0 &&
+            results.people.length === 0 && (
+              <p className="px-1 py-2 text-sm text-zinc-400">
+                No quick matches.{" "}
+                <Link
+                  to={`/search?q=${encodeURIComponent(q)}`}
+                  onClick={onClose}
+                  className="font-bold text-brand-500 hover:underline"
+                >
+                  See full search results
+                </Link>
+              </p>
+            )}
+
+          {results.anime.length > 0 && (
+            <SuggestSection title="Anime">
+              <ResultList
+                items={results.anime}
+                makeTo={(it) => `/anime/${it.mal_id}`}
+                getName={(it) => it.title}
+                getImg={(it) =>
+                  it.images?.webp?.image_url ?? it.images?.jpg?.image_url
+                }
+                getMeta={(it) =>
+                  `${it.type ?? "TV"} · ★ ${it.score?.toFixed(1) ?? "—"}`
+                }
+                onClose={onClose}
+              />
+            </SuggestSection>
+          )}
+
+          {results.chars.length > 0 && (
+            <SuggestSection title="Characters" className="mt-5">
+              <ResultList
+                items={results.chars}
+                makeTo={(it) => `/characters/${it.mal_id}`}
+                getName={(it) => it.name}
+                getImg={(it) =>
+                  it.images?.webp?.image_url ?? it.images?.jpg?.image_url
+                }
+                getMeta={(it) =>
+                  it.favorites != null
+                    ? `${it.favorites.toLocaleString()} favorites`
+                    : "Character"
+                }
+                onClose={onClose}
+              />
+            </SuggestSection>
+          )}
+
+          {results.people.length > 0 && (
+            <SuggestSection title="Voice Actors" className="mt-5">
+              <ResultList
+                items={results.people}
+                makeTo={(it) => `/voice-actors/${it.mal_id}`}
+                getName={(it) => it.name}
+                getImg={(it) =>
+                  it.images?.webp?.image_url ?? it.images?.jpg?.image_url
+                }
+                getMeta={(it) =>
+                  it.favorites != null
+                    ? `${it.favorites.toLocaleString()} favorites`
+                    : "Voice Actor"
+                }
+                onClose={onClose}
+              />
+            </SuggestSection>
+          )}
+
+          <div className="mt-4 border-t border-zinc-900 pt-3">
+            <Link
+              to={`/search?q=${encodeURIComponent(q)}`}
+              onClick={onClose}
+              className="flex items-center justify-between rounded px-2 py-2 text-sm font-bold text-brand-500 transition hover:bg-zinc-900"
+            >
+              <span>
+                See all results for <span className="italic">"{q}"</span>
+              </span>
+              <IconChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function SuggestSection({ title, viewAllTo, onClose, className = "", children }) {
+  return (
+    <div className={className}>
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-base font-bold text-zinc-50">{title}</h3>
+        {viewAllTo && (
+          <Link
+            to={viewAllTo}
+            onClick={onClose}
+            className="text-xs font-bold text-brand-500 hover:underline"
+          >
+            View all
+          </Link>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function ResultList({ items, makeTo, getName, getImg, getMeta, onClose }) {
+  return (
+    <ul className="space-y-1">
+      {items.map((it) => {
+        const img = getImg(it);
+        return (
+          <li key={it.mal_id}>
+            <Link
+              to={makeTo(it)}
+              onClick={onClose}
+              className="group flex items-center gap-3 rounded p-1.5 transition hover:bg-zinc-900"
+            >
+              <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-zinc-800 ring-1 ring-zinc-800">
+                {img && (
+                  <img
+                    src={img}
+                    alt={getName(it)}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="line-clamp-1 text-sm font-semibold text-zinc-100 group-hover:text-brand-500">
+                  {getName(it)}
+                </p>
+                <p className="text-[11px] text-zinc-500">{getMeta(it)}</p>
+              </div>
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
