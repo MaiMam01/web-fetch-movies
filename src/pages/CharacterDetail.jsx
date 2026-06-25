@@ -5,6 +5,7 @@ import ProfileNavStrip from "../components/ProfileNavStrip.jsx";
 import ProfileInfoGrid from "../components/ProfileInfoGrid.jsx";
 import SceneTile from "../components/SceneTile.jsx";
 import AnimeGroupHeader from "../components/AnimeGroupHeader.jsx";
+import SuggestedReels from "../components/SuggestedReels.jsx";
 import {
   IconHeart,
   IconShare,
@@ -310,6 +311,12 @@ export default function CharacterDetail() {
           </section>
         )}
       </div>
+
+      <SuggestedReels
+        animeList={animeAppearances}
+        title={`Suggested Scenes & Reels`}
+        subtitle={`Trailers, OPs, and clips from ${character.name}'s anime appearances`}
+      />
     </div>
   );
 }

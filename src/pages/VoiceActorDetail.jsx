@@ -4,6 +4,7 @@ import ProfileHero from "../components/ProfileHero.jsx";
 import ProfileNavStrip from "../components/ProfileNavStrip.jsx";
 import ProfileInfoGrid from "../components/ProfileInfoGrid.jsx";
 import AnimeGroupHeader from "../components/AnimeGroupHeader.jsx";
+import SuggestedReels from "../components/SuggestedReels.jsx";
 import {
   IconHeart,
   IconShare,
@@ -336,6 +337,12 @@ export default function VoiceActorDetail() {
             </section>
           )}
       </div>
+
+      <SuggestedReels
+        animeList={voiceRoles.map((v) => ({ anime: v.anime })).filter((x) => x.anime)}
+        title="Suggested Scenes & Reels"
+        subtitle={`Trailers, OPs, and clips from anime featuring ${person.name}`}
+      />
     </div>
   );
 }
