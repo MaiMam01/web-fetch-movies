@@ -132,6 +132,74 @@ export function IconSliders(props) {
   );
 }
 
+export function IconHome(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="m3 11 9-8 9 8" />
+      <path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10" />
+    </svg>
+  );
+}
+
+export function IconBell(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a2 2 0 0 0 3.4 0" />
+    </svg>
+  );
+}
+
+export function IconShare(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="6" r="3" />
+      <circle cx="18" cy="18" r="3" />
+      <path d="m8.6 10.6 6.8-3.2" />
+      <path d="m8.6 13.4 6.8 3.2" />
+    </svg>
+  );
+}
+
+export function IconTrendUp(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="m6 14 6-6 4 4 6-6" />
+      <path d="M22 8h-6" />
+      <path d="M22 8v6" />
+    </svg>
+  );
+}
+
+export function IconExternalLink(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M15 3h6v6" />
+      <path d="M10 14 21 3" />
+      <path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5" />
+    </svg>
+  );
+}
+
+export function IconCalendar(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M3 9h18" />
+      <path d="M8 3v4M16 3v4" />
+    </svg>
+  );
+}
+
+export function IconMessage(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M21 12a8 8 0 0 1-12 7l-5 1 1-5a8 8 0 1 1 16-3z" />
+    </svg>
+  );
+}
+
 export function IconAlert(props) {
   return (
     <svg {...baseProps} {...props}>
