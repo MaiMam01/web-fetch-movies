@@ -200,6 +200,81 @@ export function IconMessage(props) {
   );
 }
 
+export function IconMoreVertical(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <circle cx="12" cy="5" r="1.5" />
+      <circle cx="12" cy="12" r="1.5" />
+      <circle cx="12" cy="19" r="1.5" />
+    </svg>
+  );
+}
+
+export function IconThumbsDown(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M17 14V3H7l-4 9v11h10l4-9z" />
+      <path d="M21 14h-4V3h4" />
+    </svg>
+  );
+}
+
+export function IconVolumeOn(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M11 5L6 9H2v6h4l5 4z" />
+      <path d="M16 9a4 4 0 0 1 0 6" />
+      <path d="M19 6a8 8 0 0 1 0 12" />
+    </svg>
+  );
+}
+
+export function IconVolumeMute(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M11 5L6 9H2v6h4l5 4z" />
+      <path d="M22 9l-6 6M16 9l6 6" />
+    </svg>
+  );
+}
+
+export function IconFullscreen(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+      <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+      <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+      <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+    </svg>
+  );
+}
+
+export function IconLink(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1" />
+      <path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" />
+    </svg>
+  );
+}
+
+export function IconGear(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5h0a1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+    </svg>
+  );
+}
+
+export function IconClose(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M18 6L6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
 export function IconCheck(props) {
   return (
     <svg {...baseProps} {...props}>
