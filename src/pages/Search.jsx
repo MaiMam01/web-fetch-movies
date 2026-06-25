@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import AnimeCard from "../components/AnimeCard.jsx";
 import PersonCard from "../components/PersonCard.jsx";
 import Pagination from "../components/Pagination.jsx";
+import SortDropdown from "../components/SortDropdown.jsx";
 import { IconSearch } from "../components/Icons.jsx";
 import {
   searchAnimeFull,
@@ -16,17 +17,41 @@ const TABS = [
   { value: "people", label: "Voice Actors" },
 ];
 
+const ANIME_SORT = [
+  { value: "popularity-asc", label: "Most Popular" },
+  { value: "score-desc", label: "Highest Rated" },
+  { value: "favorites-desc", label: "Most Favorited" },
+  { value: "episodes-desc", label: "Most Episodes" },
+  { value: "title-asc", label: "Title A \u2192 Z" },
+];
+
+const PERSON_SORT = [
+  { value: "favorites-desc", label: "Most Favorited" },
+  { value: "name-asc", label: "Name A \u2192 Z" },
+  { value: "name-desc", label: "Name Z \u2192 A" },
+];
+
 export default function Search() {
   const [params, setParams] = useSearchParams();
   const q = (params.get("q") || "").trim();
   const tab = params.get("tab") || "anime";
   const page = Number(params.get("page") || 1);
+  const sortParam =
+    params.get("sort") ||
+    (tab === "anime" ? "popularity-asc" : "favorites-desc");
 
   const [results, setResults] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [draft, setDraft] = useState(q);
+
+  const sortOptions = useMemo(
+    () => (tab === "anime" ? ANIME_SORT : PERSON_SORT),
+    [tab]
+  );
+
+  const [orderBy, sortDir] = sortParam.split("-");
 
   useEffect(() => {
     setDraft(q);
@@ -44,7 +69,12 @@ export default function Search() {
         setLoading(true);
         setError(null);
         if (tab === "anime") {
-          const r = await searchAnimeFull({ query: q, page });
+          const r = await searchAnimeFull({
+            query: q,
+            page,
+            orderBy,
+            sort: sortDir,
+          });
           if (!cancelled) {
             setResults(r.data);
             setPagination(r.pagination);
@@ -52,13 +82,13 @@ export default function Search() {
         } else if (tab === "characters") {
           const r = await searchCharacters(q, 24);
           if (!cancelled) {
-            setResults(r);
+            setResults(sortClientSide(r, sortParam));
             setPagination(null);
           }
         } else {
           const r = await searchPeople(q, 24);
           if (!cancelled) {
-            setResults(r);
+            setResults(sortClientSide(r, sortParam));
             setPagination(null);
           }
         }
@@ -72,7 +102,7 @@ export default function Search() {
     return () => {
       cancelled = true;
     };
-  }, [q, tab, page]);
+  }, [q, tab, page, orderBy, sortDir, sortParam]);
 
   const updateParams = (next) => {
     const merged = new URLSearchParams(params);
@@ -108,21 +138,32 @@ export default function Search() {
         />
       </form>
 
-      <div className="mt-6 inline-flex items-center gap-1 rounded-md border border-zinc-800 bg-zinc-900 p-1 text-xs">
-        {TABS.map((t) => (
-          <button
-            key={t.value}
-            type="button"
-            onClick={() => updateParams({ tab: t.value, page: 1 })}
-            className={`rounded px-3 py-1.5 font-semibold transition ${
-              tab === t.value
-                ? "bg-brand-500 text-zinc-950"
-                : "text-zinc-300 hover:text-zinc-100"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="inline-flex items-center gap-1 rounded-md border border-zinc-800 bg-zinc-900 p-1 text-xs">
+          {TABS.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              onClick={() =>
+                updateParams({ tab: t.value, page: 1, sort: null })
+              }
+              className={`rounded px-3 py-1.5 font-semibold transition ${
+                tab === t.value
+                  ? "bg-brand-500 text-zinc-950"
+                  : "text-zinc-300 hover:text-zinc-100"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        <SortDropdown
+          label="Sort"
+          value={sortParam}
+          onChange={(v) => updateParams({ sort: v, page: 1 })}
+          options={sortOptions}
+        />
       </div>
 
       {!q && <EmptyState />}
@@ -178,6 +219,19 @@ export default function Search() {
       )}
     </div>
   );
+}
+
+function sortClientSide(list, key) {
+  const copy = [...list];
+  switch (key) {
+    case "name-asc":
+      return copy.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    case "name-desc":
+      return copy.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
+    case "favorites-desc":
+    default:
+      return copy.sort((a, b) => (b.favorites ?? 0) - (a.favorites ?? 0));
+  }
 }
 
 function EmptyState() {

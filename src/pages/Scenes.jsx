@@ -4,6 +4,7 @@ import AgeGate from "../components/AgeGate.jsx";
 import FilterPills from "../components/FilterPills.jsx";
 import SceneTile from "../components/SceneTile.jsx";
 import CharacterRowHeader from "../components/CharacterRowHeader.jsx";
+import SortDropdown from "../components/SortDropdown.jsx";
 import { IconAlert, IconChevronRight, IconHeart } from "../components/Icons.jsx";
 import { getAnimeById, getCharacters } from "../services/jikan.js";
 import scenesData from "../data/scenes.json";
@@ -22,8 +23,44 @@ const KIND_FILTERS = (counts) => [
   { value: "video", label: "Video", count: counts.video },
 ];
 
+const SORT_OPTIONS = [
+  { value: "newest", label: "Newest first" },
+  { value: "episode", label: "Episode (earliest)" },
+  { value: "severity-desc", label: "Severity (high \u2192 low)" },
+  { value: "severity-asc", label: "Severity (low \u2192 high)" },
+  { value: "title", label: "Title A \u2192 Z" },
+];
+
+const SEVERITY_RANK = { extreme: 4, graphic: 3, moderate: 2, mild: 1 };
+
 function getKind(s) {
   return s.kind === "video" ? "video" : "image";
+}
+
+function sortScenes(list, order) {
+  const copy = [...list];
+  switch (order) {
+    case "episode":
+      return copy.sort(
+        (a, b) =>
+          (a.season ?? 1) - (b.season ?? 1) || (a.episode ?? 0) - (b.episode ?? 0)
+      );
+    case "severity-desc":
+      return copy.sort(
+        (a, b) =>
+          (SEVERITY_RANK[b.severity] ?? 0) - (SEVERITY_RANK[a.severity] ?? 0)
+      );
+    case "severity-asc":
+      return copy.sort(
+        (a, b) =>
+          (SEVERITY_RANK[a.severity] ?? 0) - (SEVERITY_RANK[b.severity] ?? 0)
+      );
+    case "title":
+      return copy.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+    case "newest":
+    default:
+      return copy;
+  }
 }
 
 export default function Scenes() {
@@ -33,6 +70,7 @@ export default function Scenes() {
   const [posters, setPosters] = useState({});
   const [sevFilter, setSevFilter] = useState("all");
   const [kindFilter, setKindFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("newest");
 
   const all = scenesData.scenes ?? [];
   const baseScenes = useMemo(
@@ -60,8 +98,8 @@ export default function Scenes() {
     let list = baseScenes;
     if (kindFilter !== "all") list = list.filter((s) => getKind(s) === kindFilter);
     if (sevFilter !== "all") list = list.filter((s) => s.severity === sevFilter);
-    return list;
-  }, [baseScenes, sevFilter, kindFilter]);
+    return sortScenes(list, sortOrder);
+  }, [baseScenes, sevFilter, kindFilter, sortOrder]);
 
   useEffect(() => {
     let cancelled = false;
@@ -144,7 +182,12 @@ export default function Scenes() {
             onChange={setKindFilter}
             options={KIND_FILTERS(kindCounts)}
           />
-          <SortBar />
+          <SortDropdown
+            label="Sort"
+            value={sortOrder}
+            onChange={setSortOrder}
+            options={SORT_OPTIONS}
+          />
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -311,33 +354,6 @@ function KindFilterPills({ value, onChange, options }) {
           </button>
         );
       })}
-    </div>
-  );
-}
-
-function SortBar() {
-  return (
-    <div className="flex items-center gap-2 text-xs text-zinc-400">
-      <button
-        type="button"
-        className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 hover:bg-zinc-800"
-      >
-        NEWEST
-      </button>
-      <button
-        type="button"
-        className="grid h-8 w-8 place-items-center rounded-md border border-zinc-800 bg-zinc-900 hover:bg-zinc-800"
-        aria-label="View"
-      >
-        ▦
-      </button>
-      <button
-        type="button"
-        className="grid h-8 w-8 place-items-center rounded-md border border-zinc-800 bg-zinc-900 hover:bg-zinc-800"
-        aria-label="Filter"
-      >
-        ⌕
-      </button>
     </div>
   );
 }

@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import CategoryTile from "../components/CategoryTile.jsx";
+import SortDropdown from "../components/SortDropdown.jsx";
 import { getGenres, getAnimeByGenre } from "../services/jikan.js";
+
+const SORT_OPTIONS = [
+  { value: "popular", label: "Most Popular" },
+  { value: "least", label: "Least Popular" },
+  { value: "name", label: "Name A \u2192 Z" },
+];
 
 const POPULAR_NAMES = [
   "Action",
@@ -25,6 +32,7 @@ const FILTER_TABS = [
 
 export default function Categories() {
   const [filter, setFilter] = useState("genres");
+  const [sortOrder, setSortOrder] = useState("popular");
   const [genres, setGenres] = useState([]);
   const [popularBackdrops, setPopularBackdrops] = useState({});
   const [loading, setLoading] = useState(true);
@@ -86,7 +94,16 @@ export default function Categories() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popular]);
 
-  const rest = genres.filter((g) => !popular.find((p) => p.mal_id === g.mal_id));
+  const rest = useMemo(() => {
+    const out = genres.filter((g) => !popular.find((p) => p.mal_id === g.mal_id));
+    if (sortOrder === "name") {
+      return [...out].sort((a, b) => a.name.localeCompare(b.name));
+    }
+    if (sortOrder === "least") {
+      return [...out].sort((a, b) => (a.count ?? 0) - (b.count ?? 0));
+    }
+    return [...out].sort((a, b) => (b.count ?? 0) - (a.count ?? 0));
+  }, [genres, popular, sortOrder]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -150,7 +167,15 @@ export default function Categories() {
 
       {rest.length > 0 && (
         <section className="mt-12">
-          <h2 className="mb-4 text-base font-bold text-zinc-100">All {filter}</h2>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="text-base font-bold text-zinc-100">All {filter}</h2>
+            <SortDropdown
+              label="Sort"
+              value={sortOrder}
+              onChange={setSortOrder}
+              options={SORT_OPTIONS}
+            />
+          </div>
           <div className="flex flex-wrap gap-2">
             {rest.map((g) => (
               <a

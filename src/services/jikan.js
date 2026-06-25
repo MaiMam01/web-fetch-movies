@@ -23,11 +23,17 @@ export async function searchAnime(query, limit = 1) {
   return data?.data ?? [];
 }
 
-export async function searchAnimeFull({ query, page = 1, limit = 24 }) {
+export async function searchAnimeFull({
+  query,
+  page = 1,
+  limit = 24,
+  orderBy = "popularity",
+  sort = "asc",
+}) {
   if (!query) return { data: [], pagination: null };
   const q = encodeURIComponent(query);
   const json = await jget(
-    `/anime?q=${q}&limit=${limit}&page=${page}&order_by=popularity&sort=asc`
+    `/anime?q=${q}&limit=${limit}&page=${page}&order_by=${orderBy}&sort=${sort}`
   );
   return { data: json?.data ?? [], pagination: json?.pagination ?? null };
 }
