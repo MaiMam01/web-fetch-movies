@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import AnimeCard from "../components/AnimeCard.jsx";
 import FeaturedCard from "../components/FeaturedCard.jsx";
+import IconicCharactersSlider from "../components/IconicCharactersSlider.jsx";
 import { resolveFromTitles, getTopAnime } from "../services/jikan.js";
 import featured from "../data/featuredTitles.json";
 
@@ -45,6 +46,8 @@ export default function Landing() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <Hero />
+
+      <IconicCharactersSlider />
 
       {error && (
         <div className="mt-8 rounded-lg border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-200">
