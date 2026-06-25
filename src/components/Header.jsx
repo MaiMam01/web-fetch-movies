@@ -1,16 +1,47 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { getGenres } from "../services/jikan.js";
+import { getGenres, getTopAnime } from "../services/jikan.js";
 import {
   IconMenu,
   IconSearch,
   IconUser,
   IconChevronDown,
+  IconChevronRight,
   IconImage,
   IconPlay,
   IconStar,
   IconHeart,
+  IconHome,
+  IconEye,
+  IconCalendar,
+  IconGrid,
 } from "./Icons.jsx";
+
+const DISCOVER_ITEMS = [
+  { to: "/", icon: <IconHome className="h-4 w-4" />, label: "Featured" },
+  { to: "/top", icon: <IconStar className="h-4 w-4" />, label: "Top 100" },
+  { to: "/top?type=tv", icon: <IconImage className="h-4 w-4" />, label: "Top TV Series" },
+  { to: "/top?type=movie", icon: <IconImage className="h-4 w-4" />, label: "Top Films" },
+  { to: "/stories", icon: <IconPlay className="h-4 w-4" />, label: "Stories & Reels" },
+  { to: "/scenes", icon: <IconHeart className="h-4 w-4" />, label: "Scene Catalog" },
+  { to: "/characters", icon: <IconUser className="h-4 w-4" />, label: "All Characters" },
+  { to: "/voice-actors", icon: <IconUser className="h-4 w-4" />, label: "Voice Actors" },
+  { to: "/categories", icon: <IconGrid className="h-4 w-4" />, label: "All Categories" },
+  { to: "/search", icon: <IconSearch className="h-4 w-4" />, label: "Search" },
+];
+
+const TRENDING_CHIPS = [
+  "Currently Airing",
+  "Demon Slayer",
+  "Attack on Titan",
+  "Jujutsu Kaisen",
+  "One Piece",
+  "Studio Ghibli",
+  "Isekai",
+  "Slice of Life",
+  "Cyberpunk",
+  "Mecha",
+];
 
 const NAV_ITEMS = [
   { to: "/", label: "Home", end: true },
@@ -39,6 +70,7 @@ export default function Header() {
   const [genres, setGenres] = useState([]);
   const [themes, setThemes] = useState([]);
   const [demographics, setDemographics] = useState([]);
+  const [topAnime, setTopAnime] = useState([]);
   const navigate = useNavigate();
 
   const trendingRef = useRef(null);
@@ -48,17 +80,19 @@ export default function Header() {
     let cancelled = false;
     async function load() {
       try {
-        const [g, t, d] = await Promise.all([
+        const [g, t, d, top] = await Promise.all([
           getGenres("genres"),
           getGenres("themes"),
           getGenres("demographics"),
+          getTopAnime(4).catch(() => []),
         ]);
         if (cancelled) return;
         setGenres(g);
         setThemes(t);
         setDemographics(d);
+        setTopAnime(top);
       } catch (e) {
-        console.warn("Header genre load failed", e);
+        console.warn("Header data load failed", e);
       }
     }
     load();
@@ -225,6 +259,7 @@ export default function Header() {
                       genres={genres}
                       themes={themes}
                       demographics={demographics}
+                      topAnime={topAnime}
                     />
                   )}
                 </li>
@@ -292,51 +327,167 @@ export default function Header() {
   );
 }
 
-function CategoryMegaPanel({ onClose, genres, themes, demographics }) {
+function CategoryMegaPanel({ onClose, genres, themes, demographics, topAnime }) {
   return (
     <div
-      className="absolute left-0 top-11 z-50 w-[min(92vw,820px)] origin-top overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950 shadow-2xl"
+      className="absolute left-0 top-11 z-50 max-h-[80vh] w-[min(96vw,1180px)] origin-top overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-950 shadow-2xl"
       role="menu"
     >
-      <div className="grid gap-6 p-5 sm:grid-cols-3">
-        <Column title="Genres" items={genres.slice(0, 14)} onClick={onClose} />
-        <Column title="Themes" items={themes.slice(0, 14)} onClick={onClose} />
-        <Column
-          title="Demographics"
-          items={demographics.slice(0, 8)}
+      <div className="grid gap-5 p-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+        <DiscoverColumn onClick={onClose} />
+        <ThumbsColumn
+          title="Top Rated"
+          to="/top"
+          items={topAnime.slice(0, 3)}
           onClick={onClose}
-          extra={
-            <Link
-              to="/categories"
-              onClick={onClose}
-              className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-brand-500 hover:underline"
-            >
-              View all categories →
-            </Link>
-          }
+        />
+        <LinkListColumn
+          title="Genres"
+          to="/categories"
+          items={genres.slice(0, 11)}
+          onClick={onClose}
+        />
+        <LinkListColumn
+          title="Themes"
+          to="/categories"
+          items={themes.slice(0, 11)}
+          onClick={onClose}
+        />
+        <LinkListColumn
+          title="Demographics"
+          to="/categories"
+          items={demographics.slice(0, 7)}
+          onClick={onClose}
+        />
+        <ChipsColumn
+          title="Trending"
+          chips={TRENDING_CHIPS}
+          onClick={onClose}
         />
       </div>
     </div>
   );
 }
 
-function Column({ title, items, onClick, extra }) {
+function ColumnHeader({ title, to, onClick }) {
   return (
-    <div>
-      <h3 className="mb-2 text-[11px] font-bold uppercase tracking-widest text-zinc-500">
+    <div className="mb-3 flex items-center justify-between">
+      <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-100">
         {title}
       </h3>
-      <ul className="space-y-1">
+      {to && (
+        <Link
+          to={to}
+          onClick={onClick}
+          className="grid h-5 w-5 place-items-center rounded-full text-zinc-500 transition hover:bg-zinc-900 hover:text-brand-500"
+          aria-label={`View all ${title}`}
+        >
+          <IconChevronRight className="h-3.5 w-3.5" />
+        </Link>
+      )}
+    </div>
+  );
+}
+
+function DiscoverColumn({ onClick }) {
+  return (
+    <div>
+      <h3 className="mb-3 text-sm font-bold text-zinc-100">Discover Anime</h3>
+      <ul className="space-y-0.5">
+        {DISCOVER_ITEMS.map((it) => (
+          <li key={it.label}>
+            <Link
+              to={it.to}
+              onClick={onClick}
+              className="group flex items-center gap-2.5 rounded px-1.5 py-1.5 text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-brand-500"
+            >
+              <span className="text-zinc-500 group-hover:text-brand-500">
+                {it.icon}
+              </span>
+              {it.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ThumbsColumn({ title, to, items, onClick }) {
+  return (
+    <div>
+      <ColumnHeader title={title} to={to} onClick={onClick} />
+      <ul className="space-y-2">
+        {items.length === 0 &&
+          Array.from({ length: 3 }).map((_, i) => (
+            <li
+              key={i}
+              className="flex gap-2 rounded bg-zinc-900/40 p-1.5 ring-1 ring-zinc-900"
+            >
+              <div className="aspect-video w-20 animate-pulse rounded bg-zinc-800" />
+              <div className="flex-1 space-y-1.5">
+                <div className="h-2.5 w-3/4 animate-pulse rounded bg-zinc-800" />
+                <div className="h-2 w-1/2 animate-pulse rounded bg-zinc-800" />
+              </div>
+            </li>
+          ))}
+        {items.map((a) => {
+          const img =
+            a.images?.webp?.large_image_url ?? a.images?.jpg?.large_image_url;
+          return (
+            <li key={a.mal_id}>
+              <Link
+                to={`/anime/${a.mal_id}`}
+                onClick={onClick}
+                className="group flex gap-2 rounded p-1.5 transition hover:bg-zinc-900"
+              >
+                <div className="relative aspect-video w-20 shrink-0 overflow-hidden rounded bg-zinc-800">
+                  {img && (
+                    <img
+                      src={img}
+                      alt={a.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]"
+                    />
+                  )}
+                  {a.score && (
+                    <span className="absolute right-0.5 bottom-0.5 rounded bg-zinc-950/85 px-1 py-px text-[9px] font-bold text-brand-500">
+                      ★ {a.score.toFixed(1)}
+                    </span>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="line-clamp-2 text-xs font-semibold leading-snug text-zinc-100 group-hover:text-brand-500">
+                    {a.title}
+                  </p>
+                  <p className="mt-0.5 line-clamp-1 text-[10px] text-zinc-500">
+                    {a.type ?? "TV"} · {a.episodes ?? "?"} eps
+                  </p>
+                </div>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function LinkListColumn({ title, to, items, onClick }) {
+  return (
+    <div>
+      <ColumnHeader title={title} to={to} onClick={onClick} />
+      <ul className="space-y-0.5">
         {items.map((g) => (
           <li key={g.mal_id}>
             <Link
               to={`/categories/${g.mal_id}`}
               onClick={onClick}
-              className="flex items-center justify-between rounded px-2 py-1 text-sm text-zinc-200 hover:bg-zinc-900 hover:text-brand-500"
+              className="flex items-center justify-between rounded px-1.5 py-1 text-sm text-zinc-200 transition hover:bg-zinc-900 hover:text-brand-500"
             >
-              <span>{g.name}</span>
+              <span className="line-clamp-1">{g.name}</span>
               {g.count != null && (
-                <span className="text-[10px] text-zinc-500">
+                <span className="ml-2 text-[10px] tabular-nums text-zinc-500">
                   {g.count.toLocaleString()}
                 </span>
               )}
@@ -344,7 +495,29 @@ function Column({ title, items, onClick, extra }) {
           </li>
         ))}
       </ul>
-      {extra}
+    </div>
+  );
+}
+
+function ChipsColumn({ title, chips, onClick }) {
+  return (
+    <div>
+      <h3 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-zinc-100">
+        {title}
+      </h3>
+      <ul className="flex flex-wrap gap-1.5">
+        {chips.map((c) => (
+          <li key={c}>
+            <Link
+              to={`/search?q=${encodeURIComponent(c)}`}
+              onClick={onClick}
+              className="inline-block rounded-md bg-zinc-900 px-2.5 py-1 text-[11px] font-semibold text-zinc-200 ring-1 ring-zinc-800 transition hover:bg-zinc-800 hover:text-brand-500"
+            >
+              {c}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
