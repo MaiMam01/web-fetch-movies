@@ -1,11 +1,14 @@
 import { IconPlay, IconEye, formatCompact } from "./Icons.jsx";
 
 export default function StoryReel({ story, onClick }) {
+  // Reel renders at ~160×285px in the grid — prefer the medium variant over
+  // maximum/large so thumbnails load 3-5× faster. Trailer thumbs from MAL
+  // come from i.ytimg.com which is also cheaper at hqdefault size.
   const thumb =
     story.image ||
-    story.trailer?.images?.maximum_image_url ||
-    story.trailer?.images?.large_image_url ||
     story.trailer?.images?.medium_image_url ||
+    story.trailer?.images?.large_image_url ||
+    story.trailer?.images?.maximum_image_url ||
     story.fallback_image;
 
   const title = story.title || "Untitled";
@@ -23,6 +26,9 @@ export default function StoryReel({ story, onClick }) {
           src={thumb}
           alt={title}
           loading="lazy"
+          decoding="async"
+          width="160"
+          height="285"
           className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
         />
       ) : (

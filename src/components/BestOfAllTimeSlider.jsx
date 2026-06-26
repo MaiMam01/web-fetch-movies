@@ -140,8 +140,12 @@ export default function BestOfAllTimeSlider() {
 }
 
 function ArchCard({ anime, rank, palette }) {
+  // Arch card poster renders at 160–192px wide — small variant is enough.
   const img =
-    anime.images?.webp?.large_image_url ?? anime.images?.jpg?.large_image_url;
+    anime.images?.webp?.image_url ??
+    anime.images?.jpg?.image_url ??
+    anime.images?.webp?.large_image_url ??
+    anime.images?.jpg?.large_image_url;
   const title = anime.title_english || anime.title;
   const year = anime.year ?? anime.aired?.prop?.from?.year;
   const score = anime.score;

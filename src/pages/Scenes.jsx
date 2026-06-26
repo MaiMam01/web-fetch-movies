@@ -145,8 +145,12 @@ export default function Scenes() {
         const next = { ...prev };
         for (const [id, a] of entries) {
           if (!a) continue;
+          // Used as grid-tile fallback — small variant is plenty.
           next[id] =
-            a.images?.webp?.large_image_url ?? a.images?.jpg?.large_image_url;
+            a.images?.webp?.image_url ??
+            a.images?.jpg?.image_url ??
+            a.images?.webp?.large_image_url ??
+            a.images?.jpg?.large_image_url;
         }
         return next;
       });

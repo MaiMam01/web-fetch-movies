@@ -39,8 +39,12 @@ export default function Stories() {
           try {
             const v = await getAnimeVideos(a.mal_id);
             if (cancelled) return;
+            // Fallback when the YouTube thumb fails — rendered at reel size.
             const fallback =
-              a.images?.webp?.large_image_url ?? a.images?.jpg?.large_image_url;
+              a.images?.webp?.image_url ??
+              a.images?.jpg?.image_url ??
+              a.images?.webp?.large_image_url ??
+              a.images?.jpg?.large_image_url;
 
             (v?.music_videos ?? []).forEach((mv) => {
               const yt = mv.video?.youtube_id;

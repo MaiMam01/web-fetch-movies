@@ -22,6 +22,9 @@ export default function SceneTile({ scene, posterFallback, onClick }) {
           src={scene.image}
           alt={scene.title}
           loading="lazy"
+          decoding="async"
+          width="320"
+          height="180"
           className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
         />
       ) : posterFallback ? (
@@ -30,6 +33,9 @@ export default function SceneTile({ scene, posterFallback, onClick }) {
             src={posterFallback}
             alt={scene.anime_title || scene.title}
             loading="lazy"
+            decoding="async"
+            width="320"
+            height="180"
             className="h-full w-full scale-110 object-cover opacity-40 blur-[1.5px] transition duration-500 group-hover:scale-[1.15] group-hover:opacity-55 group-hover:blur-[0.5px]"
           />
           <span className="pointer-events-none absolute inset-0 bg-gradient-to-br from-zinc-950/50 via-transparent to-zinc-950/40" />

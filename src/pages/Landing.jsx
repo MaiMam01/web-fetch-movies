@@ -1710,7 +1710,11 @@ function ScenePromoBanner({ posters = [] }) {
           className="pointer-events-none absolute inset-y-0 right-0 hidden w-2/5 lg:block"
         >
           {sample.map((a, i) => {
+            // Decorative side posters render at 112–144px wide — small variant
+            // is plenty of resolution and saves ~3× the bytes per poster.
             const img =
+              a.images?.webp?.image_url ??
+              a.images?.jpg?.image_url ??
               a.images?.webp?.large_image_url ??
               a.images?.jpg?.large_image_url;
             const styles = [

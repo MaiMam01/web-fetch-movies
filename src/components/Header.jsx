@@ -1241,8 +1241,12 @@ function ThumbsColumn({ title, to, items, onClick }) {
             </li>
           ))}
         {items.map((a) => {
+          // Search-suggestion thumb is 80px wide — use the tiny variant.
           const img =
-            a.images?.webp?.large_image_url ?? a.images?.jpg?.large_image_url;
+            a.images?.webp?.image_url ??
+            a.images?.jpg?.image_url ??
+            a.images?.webp?.large_image_url ??
+            a.images?.jpg?.large_image_url;
           return (
             <li key={a.mal_id}>
               <Link
@@ -1256,6 +1260,9 @@ function ThumbsColumn({ title, to, items, onClick }) {
                       src={img}
                       alt={a.title}
                       loading="lazy"
+                      decoding="async"
+                      width="80"
+                      height="45"
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]"
                     />
                   )}

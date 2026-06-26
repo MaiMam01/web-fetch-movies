@@ -76,8 +76,13 @@ function FeaturedCard({ anime, rank }) {
   const ed = anime._editorial ?? {};
   const malScore = anime.score ? anime.score.toFixed(2) : null;
   const imdb = ed.imdb_rating;
+  // Poster renders at 96–112px wide — the default ~225px MAL thumbnail
+  // is already 2× DPR-ready, so loading the large variant here is wasteful.
   const poster =
-    anime.images?.webp?.large_image_url ?? anime.images?.jpg?.large_image_url;
+    anime.images?.webp?.image_url ??
+    anime.images?.jpg?.image_url ??
+    anime.images?.webp?.large_image_url ??
+    anime.images?.jpg?.large_image_url;
   const podium = PODIUM[rank];
   const skin = podium ?? NEUTRAL;
   const year = anime.year || anime.aired?.prop?.from?.year;

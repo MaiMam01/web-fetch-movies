@@ -33,7 +33,12 @@ function typeLabel(type) {
 
 function AnimeCard({ anime }) {
   const score = anime.score ? anime.score.toFixed(2) : null;
+  // Prefer the smaller ~225px MAL thumbnail. The card renders at ≤240px
+  // wide so the large_image_url (~430px) is 4× the file size for zero
+  // visual benefit. Fall back gracefully if only the large URL exists.
   const img =
+    anime.images?.webp?.image_url ??
+    anime.images?.jpg?.image_url ??
     anime.images?.webp?.large_image_url ??
     anime.images?.jpg?.large_image_url;
   const tier = scoreTier(anime.score);

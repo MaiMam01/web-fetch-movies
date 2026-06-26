@@ -9,8 +9,12 @@ export default function RecommendedRail({ items = [], title = "Recommended Anime
       <div className="scrollbar-thin -mx-2 flex gap-3 overflow-x-auto px-2 pb-3">
         {items.map((it) => {
           const a = it.entry ?? it;
+          // Rail card is 128–144px wide — small variant is enough.
           const poster =
-            a.images?.webp?.large_image_url ?? a.images?.jpg?.large_image_url;
+            a.images?.webp?.image_url ??
+            a.images?.jpg?.image_url ??
+            a.images?.webp?.large_image_url ??
+            a.images?.jpg?.large_image_url;
           return (
             <Link
               key={a.mal_id}
@@ -23,6 +27,9 @@ export default function RecommendedRail({ items = [], title = "Recommended Anime
                     src={poster}
                     alt={a.title}
                     loading="lazy"
+                    decoding="async"
+                    width="144"
+                    height="216"
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
                   />
                 )}
