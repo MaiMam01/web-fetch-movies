@@ -10,7 +10,7 @@ export default function ProfileInfoGrid({
   metadataRight = [],
 }) {
   return (
-    <section className="mx-auto mt-8 max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="page-container mt-8">
       <div className="grid gap-6 lg:grid-cols-12">
         <div className="lg:col-span-5">
           {aboutTitle && (

@@ -107,7 +107,7 @@ function SceneDetailBody({ scene }) {
     anime?.images?.jpg?.large_image_url;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="page-container py-6">
       <Breadcrumbs anime={anime} sceneTitle={scene.title} />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -183,7 +183,7 @@ function SceneDetailBody({ scene }) {
           <h2 className="mb-4 text-base font-bold text-zinc-100">
             Recommended Characters
           </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10">
             {recommendedPeople.map((c) => (
               <PersonCard
                 key={c.mal_id}
@@ -412,7 +412,7 @@ function SceneMeta({ scene, anime, characters }) {
 
 function SceneGrid({ scenes }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
       {scenes.map((s) => (
         <SceneTile key={s.id} scene={s} />
       ))}

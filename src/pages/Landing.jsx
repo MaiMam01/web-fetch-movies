@@ -1,13 +1,26 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import gsap from "gsap";
 import AnimeCard from "../components/AnimeCard.jsx";
 import FeaturedCard from "../components/FeaturedCard.jsx";
 import Pagination from "../components/Pagination.jsx";
-import Hero3DBackdrop from "../components/Hero3DBackdrop.jsx";
-import BestOfAllTimeSlider from "../components/BestOfAllTimeSlider.jsx";
-import CharacterCircleRail from "../components/CharacterCircleRail.jsx";
 import useMouseTilt from "../hooks/useMouseTilt.js";
+
+// GSAP is dynamic-imported inside effects below (~35KB gzip off the initial
+// bundle). The page renders + becomes interactive without it; entrance
+// animations kick in once the chunk arrives ~one frame later.
+
+// Below-the-fold / decorative components — defer to a separate chunk so they
+// don't block the first paint. Each gets a zero-CLS skeleton fallback so the
+// page never jumps when the chunk arrives.
+const Hero3DBackdrop = lazy(() =>
+  import("../components/Hero3DBackdrop.jsx")
+);
+const BestOfAllTimeSlider = lazy(() =>
+  import("../components/BestOfAllTimeSlider.jsx")
+);
+const CharacterCircleRail = lazy(() =>
+  import("../components/CharacterCircleRail.jsx")
+);
 import {
   IconSearch,
   IconStar,
@@ -96,18 +109,52 @@ export default function Landing() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="page-container py-10">
       <Hero posters={topList} />
 
       <QuickJumpChips />
 
-      <CharacterCircleRail />
+      <Suspense
+        fallback={
+          <div
+            aria-hidden
+            className="mt-12 h-32 animate-pulse rounded-2xl bg-zinc-900/40 ring-1 ring-zinc-900"
+          />
+        }
+      >
+        <CharacterCircleRail />
+      </Suspense>
 
-      <BestOfAllTimeSlider />
+      <Suspense
+        fallback={
+          <div
+            aria-hidden
+            className="mt-12 h-72 animate-pulse rounded-2xl bg-zinc-900/40 ring-1 ring-zinc-900"
+          />
+        }
+      >
+        <BestOfAllTimeSlider />
+      </Suspense>
 
-      {error && (
-        <div className="mt-8 rounded-lg border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-200">
-          Failed to load anime data: {error}
+      {/* Only show the error banner when we have nothing at all to display.
+          The Jikan service falls back to stale cache on 429/network errors,
+          so partial data is the common case and shouldn't alarm the user. */}
+      {error && tv.length === 0 && films.length === 0 && topList.length === 0 && (
+        <div
+          role="alert"
+          className="mt-8 flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-100"
+        >
+          <span>
+            <strong className="font-bold">Couldn&apos;t reach MyAnimeList just now.</strong>{" "}
+            <span className="text-amber-200/80">{error}</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="shrink-0 rounded-md border border-amber-400/50 bg-amber-500/20 px-3 py-1 text-xs font-bold text-amber-50 transition hover:bg-amber-500/30"
+          >
+            Retry
+          </button>
         </div>
       )}
 
@@ -186,6 +233,14 @@ export default function Landing() {
   );
 }
 
+const HERO_QUICK_SEARCHES = [
+  "One Piece",
+  "Demon Slayer",
+  "Frieren",
+  "Jujutsu Kaisen",
+  "Chainsaw Man",
+];
+
 function Hero({ posters = [] }) {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
@@ -198,67 +253,78 @@ function Hero({ posters = [] }) {
     navigate(`/search?q=${encodeURIComponent(q)}`);
   };
 
-  // GSAP entrance timeline + count-up on stats.
+  // GSAP entrance timeline + count-up on stats. GSAP is dynamic-imported so
+  // it doesn't block the initial render — the page is interactive first and
+  // the entrance animation kicks in once the chunk arrives.
   useEffect(() => {
-    if (!heroRef.current) return;
+    if (!heroRef.current) return undefined;
     const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) return;
+    if (reduced) return undefined;
 
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.8 } });
-      tl.from("[data-hero='badge']", { y: 16, opacity: 0, duration: 0.5 })
-        .from(
-          "[data-hero='title']",
-          { y: 24, opacity: 0, duration: 0.9 },
-          "-=0.2"
-        )
-        .from(
-          "[data-hero='subtitle']",
-          { y: 16, opacity: 0, duration: 0.6 },
-          "-=0.5"
-        )
-        .from(
-          "[data-hero='search']",
-          { y: 16, opacity: 0, scale: 0.98, duration: 0.6 },
-          "-=0.35"
-        )
-        .from(
-          "[data-hero='cta']",
-          { y: 14, opacity: 0, stagger: 0.08, duration: 0.5 },
-          "-=0.35"
-        )
-        .from(
-          "[data-hero='stat']",
-          { y: 18, opacity: 0, stagger: 0.1, duration: 0.5 },
-          "-=0.3"
-        )
-        .from(
-          "[data-hero='spotlight']",
-          { x: 40, opacity: 0, scale: 0.96, duration: 0.9 },
-          "-=0.8"
-        );
-
-      // Count-up: animate the dataset.value from 0 to target.
-      heroRef.current
-        .querySelectorAll("[data-countup]")
-        ?.forEach((el) => {
-          const target = Number(el.dataset.countup) || 0;
-          const suffix = el.dataset.suffix || "";
-          const obj = { val: 0 };
-          gsap.to(obj, {
-            val: target,
-            duration: 1.6,
-            ease: "power2.out",
-            delay: 0.6,
-            onUpdate() {
-              el.textContent =
-                Math.round(obj.val).toLocaleString() + suffix;
-            },
-          });
+    let ctx;
+    let cancelled = false;
+    import("gsap").then(({ default: gsap }) => {
+      if (cancelled || !heroRef.current) return;
+      ctx = gsap.context(() => {
+        const tl = gsap.timeline({
+          defaults: { ease: "power3.out", duration: 0.8 },
         });
-    }, heroRef);
+        tl.from("[data-hero='badge']", { y: 16, opacity: 0, duration: 0.5 })
+          .from(
+            "[data-hero='title']",
+            { y: 24, opacity: 0, duration: 0.9 },
+            "-=0.2"
+          )
+          .from(
+            "[data-hero='subtitle']",
+            { y: 16, opacity: 0, duration: 0.6 },
+            "-=0.5"
+          )
+          .from(
+            "[data-hero='search']",
+            { y: 16, opacity: 0, scale: 0.98, duration: 0.6 },
+            "-=0.35"
+          )
+          .from(
+            "[data-hero='cta']",
+            { y: 14, opacity: 0, stagger: 0.08, duration: 0.5 },
+            "-=0.35"
+          )
+          .from(
+            "[data-hero='stat']",
+            { y: 18, opacity: 0, stagger: 0.1, duration: 0.5 },
+            "-=0.3"
+          )
+          .from(
+            "[data-hero='spotlight']",
+            { x: 40, opacity: 0, scale: 0.96, duration: 0.9 },
+            "-=0.8"
+          );
 
-    return () => ctx.revert();
+        heroRef.current
+          .querySelectorAll("[data-countup]")
+          ?.forEach((el) => {
+            const target = Number(el.dataset.countup) || 0;
+            const suffix = el.dataset.suffix || "";
+            const obj = { val: 0 };
+            gsap.to(obj, {
+              val: target,
+              duration: 1.6,
+              ease: "power2.out",
+              delay: 0.6,
+              onUpdate() {
+                el.textContent =
+                  Math.round(obj.val).toLocaleString() + suffix;
+              },
+            });
+          });
+      }, heroRef);
+    });
+
+    return () => {
+      cancelled = true;
+      ctx?.revert();
+    };
   }, []);
 
   return (
@@ -267,8 +333,11 @@ function Hero({ posters = [] }) {
       className="relative isolate overflow-hidden rounded-2xl ring-1 ring-zinc-800/80 sm:rounded-3xl"
       style={{ perspective: "1400px" }}
     >
-      {/* CSS-3D backdrop (rotating wireframe shapes + receding floor grid) */}
-      <Hero3DBackdrop />
+      {/* CSS-3D backdrop (rotating wireframe shapes + receding floor grid).
+          Loaded lazily — purely decorative, so it can pop in after first paint. */}
+      <Suspense fallback={null}>
+        <Hero3DBackdrop />
+      </Suspense>
 
       {/* Multi-color background blobs */}
       <div aria-hidden className="absolute inset-0 -z-10">
@@ -281,23 +350,35 @@ function Hero({ posters = [] }) {
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-fuchsia-500/60 via-cyan-400/60 to-amber-400/60" />
       </div>
 
-      {/* Content grid — text on left, spotlight on right (lg+) */}
-      <div className="relative grid gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[1.1fr_minmax(0,420px)] lg:gap-12 lg:px-12 lg:py-20 lg:items-center">
+      {/* Content grid — text on left, spotlight on right (lg+).
+          On bigger viewports the spotlight column grows so it doesn't look
+          marooned in a sea of headline whitespace. */}
+      <div className="relative grid gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[1.1fr_minmax(0,440px)] lg:gap-12 lg:px-12 lg:py-20 lg:items-center xl:grid-cols-[1.15fr_minmax(0,500px)] 2xl:grid-cols-[1.2fr_minmax(0,620px)]">
         <div className="max-w-2xl">
+          {/* Top status strip — two pills side by side: live data + this week */}
           <div
             data-hero="badge"
-            className="inline-flex items-center gap-1.5 rounded-full border border-lime-400/30 bg-gradient-to-r from-lime-400/15 via-emerald-400/10 to-cyan-400/10 py-1 pl-1 pr-3 text-[11px] font-semibold text-lime-100 backdrop-blur sm:text-xs"
+            className="flex flex-wrap items-center gap-2"
           >
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-lime-400/20 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-widest text-lime-200 ring-1 ring-lime-400/40">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-lime-300 opacity-80" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-lime-300" />
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-lime-400/30 bg-gradient-to-r from-lime-400/15 via-emerald-400/10 to-cyan-400/10 py-1 pl-1 pr-3 text-[11px] font-semibold text-lime-100 backdrop-blur sm:text-xs">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-lime-400/20 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-widest text-lime-200 ring-1 ring-lime-400/40">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-lime-300 opacity-80" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-lime-300" />
+                </span>
+                Live
               </span>
-              Live
+              <span>Data from MyAnimeList</span>
+              <span aria-hidden className="text-zinc-600">·</span>
+              <span className="text-zinc-400">Updated just now</span>
             </span>
-            <span>Data from MyAnimeList</span>
-            <span aria-hidden className="text-zinc-600">·</span>
-            <span className="text-zinc-400">Updated just now</span>
+            <span className="hidden items-center gap-1.5 rounded-full border border-fuchsia-400/30 bg-fuchsia-500/10 px-2.5 py-1 text-[11px] font-bold text-fuchsia-100 backdrop-blur sm:inline-flex">
+              <IconTrendUp className="h-3 w-3 text-fuchsia-300" />
+              <span>
+                <span className="text-fuchsia-200">+183</span>{" "}
+                <span className="text-zinc-400">new this week</span>
+              </span>
+            </span>
           </div>
 
           <h1
@@ -327,7 +408,7 @@ function Hero({ posters = [] }) {
           <form
             data-hero="search"
             onSubmit={onSearch}
-            className="group mt-7 flex w-full max-w-xl items-center gap-2 rounded-2xl border border-zinc-700/80 bg-zinc-900/70 p-1.5 pl-3 shadow-xl shadow-black/40 backdrop-blur transition focus-within:border-fuchsia-400/60 focus-within:ring-2 focus-within:ring-fuchsia-400/20 sm:pl-4"
+            className="group mt-7 flex w-full max-w-xl items-center gap-2 rounded-2xl border border-zinc-700/80 bg-zinc-900/70 p-1.5 pl-3 shadow-xl shadow-black/40 backdrop-blur transition focus-within:-translate-y-0.5 focus-within:border-fuchsia-400/60 focus-within:shadow-[0_20px_50px_-20px_rgba(232,121,249,0.45)] focus-within:ring-2 focus-within:ring-fuchsia-400/20 sm:pl-4"
           >
             <IconSearch className="h-5 w-5 shrink-0 text-zinc-400 transition group-focus-within:text-fuchsia-400" />
             <input
@@ -344,21 +425,52 @@ function Hero({ posters = [] }) {
             >
               Enter
             </kbd>
-            <button type="submit" className="btn btn-primary shrink-0">
+            <button
+              type="submit"
+              className="btn btn-primary shrink-0"
+              aria-label="Search"
+            >
               <span className="hidden sm:inline">Search</span>
               <IconChevronRight className="h-4 w-4" />
             </button>
           </form>
 
+          {/* Quick-search suggestions — click to populate */}
+          <div
+            data-hero="search"
+            className="mt-3 flex flex-wrap items-center gap-1.5 text-[11px]"
+          >
+            <span className="font-bold uppercase tracking-[0.16em] text-zinc-500">
+              Try
+            </span>
+            {HERO_QUICK_SEARCHES.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => {
+                  setQuery(s);
+                  navigate(`/search?q=${encodeURIComponent(s)}`);
+                }}
+                className="rounded-full bg-zinc-900/60 px-2.5 py-1 font-semibold text-zinc-300 ring-1 ring-zinc-800 transition hover:bg-zinc-800 hover:text-fuchsia-200 hover:ring-fuchsia-400/40"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+
           <div className="mt-5 flex flex-wrap items-center gap-2 sm:mt-6 sm:gap-3">
             <Link
               data-hero="cta"
               to="/top"
-              className="btn group border border-amber-400/40 bg-amber-400/10 text-amber-100 hover:border-amber-400/70 hover:bg-amber-400/20 hover:text-amber-50"
+              className="btn btn-primary group relative overflow-hidden shadow-[0_10px_30px_-10px_rgba(232,121,249,0.6)]"
             >
-              <IconTrendUp className="h-4 w-4 text-amber-300" />
+              <IconTrendUp className="h-4 w-4" />
               Browse Top 100
-              <IconChevronRight className="h-4 w-4 -translate-x-0.5 text-amber-300/70 transition group-hover:translate-x-0 group-hover:text-amber-200" />
+              <IconChevronRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition duration-700 group-hover:left-full group-hover:opacity-100"
+              />
             </Link>
             <Link
               data-hero="cta"
@@ -373,7 +485,7 @@ function Hero({ posters = [] }) {
               to="/stories"
               className="btn group border border-cyan-400/40 bg-cyan-400/10 text-cyan-100 hover:border-cyan-400/70 hover:bg-cyan-400/20 hover:text-cyan-50"
             >
-              <IconPlay className="h-4 w-4 text-cyan-300" />
+              <IconRss className="h-4 w-4 text-cyan-300" />
               Stories
             </Link>
           </div>
@@ -385,6 +497,7 @@ function Hero({ posters = [] }) {
               target={12500}
               suffix="+"
               accent="text-fuchsia-300"
+              accentBar="bg-fuchsia-400"
             />
             <Stat
               dataAttr="stat"
@@ -393,6 +506,7 @@ function Hero({ posters = [] }) {
               format="compact"
               suffix="+"
               accent="text-cyan-300"
+              accentBar="bg-cyan-400"
             />
             <Stat
               dataAttr="stat"
@@ -400,8 +514,14 @@ function Hero({ posters = [] }) {
               target={820}
               suffix="+"
               accent="text-lime-300"
+              accentBar="bg-lime-400"
             />
           </dl>
+
+          {/* Compact poster strip — mobile only (lg- hides the big spotlight) */}
+          <div data-hero="stat" className="mt-8 lg:hidden">
+            <MobileSpotlightRail items={posters.slice(0, 8)} />
+          </div>
         </div>
 
         {/* Right column: featured spotlight (lg+ only) */}
@@ -423,14 +543,25 @@ function Hero({ posters = [] }) {
 function RotatingWord({ words = [], interval = 2800 }) {
   const [idx, setIdx] = useState(0);
   const ref = useRef(null);
+  const gsapRef = useRef(null);
 
+  // Cache the GSAP module after first dynamic import so re-rotations are sync.
   useEffect(() => {
     if (words.length <= 1) return undefined;
     const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+    let cancelled = false;
+    if (!reduced && !gsapRef.current) {
+      import("gsap").then(({ default: gsap }) => {
+        if (!cancelled) gsapRef.current = gsap;
+      });
+    }
+
     const t = setInterval(() => {
       setIdx((i) => {
         const next = (i + 1) % words.length;
-        if (ref.current && !reduced) {
+        const gsap = gsapRef.current;
+        if (ref.current && !reduced && gsap) {
           gsap.fromTo(
             ref.current,
             { y: 20, opacity: 0 },
@@ -440,12 +571,18 @@ function RotatingWord({ words = [], interval = 2800 }) {
         return next;
       });
     }, interval);
-    return () => clearInterval(t);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
   }, [words, interval]);
 
+  // aria-live so screen readers hear each rotation as the headline updates.
   return (
     <span
       ref={ref}
+      aria-live="polite"
+      aria-atomic="true"
       className="inline-block text-funk-warm"
       style={{ willChange: "transform" }}
     >
@@ -454,7 +591,15 @@ function RotatingWord({ words = [], interval = 2800 }) {
   );
 }
 
-function Stat({ label, target, suffix = "", format, accent = "text-white", dataAttr }) {
+function Stat({
+  label,
+  target,
+  suffix = "",
+  format,
+  accent = "text-white",
+  accentBar = "bg-zinc-700",
+  dataAttr,
+}) {
   // Pre-render with the final value so non-animated visitors (or reduced-motion)
   // still see the numbers immediately. The GSAP timeline replaces textContent.
   const display =
@@ -464,8 +609,13 @@ function Stat({ label, target, suffix = "", format, accent = "text-white", dataA
   return (
     <div
       data-hero={dataAttr}
-      className="bg-zinc-950/60 px-3 py-3 text-center backdrop-blur sm:px-6 sm:py-4"
+      className="group relative bg-zinc-950/60 px-3 py-3 text-center backdrop-blur transition hover:bg-zinc-950/80 sm:px-6 sm:py-4"
     >
+      {/* Thin colored bar at top — a tiny tactile detail per-stat */}
+      <span
+        aria-hidden
+        className={`absolute inset-x-3 top-0 h-0.5 rounded-b-full opacity-60 transition group-hover:opacity-100 ${accentBar}`}
+      />
       <dt className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 sm:text-[11px]">
         {label}
       </dt>
@@ -480,19 +630,27 @@ function Stat({ label, target, suffix = "", format, accent = "text-white", dataA
   );
 }
 
+const SPOTLIGHT_INTERVAL_MS = 5500;
+
 function FeaturedSpotlight({ items = [] }) {
   const [idx, setIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
   const tiltRef = useMouseTilt({ max: 10 });
 
-  // Auto-advance every 5s. Pause when document is hidden to save power.
+  // Auto-advance every ~5.5s. Pause when document is hidden, when the user
+  // hovers the spotlight, or when they're using a reduced-motion preference.
   useEffect(() => {
-    if (items.length <= 1) return undefined;
+    if (items.length <= 1 || paused) return undefined;
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return undefined;
     const advance = () => setIdx((i) => (i + 1) % items.length);
     const t = setInterval(() => {
       if (!document.hidden) advance();
-    }, 5000);
+    }, SPOTLIGHT_INTERVAL_MS);
     return () => clearInterval(t);
-  }, [items.length]);
+  }, [items.length, paused]);
 
   if (items.length === 0) {
     return (
@@ -501,23 +659,72 @@ function FeaturedSpotlight({ items = [] }) {
   }
 
   const a = items[idx];
-  const img =
-    a?.images?.webp?.large_image_url ??
-    a?.images?.jpg?.large_image_url ??
-    a?.images?.webp?.image_url ??
-    a?.images?.jpg?.image_url;
+  const next = items[(idx + 1) % items.length];
+  const prev = items[(idx - 1 + items.length) % items.length];
+
+  const pickImg = (x) =>
+    x?.images?.webp?.large_image_url ??
+    x?.images?.jpg?.large_image_url ??
+    x?.images?.webp?.image_url ??
+    x?.images?.jpg?.image_url;
+  const img = pickImg(a);
+  const nextImg = pickImg(next);
+  const prevImg = pickImg(prev);
+
   const score = a?.score ? Number(a.score).toFixed(1) : null;
   const rank = a?.rank;
   const year = a?.year || a?.aired?.prop?.from?.year;
   const type = a?.type || "TV";
 
   return (
-    <div className="relative" style={{ transformStyle: "preserve-3d" }}>
+    <div
+      className="relative"
+      style={{ transformStyle: "preserve-3d" }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
       {/* Glow halo behind card */}
       <div
         aria-hidden
         className="absolute inset-0 -z-10 scale-110 rounded-[2rem] bg-gradient-to-br from-fuchsia-500/30 via-violet-500/20 to-cyan-400/30 blur-3xl"
       />
+
+      {/* Back posters — collage cards peeking behind the main one. Pure
+          decoration: not clickable, hidden from a11y tree. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-8 top-6 hidden h-[88%] w-[68%] rotate-[-7deg] overflow-hidden rounded-3xl opacity-60 shadow-2xl shadow-black/70 ring-1 ring-white/5 transition-transform duration-700 ease-out lg:block"
+        style={{ transform: "translateZ(-40px) rotate(-7deg)" }}
+      >
+        {prevImg && (
+          <img
+            src={prevImg}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover blur-[1px]"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-tr from-zinc-950/70 via-zinc-950/30 to-transparent" />
+      </div>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-10 -bottom-2 hidden h-[78%] w-[58%] rotate-[6deg] overflow-hidden rounded-3xl opacity-55 shadow-2xl shadow-black/70 ring-1 ring-white/5 transition-transform duration-700 ease-out lg:block"
+        style={{ transform: "translateZ(-60px) rotate(6deg)" }}
+      >
+        {nextImg && (
+          <img
+            src={nextImg}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover blur-[1px]"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-bl from-fuchsia-500/10 via-zinc-950/40 to-zinc-950/70" />
+      </div>
+
+      {/* Main card */}
       <div
         ref={tiltRef}
         className="relative overflow-hidden rounded-3xl bg-zinc-900 shadow-2xl shadow-black/60 ring-1 ring-white/10"
@@ -532,11 +739,12 @@ function FeaturedSpotlight({ items = [] }) {
           Now Featured
         </div>
 
-        {/* Poster — keyed by idx so React unmounts & remounts for a clean swap */}
+        {/* Poster — keyed so React unmounts & remounts for a clean fade swap */}
         <Link
           key={a.mal_id}
           to={`/anime/${a.mal_id}`}
-          className="block aspect-[3/4] w-full"
+          className="group/poster block aspect-[3/4] w-full"
+          aria-label={`Open ${a.title_english || a.title}`}
         >
           {img && (
             <img
@@ -544,10 +752,10 @@ function FeaturedSpotlight({ items = [] }) {
               alt={a.title || ""}
               loading="eager"
               decoding="async"
-              fetchpriority="high"
+              fetchPriority="high"
               width="420"
               height="560"
-              className="h-full w-full object-cover animate-[fadeIn_700ms_ease-out]"
+              className="h-full w-full object-cover transition-transform duration-700 ease-out animate-[fadeIn_700ms_ease-out] group-hover/poster:scale-[1.04]"
             />
           )}
         </Link>
@@ -557,6 +765,18 @@ function FeaturedSpotlight({ items = [] }) {
           aria-hidden
           className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent"
         />
+
+        {/* Hover-revealed quick action — sits above the gradient, below the meta */}
+        <div className="pointer-events-none absolute inset-x-5 bottom-[7.5rem] z-10 flex translate-y-2 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+          <Link
+            to={`/anime/${a.mal_id}`}
+            className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-extrabold text-zinc-900 shadow-lg shadow-black/40 ring-1 ring-white/30 transition hover:bg-fuchsia-300"
+          >
+            <IconPlay className="h-3.5 w-3.5" />
+            Open details
+            <IconChevronRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
 
         <div className="absolute inset-x-0 bottom-0 z-10 p-5">
           <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
@@ -596,24 +816,68 @@ function FeaturedSpotlight({ items = [] }) {
           )}
         </div>
 
-        {/* Rotation indicator dots */}
+        {/* Progress + rotation dots — top right. Progress key forces a restart
+            of the keyframe animation each time idx (or paused state) changes. */}
         <div
-          aria-hidden
-          className="absolute right-4 top-4 z-20 flex flex-col gap-1.5"
+          className="absolute right-3 top-3 z-20 flex flex-col items-center gap-2"
         >
-          {items.map((_, i) => (
+          <div className="relative h-9 w-9">
+            <svg
+              viewBox="0 0 36 36"
+              className="h-9 w-9 -rotate-90"
+              aria-hidden
+            >
+              <circle
+                cx="18"
+                cy="18"
+                r="15.5"
+                fill="rgba(9,9,11,0.55)"
+                stroke="rgba(255,255,255,0.1)"
+                strokeWidth="2"
+              />
+              <circle
+                key={`${idx}-${paused}`}
+                cx="18"
+                cy="18"
+                r="15.5"
+                fill="none"
+                stroke="rgb(232 121 249)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeDasharray={2 * Math.PI * 15.5}
+                strokeDashoffset={2 * Math.PI * 15.5}
+                className={
+                  paused || items.length <= 1
+                    ? ""
+                    : "hero-spot-progress"
+                }
+              />
+            </svg>
             <button
-              key={i}
               type="button"
-              onClick={() => setIdx(i)}
-              aria-label={`Show featured ${i + 1}`}
-              className={`h-1.5 w-1.5 rounded-full transition-all ${
-                i === idx
-                  ? "h-4 bg-fuchsia-400 shadow-[0_0_6px_rgba(232,121,249,0.8)]"
-                  : "bg-white/30 hover:bg-white/60"
-              }`}
-            />
-          ))}
+              onClick={() => setIdx((i) => (i + 1) % items.length)}
+              aria-label="Next featured"
+              className="absolute inset-0 flex items-center justify-center rounded-full text-fuchsia-200 transition hover:text-white"
+            >
+              <IconChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {items.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setIdx(i)}
+                aria-label={`Show featured ${i + 1}`}
+                aria-current={i === idx ? "true" : undefined}
+                className={`h-1.5 w-1.5 rounded-full transition-all ${
+                  i === idx
+                    ? "h-4 bg-fuchsia-400 shadow-[0_0_6px_rgba(232,121,249,0.8)]"
+                    : "bg-white/30 hover:bg-white/60"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -622,7 +886,83 @@ function FeaturedSpotlight({ items = [] }) {
           from { opacity: 0; transform: scale(1.02); }
           to   { opacity: 1; transform: scale(1); }
         }
+        @keyframes heroSpotProgress {
+          from { stroke-dashoffset: ${2 * Math.PI * 15.5}px; }
+          to   { stroke-dashoffset: 0; }
+        }
+        .hero-spot-progress {
+          animation: heroSpotProgress ${SPOTLIGHT_INTERVAL_MS}ms linear forwards;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-spot-progress { animation: none; }
+        }
       `}</style>
+    </div>
+  );
+}
+
+/**
+ * Compact horizontal rail of upcoming featured posters — shown on small
+ * screens where the big spotlight column is hidden. Gives mobile users
+ * the same "what's hot now" visual entry point.
+ */
+function MobileSpotlightRail({ items = [] }) {
+  if (!items.length) return null;
+  return (
+    <div className="-mx-1">
+      <div className="mb-2 flex items-center justify-between px-1">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-fuchsia-500/15 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-widest text-fuchsia-200 ring-1 ring-fuchsia-400/30">
+          <IconStar className="h-3 w-3 fill-fuchsia-300 text-fuchsia-300" />
+          Featured now
+        </span>
+        <Link
+          to="/top"
+          className="inline-flex items-center gap-0.5 text-[11px] font-bold text-fuchsia-300 hover:underline"
+        >
+          See all
+          <IconChevronRight className="h-3 w-3" />
+        </Link>
+      </div>
+      <ul className="flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {items.map((a) => {
+          const img =
+            a.images?.webp?.image_url ??
+            a.images?.jpg?.image_url ??
+            a.images?.webp?.large_image_url;
+          return (
+            <li key={a.mal_id} className="snap-start shrink-0">
+              <Link
+                to={`/anime/${a.mal_id}`}
+                aria-label={a.title_english || a.title}
+                className="group block w-28 overflow-hidden rounded-xl bg-zinc-900 ring-1 ring-zinc-800 transition hover:ring-fuchsia-400/50 active:scale-[0.98]"
+              >
+                <div className="relative aspect-[3/4] w-full overflow-hidden">
+                  {img && (
+                    <img
+                      src={img}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      width="112"
+                      height="149"
+                      className="h-full w-full object-cover transition group-hover:scale-105"
+                    />
+                  )}
+                  {a.score && (
+                    <span className="absolute left-1 top-1 inline-flex items-center gap-0.5 rounded bg-zinc-950/80 px-1 py-0.5 text-[10px] font-extrabold text-amber-300 ring-1 ring-amber-500/40 backdrop-blur">
+                      <IconStar className="h-2.5 w-2.5 fill-amber-300 text-amber-300" />
+                      {Number(a.score).toFixed(1)}
+                    </span>
+                  )}
+                </div>
+                <p className="line-clamp-2 px-2 py-1.5 text-[11px] font-semibold text-zinc-200 group-hover:text-fuchsia-200">
+                  {a.title_english || a.title}
+                </p>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
@@ -1438,13 +1778,15 @@ function ScenePromoBanner({ posters = [] }) {
 
 function FeaturedGrid({ children }) {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{children}</div>
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
+      {children}
+    </div>
   );
 }
 
 function Grid({ children }) {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
       {children}
     </div>
   );
@@ -1484,7 +1826,7 @@ function FeaturedSkeletonGrid({ count = 6 }) {
 
 function SkeletonGrid() {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
       {Array.from({ length: 10 }).map((_, i) => (
         <div
           key={i}

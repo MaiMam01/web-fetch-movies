@@ -1,6 +1,6 @@
 export default function ProfileNavStrip({ tabs = [], value, onChange, actions }) {
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="page-container">
       <div className="mt-5 flex flex-col gap-3 border-b border-zinc-800 pb-3 sm:flex-row sm:items-center sm:justify-between">
         <nav className="scrollbar-thin -mx-1 flex gap-1 overflow-x-auto px-1">
           {tabs.map((t) => {

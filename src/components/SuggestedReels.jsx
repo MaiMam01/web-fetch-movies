@@ -100,7 +100,7 @@ export default function SuggestedReels({
   if (!loading && tiles.length === 0) return null;
 
   return (
-    <section className="mx-auto mt-12 max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="page-container mt-12">
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
           <h2 className="text-base font-bold text-zinc-100">{title}</h2>

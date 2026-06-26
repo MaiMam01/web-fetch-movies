@@ -179,7 +179,7 @@ export default function Scenes() {
 
   return (
     <AgeGate title="Scenes contain depictions of graphic violence">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="page-container py-6">
         {malId && anime ? (
           <SceneHero anime={anime} count={baseScenes.length} />
         ) : (
@@ -226,7 +226,7 @@ export default function Scenes() {
                 ) : (
                   <AnimeRowHeader title={key} malId={group[0]?.mal_id} />
                 )}
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
                   {group.map((s) => (
                     <SceneTile
                       key={s.id}

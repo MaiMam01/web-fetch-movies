@@ -192,7 +192,7 @@ export default function Community() {
     <div>
       <CommunityHero />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="page-container">
         <CommunityTabs tab={tab} onTab={handleTab} />
 
         {tab === "feed" && (
@@ -254,7 +254,7 @@ function CommunityHero() {
             "radial-gradient(circle at 20% 20%, rgba(244,114,32,0.18), transparent 45%), radial-gradient(circle at 80% 60%, rgba(99,102,241,0.18), transparent 45%)",
         }}
       />
-      <div className="relative mx-auto flex max-w-7xl flex-col items-center justify-center px-4 py-14 text-center sm:px-6 lg:px-8">
+      <div className="page-container relative flex flex-col items-center justify-center py-14 text-center">
         <p className="text-[11px] font-bold uppercase tracking-[0.4em] text-brand-500">
           Anime fans · everywhere
         </p>
@@ -505,7 +505,7 @@ function MembersTab() {
           ]}
         />
       </div>
-      <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 2xl:grid-cols-8">
         {list.map((m) => (
           <li
             key={m.name}

@@ -74,7 +74,7 @@ export default function Characters() {
     : sorted;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="page-container py-6">
       <div className="scrollbar-thin flex gap-2 overflow-x-auto pb-3">
         {QUICK_TAGS.map((t) => (
           <button
@@ -116,7 +116,7 @@ export default function Characters() {
       {loading ? (
         <Skeleton />
       ) : (
-        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10">
           {filtered.map((c) => (
             <PersonCard
               key={c.mal_id}
@@ -159,7 +159,7 @@ function Pagination({ page, onChange, canNext }) {
 
 function Skeleton() {
   return (
-    <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+    <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10">
       {Array.from({ length: 16 }).map((_, i) => (
         <div key={i}>
           <div className="aspect-square w-full animate-pulse rounded-md bg-zinc-900" />

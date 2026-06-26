@@ -25,7 +25,7 @@ export default function PersonHero({
   const bg = img;
 
   return (
-    <section className="mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="page-container mt-6">
       <div className="relative isolate overflow-hidden rounded-2xl bg-zinc-900 ring-1 ring-zinc-800">
         {bg && (
           <div

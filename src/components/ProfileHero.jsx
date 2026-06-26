@@ -15,7 +15,7 @@ export default function ProfileHero({
   badges = [],
 }) {
   return (
-    <section className="relative mx-auto mt-4 max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="page-container relative mt-4">
       <div className="relative overflow-hidden rounded-2xl ring-1 ring-zinc-800">
         <div className="relative aspect-[5/2] min-h-[180px] w-full bg-zinc-900 sm:min-h-[260px]">
           {cover && (

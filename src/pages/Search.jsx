@@ -119,7 +119,7 @@ export default function Search() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="page-container py-6">
       <p className="text-xs font-semibold uppercase tracking-widest text-brand-500">
         Search
       </p>

@@ -126,7 +126,7 @@ export default function Footer() {
 
       {/* Newsletter / CTA banner */}
       <div className="border-b border-zinc-800/60">
-        <div className="mx-auto flex max-w-7xl flex-col items-start gap-5 px-4 py-8 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+        <div className="page-container flex flex-col items-start gap-5 py-8 md:flex-row md:items-center md:justify-between">
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-fuchsia-400/30 bg-fuchsia-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-fuchsia-300">
               <span aria-hidden>★</span> The Weekly Drop
@@ -174,7 +174,7 @@ export default function Footer() {
       </div>
 
       {/* Main columns */}
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:px-8">
+      <div className="page-container grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
         {/* Brand block */}
         <div className="space-y-5 sm:col-span-2 lg:col-span-4">
           <Logo size="lg" tagline="The funky anime archive" />
@@ -221,7 +221,7 @@ export default function Footer() {
 
       {/* Bottom strip */}
       <div className="border-t border-zinc-800/60 bg-zinc-950/60 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-col items-start gap-3 px-4 py-5 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <div className="page-container flex flex-col items-start gap-3 py-5 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-3">
             <span>© 2026 — AnimeDB</span>
             <span className="text-zinc-700">·</span>

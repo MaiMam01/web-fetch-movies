@@ -18,9 +18,12 @@ export default defineConfig({
       output: {
         // Split heavy vendor libs into long-lived cacheable chunks so the
         // app bundle stays small and updates don't bust the framework cache.
+        // GSAP is dynamic-imported throughout the app — pinning it to its
+        // own chunk lets the browser cache it permanently across deploys.
         manualChunks(id) {
           if (!id.includes("node_modules")) return undefined;
           if (id.includes("react-router")) return "router";
+          if (id.includes("/gsap/")) return "gsap";
           if (
             id.includes("/react/") ||
             id.includes("/react-dom/") ||

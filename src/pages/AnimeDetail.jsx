@@ -82,7 +82,7 @@ export default function AnimeDetail() {
   }
   if (error || !anime) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-12 text-red-300 sm:px-6 lg:px-8">
+      <div className="page-container py-12 text-red-300">
         Could not load this title. {error}
       </div>
     );
@@ -107,7 +107,7 @@ export default function AnimeDetail() {
     <div className="text-zinc-100">
       <Hero anime={anime} sceneCount={animeScenes.length} />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="page-container">
         <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
           <FilterPills value={tab} onChange={setTab} options={TAB_OPTIONS(counts)} />
           <SortBar />
@@ -130,7 +130,7 @@ export default function AnimeDetail() {
             <h2 className="mb-4 text-base font-bold text-zinc-100">
               Characters &amp; Voice Cast
             </h2>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 2xl:grid-cols-8">
               {charsByGroup.map((c) => (
                 <CharacterCard
                   key={`${c.character.mal_id}-${c.role ?? "any"}`}
@@ -205,7 +205,7 @@ function Hero({ anime, sceneCount }) {
   );
 
   return (
-    <section className="mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="page-container mt-6">
       <div className="relative isolate overflow-hidden rounded-2xl bg-zinc-900 ring-1 ring-zinc-800">
         {bg && (
           <div
@@ -381,7 +381,7 @@ function ScenesGroupedGrid({ scenes, characters }) {
             character={characterName}
             role={sceneGroup[0]?.role}
           />
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
             {sceneGroup.map((s) => (
               <SceneTile key={s.id} scene={s} />
             ))}
@@ -463,14 +463,14 @@ function SynopsisAndDetails({ anime, sceneCount }) {
 
 function DetailSkeleton() {
   return (
-    <div className="mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="page-container mt-6">
       <div className="h-72 animate-pulse rounded-2xl bg-zinc-900" />
       <div className="mt-8 flex gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="h-8 w-24 animate-pulse rounded-full bg-zinc-900" />
         ))}
       </div>
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
         {Array.from({ length: 10 }).map((_, i) => (
           <div key={i} className="aspect-video animate-pulse rounded-md bg-zinc-900" />
         ))}

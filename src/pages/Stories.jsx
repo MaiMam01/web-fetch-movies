@@ -115,7 +115,7 @@ export default function Stories() {
   }, [stories, tab, sort]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="page-container py-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-brand-500">
@@ -161,7 +161,7 @@ export default function Stories() {
       {loading && stories.length === 0 ? (
         <Skeleton />
       ) : (
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10">
           {filtered.map((s) => (
             <StoryReel key={s.id} story={s} onClick={() => setPlayerId(s.id)} />
           ))}
@@ -196,7 +196,7 @@ export default function Stories() {
 
 function Skeleton() {
   return (
-    <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+    <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10">
       {Array.from({ length: 16 }).map((_, i) => (
         <div
           key={i}

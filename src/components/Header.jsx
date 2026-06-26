@@ -272,7 +272,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-zinc-800/80 bg-zinc-950/95 backdrop-blur">
       <div className="border-b border-zinc-900 bg-zinc-950">
-        <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-3 sm:px-6 lg:px-8">
+        <div className="page-container flex h-14 items-center gap-3">
           {/* Mobile hamburger — opens full nav drawer */}
           <button
             type="button"
@@ -423,7 +423,7 @@ export default function Header() {
       <nav className="hidden md:block">
         <ul
           ref={navRef}
-          className="mx-auto flex h-12 max-w-7xl items-center gap-1 px-4 sm:px-6 lg:px-8"
+          className="page-container flex h-12 items-center gap-1"
         >
           {NAV_ITEMS.map((item) => {
             if (item.dropdown) {

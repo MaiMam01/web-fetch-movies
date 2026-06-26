@@ -1,60 +1,199 @@
 const JIKAN_BASE = "https://api.jikan.moe/v4";
 
 // Two-tier cache:
-//   1. In-memory Map  — instant, lasts for the SPA session
-//   2. sessionStorage — survives reloads within the same tab, capped at ~5MB
+//   1. In-memory Map — instant, lasts for the SPA session
+//   2. localStorage  — survives reloads AND tab close (so repeat visits load
+//                      from cache with zero API calls). Capped at ~5MB across
+//                      the origin; we self-evict our own namespace on quota.
 const memoryCache = new Map();
 const inflight = new Map();
-const TTL_MS = 1000 * 60 * 30; // 30 minutes
+const TTL_MS = 1000 * 60 * 60 * 6; // 6 hours — Jikan data changes slowly and
+                                   // persisted cache means returning visitors
+                                   // get instant loads.
 const STORAGE_KEY = "jikan_cache_v1";
 
-const hasStorage = (() => {
+const storage = (() => {
   try {
-    if (typeof sessionStorage === "undefined") return false;
-    sessionStorage.setItem(`${STORAGE_KEY}__probe`, "1");
-    sessionStorage.removeItem(`${STORAGE_KEY}__probe`);
-    return true;
+    if (typeof localStorage === "undefined") return null;
+    localStorage.setItem(`${STORAGE_KEY}__probe`, "1");
+    localStorage.removeItem(`${STORAGE_KEY}__probe`);
+    return localStorage;
   } catch {
-    return false;
+    return null;
   }
 })();
 
-function readStorage(path) {
-  if (!hasStorage) return null;
+function readStorageRaw(path) {
+  if (!storage) return null;
   try {
-    const raw = sessionStorage.getItem(`${STORAGE_KEY}:${path}`);
+    const raw = storage.getItem(`${STORAGE_KEY}:${path}`);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (!parsed || Date.now() - parsed.t > TTL_MS) return null;
+    if (!parsed || typeof parsed !== "object") return null;
     return parsed;
   } catch {
     return null;
   }
 }
 
+function readStorage(path) {
+  const parsed = readStorageRaw(path);
+  if (!parsed) return null;
+  if (Date.now() - parsed.t > TTL_MS) return null;
+  return parsed;
+}
+
 function writeStorage(path, entry) {
-  if (!hasStorage) return;
+  if (!storage) return;
   try {
-    sessionStorage.setItem(`${STORAGE_KEY}:${path}`, JSON.stringify(entry));
+    storage.setItem(`${STORAGE_KEY}:${path}`, JSON.stringify(entry));
   } catch {
     // Quota exceeded — clear our cache namespace and try once more silently.
     try {
-      for (const key of Object.keys(sessionStorage)) {
-        if (key.startsWith(`${STORAGE_KEY}:`)) sessionStorage.removeItem(key);
+      for (let i = storage.length - 1; i >= 0; i -= 1) {
+        const key = storage.key(i);
+        if (key && key.startsWith(`${STORAGE_KEY}:`)) storage.removeItem(key);
       }
-      sessionStorage.setItem(`${STORAGE_KEY}:${path}`, JSON.stringify(entry));
+      storage.setItem(`${STORAGE_KEY}:${path}`, JSON.stringify(entry));
     } catch {
       /* give up — memory cache still works */
     }
   }
 }
 
+// One-time idle cleanup: evict entries that are way past their TTL so we
+// don't carry decade-old cache forever and risk hitting quota.
+if (storage && typeof window !== "undefined") {
+  const runCleanup = () => {
+    try {
+      const cutoff = Date.now() - TTL_MS * 4; // 4× TTL = 24h
+      for (let i = storage.length - 1; i >= 0; i -= 1) {
+        const key = storage.key(i);
+        if (!key || !key.startsWith(`${STORAGE_KEY}:`)) continue;
+        const raw = storage.getItem(key);
+        if (!raw) continue;
+        try {
+          const parsed = JSON.parse(raw);
+          if (!parsed?.t || parsed.t < cutoff) storage.removeItem(key);
+        } catch {
+          storage.removeItem(key);
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  };
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(runCleanup, { timeout: 4000 });
+  } else {
+    setTimeout(runCleanup, 3000);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Global rate limiter — Jikan caps us at 3 req/sec AND 60 req/min. Across the
+// whole SPA every fetch goes through this queue so concurrent components
+// (Home loads top + featured TV + featured Films + character rail + best-of
+// slider simultaneously) can't burst past those caps.
+// ---------------------------------------------------------------------------
+const MAX_CONCURRENT = 2;
+const MIN_GAP_MS = 380; // ≈ 2.6 req/s burst — safely under 3/s ceiling
+const WINDOW_MS = 60_000;
+const WINDOW_LIMIT = 55; // stay under 60/min hard cap
+
+const queue = [];
+const recentStarts = [];
+let active = 0;
+let lastStart = 0;
+let pumpTimer = null;
+
+function schedule(task) {
+  return new Promise((resolve, reject) => {
+    queue.push({ task, resolve, reject });
+    pump();
+  });
+}
+
+function pump() {
+  if (pumpTimer) {
+    clearTimeout(pumpTimer);
+    pumpTimer = null;
+  }
+  while (active < MAX_CONCURRENT && queue.length > 0) {
+    const now = Date.now();
+    // Drop expired window entries.
+    while (recentStarts.length && now - recentStarts[0] > WINDOW_MS) {
+      recentStarts.shift();
+    }
+    let wait = 0;
+    if (now - lastStart < MIN_GAP_MS) {
+      wait = Math.max(wait, MIN_GAP_MS - (now - lastStart));
+    }
+    if (recentStarts.length >= WINDOW_LIMIT) {
+      wait = Math.max(wait, WINDOW_MS - (now - recentStarts[0]) + 100);
+    }
+    if (wait > 0) {
+      pumpTimer = setTimeout(pump, wait);
+      return;
+    }
+    const { task, resolve, reject } = queue.shift();
+    active += 1;
+    lastStart = now;
+    recentStarts.push(now);
+    Promise.resolve()
+      .then(task)
+      .then(resolve, reject)
+      .finally(() => {
+        active -= 1;
+        pump();
+      });
+  }
+}
+
+// Fetch with retry — honors Retry-After header, exponential backoff with
+// jitter on 429 / 5xx. The outer schedule() already limits the rate so most
+// calls won't ever 429, but we still defend against the API's own bursts.
+async function fetchWithRetry(path, signal) {
+  const maxAttempts = 5;
+  let attempt = 0;
+  while (true) {
+    let res;
+    try {
+      res = await fetch(`${JIKAN_BASE}${path}`, { signal });
+    } catch (networkErr) {
+      // Network failure (offline / DNS). Retry with backoff a few times.
+      if (attempt < maxAttempts) {
+        attempt += 1;
+        const wait = Math.min(8000, 600 * 2 ** (attempt - 1)) + Math.random() * 250;
+        await new Promise((r) => setTimeout(r, wait));
+        continue;
+      }
+      throw networkErr;
+    }
+    if (res.ok) return res.json();
+
+    const retryable = res.status === 429 || (res.status >= 500 && res.status < 600);
+    if (retryable && attempt < maxAttempts) {
+      attempt += 1;
+      const retryAfterHeader = res.headers.get("retry-after");
+      const retryAfterSec = retryAfterHeader ? parseFloat(retryAfterHeader) : 0;
+      const wait =
+        retryAfterSec > 0
+          ? retryAfterSec * 1000 + 100
+          : Math.min(8000, 600 * 2 ** (attempt - 1)) + Math.random() * 300;
+      await new Promise((r) => setTimeout(r, wait));
+      continue;
+    }
+    throw new Error(`Jikan request failed: ${res.status} ${res.statusText}`);
+  }
+}
+
 async function jget(path) {
-  // 1. Memory hit?
+  // 1. Memory hit (fresh)?
   const mem = memoryCache.get(path);
   if (mem && Date.now() - mem.t < TTL_MS) return mem.v;
 
-  // 2. SessionStorage hit? Promote to memory so we don't re-parse JSON.
+  // 2. SessionStorage hit (fresh)? Promote to memory so we don't re-parse JSON.
   const stored = readStorage(path);
   if (stored) {
     memoryCache.set(path, stored);
@@ -67,25 +206,23 @@ async function jget(path) {
   if (pending) return pending;
 
   const promise = (async () => {
-    let attempt = 0;
-    while (true) {
-      const res = await fetch(`${JIKAN_BASE}${path}`);
-      if (res.ok) {
-        const json = await res.json();
-        const entry = { t: Date.now(), v: json };
-        memoryCache.set(path, entry);
-        writeStorage(path, entry);
-        return json;
+    try {
+      const json = await schedule(() => fetchWithRetry(path));
+      const entry = { t: Date.now(), v: json };
+      memoryCache.set(path, entry);
+      writeStorage(path, entry);
+      return json;
+    } catch (err) {
+      // Stale-while-error: when the API is rate-limiting us or down, return
+      // whatever cached data we have (ignoring TTL) instead of failing the UI.
+      const staleMem = memoryCache.get(path);
+      if (staleMem) return staleMem.v;
+      const staleStorage = readStorageRaw(path);
+      if (staleStorage) {
+        memoryCache.set(path, staleStorage);
+        return staleStorage.v;
       }
-      // Honor Jikan's 3 req/s + 60 req/min rate limit with a short backoff.
-      if (res.status === 429 && attempt < 2) {
-        attempt += 1;
-        await new Promise((r) => setTimeout(r, 500 * 2 ** attempt));
-        continue;
-      }
-      throw new Error(
-        `Jikan request failed: ${res.status} ${res.statusText}`
-      );
+      throw err;
     }
   })().finally(() => {
     inflight.delete(path);
@@ -238,19 +375,23 @@ export async function getAnimeByGenre({
 }
 
 export async function resolveFromTitles(entries) {
-  const results = [];
-  for (const entry of entries) {
+  // The global limiter already enforces per-second + per-minute caps, so we
+  // can fire these in parallel and let the queue pace them. This is faster
+  // than the old sequential 350ms-spaced loop without risking 429s.
+  const lookups = entries.map(async (entry) => {
     const isObj = entry && typeof entry === "object";
     const query = isObj ? entry.search ?? entry.title : entry;
     try {
       const hits = await searchAnime(query, 1);
       if (hits[0]) {
-        results.push(isObj ? { ...hits[0], _editorial: entry } : hits[0]);
+        return isObj ? { ...hits[0], _editorial: entry } : hits[0];
       }
-      await new Promise((r) => setTimeout(r, 350));
+      return null;
     } catch (e) {
       console.warn(`Jikan lookup failed for "${query}":`, e);
+      return null;
     }
-  }
-  return results;
+  });
+  const results = await Promise.all(lookups);
+  return results.filter(Boolean);
 }

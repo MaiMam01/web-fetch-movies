@@ -78,7 +78,7 @@ export default function CharacterDetail() {
   if (loading && !character) return <Skeleton />;
   if (error || !character) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-12 text-red-300 sm:px-6 lg:px-8">
+      <div className="page-container py-12 text-red-300">
         Could not load this character. {error}
       </div>
     );
@@ -278,7 +278,7 @@ export default function CharacterDetail() {
         />
       )}
 
-      <div className="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="page-container mt-10">
         {showScenes && (
           <section className="mt-2">
             <SectionTitle title="Scene Highlights" count={characterScenes.length} />
@@ -381,7 +381,7 @@ export default function CharacterDetail() {
         )}
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="page-container">
         <RecommendedCharactersRail
           currentId={character.mal_id}
           animeAppearances={animeAppearances}
@@ -456,7 +456,7 @@ function EmptyHint({ name }) {
 
 function Skeleton() {
   return (
-    <div className="mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="page-container mt-6">
       <div className="aspect-[5/2] animate-pulse rounded-2xl bg-zinc-900" />
       <div className="mt-5 flex gap-2 border-b border-zinc-800 pb-3">
         {Array.from({ length: 4 }).map((_, i) => (

@@ -113,7 +113,7 @@ export default function CategoryDetail() {
     results[0]?.images?.jpg?.large_image_url;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="page-container py-6">
       <Breadcrumbs name={activeGenre?.name} />
 
       <GenreChipRow genres={genres} activeId={id} />

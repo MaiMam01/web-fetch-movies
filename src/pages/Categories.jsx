@@ -130,7 +130,7 @@ export default function Categories() {
     filter === "genres" ? "Genres" : filter === "themes" ? "Themes" : "Demographics";
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="page-container py-6">
       {/* Hero */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
@@ -219,7 +219,7 @@ export default function Categories() {
       {loading ? (
         <SkeletonTiles count={12} />
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 2xl:grid-cols-8">
           {popular.map((g) => (
             <CategoryTile
               key={g.mal_id}
@@ -246,7 +246,7 @@ export default function Categories() {
               />
             }
           />
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 2xl:grid-cols-8">
             {rest.map((g) => (
               <CategoryTile
                 key={g.mal_id}
@@ -299,7 +299,7 @@ function SectionEyebrow({ title, accent = "fuchsia", action }) {
 
 function SkeletonTiles({ count }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 2xl:grid-cols-8">
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}

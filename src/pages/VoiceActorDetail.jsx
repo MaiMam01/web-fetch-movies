@@ -75,7 +75,7 @@ export default function VoiceActorDetail() {
   if (loading && !person) return <Skeleton />;
   if (error || !person) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-12 text-red-300 sm:px-6 lg:px-8">
+      <div className="page-container py-12 text-red-300">
         Could not load this voice actor. {error}
       </div>
     );
@@ -280,7 +280,7 @@ export default function VoiceActorDetail() {
         />
       )}
 
-      <div className="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="page-container mt-10">
         {showVoices && groupedByAnime.length > 0 && (
           <section className="mt-2">
             <SectionTitle title="Voice Roles" count={voiceRoles.length} />
@@ -297,7 +297,7 @@ export default function VoiceActorDetail() {
                       role={g.roles[0]?.role}
                     />
                   )}
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
                     {g.roles.map((r, ri) => (
                       <VoiceRoleCard
                         key={`${r.character?.mal_id ?? "x"}-${r.role ?? ""}-${ri}`}
@@ -314,7 +314,7 @@ export default function VoiceActorDetail() {
         {showAnimeGrid && groupedByAnime.length > 0 && (
           <section className="mt-2">
             <SectionTitle title="Anime" count={groupedByAnime.length} />
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
               {groupedByAnime.map(
                 (g) =>
                   g.anime && (
@@ -355,7 +355,7 @@ export default function VoiceActorDetail() {
         {showStaff && animeStaff.length > 0 && (
           <section className="mt-12">
             <SectionTitle title="Staff Credits" count={animeStaff.length} />
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
               {animeStaff.map((entry) => (
                 <Link
                   key={`${entry.anime.mal_id}-${entry.position}`}
@@ -458,7 +458,7 @@ function VoiceRoleCard({ role }) {
 
 function Skeleton() {
   return (
-    <div className="mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="page-container mt-6">
       <div className="aspect-[5/2] animate-pulse rounded-2xl bg-zinc-900" />
       <div className="mt-5 flex gap-2 border-b border-zinc-800 pb-3">
         {Array.from({ length: 4 }).map((_, i) => (
