@@ -3,6 +3,7 @@ import PersonCard from "../components/PersonCard.jsx";
 import FilterPills from "../components/FilterPills.jsx";
 import SortDropdown from "../components/SortDropdown.jsx";
 import { getTopCharacters } from "../services/jikan.js";
+import SEED_TOP_CHARACTERS from "../data/topCharacters.json";
 
 const QUICK_TAGS = [
   "Main",
@@ -30,31 +31,40 @@ const SORT_OPTIONS = [
 ];
 
 export default function Characters() {
-  const [characters, setCharacters] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
+  // Seed page 1 with baked-in data so the grid is fully painted on first
+  // render — zero loading state for the common case (cold visit to /characters).
+  // Subsequent pages fall back to a live fetch.
+  const [characters, setCharacters] = useState(SEED_TOP_CHARACTERS);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [sort, setSort] = useState("trending");
   const [activeTag, setActiveTag] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
+    const isBackgroundRefresh = page === 1 && characters.length > 0;
+    setError(null); // clear any stale error from a previous page change
     async function run() {
       try {
-        setLoading(true);
+        if (!isBackgroundRefresh) setLoading(true);
         const data = await getTopCharacters(page);
         if (cancelled) return;
-        setCharacters(data);
+        if (data && data.length) setCharacters(data);
       } catch (e) {
-        if (!cancelled) setError(e.message);
+        // Only set a soft inline notice when there's literally nothing to show.
+        if (!cancelled && !isBackgroundRefresh && characters.length === 0) {
+          setError("Live data unavailable. Try again in a moment.");
+        }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled && !isBackgroundRefresh) setLoading(false);
       }
     }
     run();
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   const sorted = [...characters].sort((a, b) => {
@@ -107,9 +117,16 @@ export default function Characters() {
         <SortDropdown value={sort} onChange={setSort} options={SORT_OPTIONS} />
       </div>
 
-      {error && (
-        <div className="mt-8 rounded-lg border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-200">
-          {error}
+      {error && characters.length === 0 && (
+        <div className="mt-8 flex items-center justify-between gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
+          <span>{error}</span>
+          <button
+            type="button"
+            onClick={() => setPage((p) => p)}
+            className="rounded-md border border-amber-400/40 bg-amber-500/10 px-2.5 py-1 font-semibold hover:bg-amber-500/20"
+          >
+            Retry
+          </button>
         </div>
       )}
 

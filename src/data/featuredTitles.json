@@ -6,7 +6,29 @@
       "mal_id": 5114,
       "imdb_rating": 9.1,
       "vibe": "Action / Dark Fantasy",
-      "blurb": "Widely considered the gold standard of anime. Perfect pacing, zero filler, and incredible philosophical themes around sacrifice and ambition."
+      "blurb": "Widely considered the gold standard of anime. Perfect pacing, zero filler, and incredible philosophical themes around sacrifice and ambition.",
+      "cached_title": "Fullmetal Alchemist: Brotherhood",
+      "cached_title_english": "Fullmetal Alchemist: Brotherhood",
+      "cached_year": 2009,
+      "cached_score": 9.11,
+      "cached_episodes": 64,
+      "cached_type": "TV",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/1208/94745.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/1208/94745l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 1,
+          "name": "Action"
+        },
+        {
+          "mal_id": 2,
+          "name": "Adventure"
+        },
+        {
+          "mal_id": 8,
+          "name": "Drama"
+        }
+      ]
     },
     {
       "title": "Attack on Titan",
@@ -14,15 +36,59 @@
       "mal_id": 16498,
       "imdb_rating": 9.1,
       "vibe": "Dark Thriller / Action",
-      "blurb": "A masterclass in plot twists, political intrigue, and high-stakes tension. The storytelling is tightly wound from the very first episode."
+      "blurb": "A masterclass in plot twists, political intrigue, and high-stakes tension. The storytelling is tightly wound from the very first episode.",
+      "cached_title": "Shingeki no Kyojin",
+      "cached_title_english": "Attack on Titan",
+      "cached_year": 2013,
+      "cached_score": 8.57,
+      "cached_episodes": 25,
+      "cached_type": "TV",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/10/47347.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/10/47347l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 1,
+          "name": "Action"
+        },
+        {
+          "mal_id": 46,
+          "name": "Award Winning"
+        },
+        {
+          "mal_id": 8,
+          "name": "Drama"
+        }
+      ]
     },
     {
       "title": "Hunter x Hunter (2011)",
       "search": "Hunter x Hunter 2011",
       "mal_id": 11061,
-      "imdb_rating": 9.0,
+      "imdb_rating": 9,
       "vibe": "Adventure / Shonen",
-      "blurb": "Don't let the bright art style fool you — this series evolves into one of the darkest, most psychologically complex power systems in anime."
+      "blurb": "Don't let the bright art style fool you — this series evolves into one of the darkest, most psychologically complex power systems in anime.",
+      "cached_title": "Hunter x Hunter (2011)",
+      "cached_title_english": "Hunter x Hunter",
+      "cached_year": 2011,
+      "cached_score": 9.03,
+      "cached_episodes": 148,
+      "cached_type": "TV",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/1337/99013.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/1337/99013l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 1,
+          "name": "Action"
+        },
+        {
+          "mal_id": 2,
+          "name": "Adventure"
+        },
+        {
+          "mal_id": 10,
+          "name": "Fantasy"
+        }
+      ]
     },
     {
       "title": "Death Note",
@@ -30,7 +96,25 @@
       "mal_id": 1535,
       "imdb_rating": 8.9,
       "vibe": "Psychological Thriller",
-      "blurb": "The ultimate high-IQ cat-and-mouse game between a brilliant high schooler with a death god's notebook and an eccentric detective."
+      "blurb": "The ultimate high-IQ cat-and-mouse game between a brilliant high schooler with a death god's notebook and an eccentric detective.",
+      "cached_title": "Death Note",
+      "cached_title_english": "Death Note",
+      "cached_year": 2006,
+      "cached_score": 8.62,
+      "cached_episodes": 37,
+      "cached_type": "TV",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/1079/138100.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/1079/138100l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 37,
+          "name": "Supernatural"
+        },
+        {
+          "mal_id": 41,
+          "name": "Suspense"
+        }
+      ]
     },
     {
       "title": "Cowboy Bebop",
@@ -38,7 +122,29 @@
       "mal_id": 1,
       "imdb_rating": 8.9,
       "vibe": "Sci-Fi / Space Western",
-      "blurb": "Pure style, a legendary jazz soundtrack, and an episodic exploration of loneliness, regret, and running from your past."
+      "blurb": "Pure style, a legendary jazz soundtrack, and an episodic exploration of loneliness, regret, and running from your past.",
+      "cached_title": "Cowboy Bebop",
+      "cached_title_english": "Cowboy Bebop",
+      "cached_year": 1998,
+      "cached_score": 8.75,
+      "cached_episodes": 26,
+      "cached_type": "TV",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/4/19644.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/4/19644l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 1,
+          "name": "Action"
+        },
+        {
+          "mal_id": 46,
+          "name": "Award Winning"
+        },
+        {
+          "mal_id": 24,
+          "name": "Sci-Fi"
+        }
+      ]
     },
     {
       "title": "Vinland Saga",
@@ -46,7 +152,29 @@
       "mal_id": 37521,
       "imdb_rating": 8.8,
       "vibe": "Historical Epic / Action",
-      "blurb": "A breathtaking Viking epic that transitions from a brutal revenge story into a deep, emotional masterpiece about peace and redemption."
+      "blurb": "A breathtaking Viking epic that transitions from a brutal revenge story into a deep, emotional masterpiece about peace and redemption.",
+      "cached_title": "Vinland Saga",
+      "cached_title_english": null,
+      "cached_year": 2019,
+      "cached_score": 8.78,
+      "cached_episodes": 24,
+      "cached_type": "TV",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/1500/103005.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/1500/103005l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 1,
+          "name": "Action"
+        },
+        {
+          "mal_id": 2,
+          "name": "Adventure"
+        },
+        {
+          "mal_id": 8,
+          "name": "Drama"
+        }
+      ]
     },
     {
       "title": "Steins;Gate",
@@ -54,7 +182,29 @@
       "mal_id": 9253,
       "imdb_rating": 8.8,
       "vibe": "Sci-Fi / Time Travel",
-      "blurb": "One of the best-written time-travel thrillers in fiction. It starts slow as a quirky slice-of-life before pulling the rug out from under you."
+      "blurb": "One of the best-written time-travel thrillers in fiction. It starts slow as a quirky slice-of-life before pulling the rug out from under you.",
+      "cached_title": "Steins;Gate",
+      "cached_title_english": "Steins;Gate",
+      "cached_year": 2011,
+      "cached_score": 9.07,
+      "cached_episodes": 24,
+      "cached_type": "TV",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/1935/127974.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/1935/127974l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 8,
+          "name": "Drama"
+        },
+        {
+          "mal_id": 24,
+          "name": "Sci-Fi"
+        },
+        {
+          "mal_id": 41,
+          "name": "Suspense"
+        }
+      ]
     },
     {
       "title": "Monster",
@@ -62,7 +212,29 @@
       "mal_id": 19,
       "imdb_rating": 8.7,
       "vibe": "Crime / Psychological",
-      "blurb": "A slow-burn masterpiece following a brain surgeon who accidentally saves the life of a young boy who grows up to be a charismatic serial killer."
+      "blurb": "A slow-burn masterpiece following a brain surgeon who accidentally saves the life of a young boy who grows up to be a charismatic serial killer.",
+      "cached_title": "Monster",
+      "cached_title_english": "Monster",
+      "cached_year": 2004,
+      "cached_score": 8.89,
+      "cached_episodes": 74,
+      "cached_type": "TV",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/10/18793.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/10/18793l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 8,
+          "name": "Drama"
+        },
+        {
+          "mal_id": 7,
+          "name": "Mystery"
+        },
+        {
+          "mal_id": 41,
+          "name": "Suspense"
+        }
+      ]
     },
     {
       "title": "Code Geass: Lelouch of the Rebellion",
@@ -70,7 +242,29 @@
       "mal_id": 1575,
       "imdb_rating": 8.7,
       "vibe": "Mecha / Political Sci-Fi",
-      "blurb": "Features one of the greatest anti-heroes in fiction. It's essentially chess on a global scale with mechs and mind control."
+      "blurb": "Features one of the greatest anti-heroes in fiction. It's essentially chess on a global scale with mechs and mind control.",
+      "cached_title": "Code Geass: Hangyaku no Lelouch",
+      "cached_title_english": "Code Geass: Lelouch of the Rebellion",
+      "cached_year": 2006,
+      "cached_score": 8.71,
+      "cached_episodes": 25,
+      "cached_type": "TV",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/1032/135088.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/1032/135088l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 46,
+          "name": "Award Winning"
+        },
+        {
+          "mal_id": 8,
+          "name": "Drama"
+        },
+        {
+          "mal_id": 24,
+          "name": "Sci-Fi"
+        }
+      ]
     },
     {
       "title": "Jujutsu Kaisen",
@@ -78,7 +272,29 @@
       "mal_id": 40748,
       "imdb_rating": 8.6,
       "vibe": "Action / Supernatural",
-      "blurb": "Modern shonen at its peak, offering some of the most fluid, jaw-droppingly animated combat sequences of the last decade."
+      "blurb": "Modern shonen at its peak, offering some of the most fluid, jaw-droppingly animated combat sequences of the last decade.",
+      "cached_title": "Jujutsu Kaisen",
+      "cached_title_english": "Jujutsu Kaisen",
+      "cached_year": 2020,
+      "cached_score": 8.5,
+      "cached_episodes": 24,
+      "cached_type": "TV",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/1171/109222.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/1171/109222l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 1,
+          "name": "Action"
+        },
+        {
+          "mal_id": 46,
+          "name": "Award Winning"
+        },
+        {
+          "mal_id": 37,
+          "name": "Supernatural"
+        }
+      ]
     }
   ],
   "films": [
@@ -88,7 +304,29 @@
       "mal_id": 199,
       "imdb_rating": 8.6,
       "vibe": "Fantasy / Adventure",
-      "blurb": "Studio Ghibli's crowning achievement. A magical, beautifully animated masterpiece that won an Academy Award for a reason."
+      "blurb": "Studio Ghibli's crowning achievement. A magical, beautifully animated masterpiece that won an Academy Award for a reason.",
+      "cached_title": "Sen to Chihiro no Kamikakushi",
+      "cached_title_english": "Spirited Away",
+      "cached_year": 2001,
+      "cached_score": 8.77,
+      "cached_episodes": 1,
+      "cached_type": "Movie",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/6/79597.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/6/79597l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 2,
+          "name": "Adventure"
+        },
+        {
+          "mal_id": 46,
+          "name": "Award Winning"
+        },
+        {
+          "mal_id": 10,
+          "name": "Fantasy"
+        }
+      ]
     },
     {
       "title": "Grave of the Fireflies",
@@ -96,7 +334,21 @@
       "mal_id": 578,
       "imdb_rating": 8.5,
       "vibe": "Historical Drama",
-      "blurb": "A deeply emotional, devastatingly realistic look at two siblings trying to survive in Japan during the final months of WWII."
+      "blurb": "A deeply emotional, devastatingly realistic look at two siblings trying to survive in Japan during the final months of WWII.",
+      "cached_title": "Hotaru no Haka",
+      "cached_title_english": "Grave of the Fireflies",
+      "cached_year": 1988,
+      "cached_score": 8.54,
+      "cached_episodes": 1,
+      "cached_type": "Movie",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/1485/141208.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/1485/141208l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 8,
+          "name": "Drama"
+        }
+      ]
     },
     {
       "title": "Your Name",
@@ -104,7 +356,25 @@
       "mal_id": 32281,
       "imdb_rating": 8.4,
       "vibe": "Romance / Sci-Fi",
-      "blurb": "A visual marvel by Makoto Shinkai. It seamlessly blends a body-swapping comedy with a massive, high-stakes cosmic mystery."
+      "blurb": "A visual marvel by Makoto Shinkai. It seamlessly blends a body-swapping comedy with a massive, high-stakes cosmic mystery.",
+      "cached_title": "Kimi no Na wa.",
+      "cached_title_english": "Your Name.",
+      "cached_year": 2016,
+      "cached_score": 8.82,
+      "cached_episodes": 1,
+      "cached_type": "Movie",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/5/87048.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/5/87048l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 46,
+          "name": "Award Winning"
+        },
+        {
+          "mal_id": 8,
+          "name": "Drama"
+        }
+      ]
     },
     {
       "title": "Princess Mononoke",
@@ -112,7 +382,29 @@
       "mal_id": 164,
       "imdb_rating": 8.4,
       "vibe": "Epic Fantasy / Eco-Fiction",
-      "blurb": "A gritty, beautiful clash between industrializing humanity and the ancient gods of nature. There are no clear villains, just complex perspectives."
+      "blurb": "A gritty, beautiful clash between industrializing humanity and the ancient gods of nature. There are no clear villains, just complex perspectives.",
+      "cached_title": "Mononoke Hime",
+      "cached_title_english": "Princess Mononoke",
+      "cached_year": 1997,
+      "cached_score": 8.67,
+      "cached_episodes": 1,
+      "cached_type": "Movie",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/1355/147277.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/1355/147277l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 1,
+          "name": "Action"
+        },
+        {
+          "mal_id": 2,
+          "name": "Adventure"
+        },
+        {
+          "mal_id": 46,
+          "name": "Award Winning"
+        }
+      ]
     },
     {
       "title": "Howl's Moving Castle",
@@ -120,7 +412,29 @@
       "mal_id": 431,
       "imdb_rating": 8.2,
       "vibe": "Romance / Fantasy",
-      "blurb": "Whimsical, visual storytelling at its best, focusing on a young woman cursed with old age and a vain wizard living in a walking fortress."
+      "blurb": "Whimsical, visual storytelling at its best, focusing on a young woman cursed with old age and a vain wizard living in a walking fortress.",
+      "cached_title": "Howl no Ugoku Shiro",
+      "cached_title_english": "Howl's Moving Castle",
+      "cached_year": 2004,
+      "cached_score": 8.67,
+      "cached_episodes": 1,
+      "cached_type": "Movie",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/1470/138723.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/1470/138723l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 2,
+          "name": "Adventure"
+        },
+        {
+          "mal_id": 46,
+          "name": "Award Winning"
+        },
+        {
+          "mal_id": 8,
+          "name": "Drama"
+        }
+      ]
     },
     {
       "title": "A Silent Voice",
@@ -128,31 +442,115 @@
       "mal_id": 28851,
       "imdb_rating": 8.2,
       "vibe": "Drama / Coming-of-Age",
-      "blurb": "A profoundly moving story dealing with heavy themes of bullying, disability (deafness), mental health, and ultimate self-forgiveness."
+      "blurb": "A profoundly moving story dealing with heavy themes of bullying, disability (deafness), mental health, and ultimate self-forgiveness.",
+      "cached_title": "Koe no Katachi",
+      "cached_title_english": "A Silent Voice",
+      "cached_year": 2016,
+      "cached_score": 8.93,
+      "cached_episodes": 1,
+      "cached_type": "Movie",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/1122/96435.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/1122/96435l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 46,
+          "name": "Award Winning"
+        },
+        {
+          "mal_id": 8,
+          "name": "Drama"
+        }
+      ]
     },
     {
       "title": "Akira",
       "search": "Akira",
       "mal_id": 47,
-      "imdb_rating": 8.0,
+      "imdb_rating": 8,
       "vibe": "Cyberpunk / Sci-Fi",
-      "blurb": "The film that broke anime into the global mainstream. Visually unmatched cel animation featuring a gritty, neon-drenched dystopian Neo-Tokyo."
+      "blurb": "The film that broke anime into the global mainstream. Visually unmatched cel animation featuring a gritty, neon-drenched dystopian Neo-Tokyo.",
+      "cached_title": "Akira",
+      "cached_title_english": "Akira",
+      "cached_year": 1988,
+      "cached_score": 8.16,
+      "cached_episodes": 1,
+      "cached_type": "Movie",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/1408/114012.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/1408/114012l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 1,
+          "name": "Action"
+        },
+        {
+          "mal_id": 14,
+          "name": "Horror"
+        },
+        {
+          "mal_id": 24,
+          "name": "Sci-Fi"
+        }
+      ]
     },
     {
       "title": "Ghost in the Shell",
       "search": "Koukaku Kidoutai",
       "mal_id": 43,
-      "imdb_rating": 8.0,
+      "imdb_rating": 8,
       "vibe": "Neo-Noir / Cyberpunk",
-      "blurb": "A deep philosophical dive into what constitutes a human soul in a completely cybernetic world. This heavily inspired The Matrix."
+      "blurb": "A deep philosophical dive into what constitutes a human soul in a completely cybernetic world. This heavily inspired The Matrix.",
+      "cached_title": "Koukaku Kidoutai",
+      "cached_title_english": "Ghost in the Shell",
+      "cached_year": 1995,
+      "cached_score": 8.27,
+      "cached_episodes": 1,
+      "cached_type": "Movie",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/10/82594.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/10/82594l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 46,
+          "name": "Award Winning"
+        },
+        {
+          "mal_id": 7,
+          "name": "Mystery"
+        },
+        {
+          "mal_id": 24,
+          "name": "Sci-Fi"
+        }
+      ]
     },
     {
       "title": "Perfect Blue",
       "search": "Perfect Blue",
       "mal_id": 437,
-      "imdb_rating": 8.0,
+      "imdb_rating": 8,
       "vibe": "Psychological Thriller",
-      "blurb": "A deeply unsettling, brilliant look at the dark side of pop-idol stardom, blurring the lines between reality, dreams, and online delusion."
+      "blurb": "A deeply unsettling, brilliant look at the dark side of pop-idol stardom, blurring the lines between reality, dreams, and online delusion.",
+      "cached_title": "Perfect Blue",
+      "cached_title_english": "Perfect Blue",
+      "cached_year": 1998,
+      "cached_score": 8.56,
+      "cached_episodes": 1,
+      "cached_type": "Movie",
+      "cached_poster": "https://cdn.myanimelist.net/images/anime/1254/134212.webp",
+      "cached_poster_large": "https://cdn.myanimelist.net/images/anime/1254/134212l.webp",
+      "cached_genres": [
+        {
+          "mal_id": 5,
+          "name": "Avant Garde"
+        },
+        {
+          "mal_id": 46,
+          "name": "Award Winning"
+        },
+        {
+          "mal_id": 8,
+          "name": "Drama"
+        }
+      ]
     }
   ]
 }

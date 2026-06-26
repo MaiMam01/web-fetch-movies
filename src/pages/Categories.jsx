@@ -3,6 +3,7 @@ import CategoryTile from "../components/CategoryTile.jsx";
 import SortDropdown from "../components/SortDropdown.jsx";
 import { IconChevronRight, IconStar } from "../components/Icons.jsx";
 import { getGenres, getAnimeByGenre } from "../services/jikan.js";
+import SEED_CATEGORIES from "../data/categories.json";
 
 const SORT_OPTIONS = [
   { value: "popular", label: "Most Popular" },
@@ -36,29 +37,46 @@ const FILTER_TABS = [
 export default function Categories() {
   const [filter, setFilter] = useState("genres");
   const [sortOrder, setSortOrder] = useState("popular");
-  const [genres, setGenres] = useState([]);
-  const [popularBackdrops, setPopularBackdrops] = useState({});
-  const [loading, setLoading] = useState(true);
+  // Seed genres + backdrops directly from the baked JSON so the page is
+  // fully painted with backdrops on first render. Background revalidation
+  // happens silently below.
+  const [genres, setGenres] = useState(SEED_CATEGORIES[filter] ?? []);
+  const [popularBackdrops, setPopularBackdrops] = useState(
+    SEED_CATEGORIES.backdrops ?? {}
+  );
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
+    // If we have seeded data for this filter, swap in synchronously and
+    // revalidate quietly. Otherwise show the skeleton.
+    const seed = SEED_CATEGORIES[filter];
+    const hasSeed = Array.isArray(seed) && seed.length > 0;
+    if (hasSeed) {
+      setGenres(seed);
+    }
+    setError(null);
     async function run() {
       try {
-        setLoading(true);
+        if (!hasSeed) setLoading(true);
         const data = await getGenres(filter);
         if (cancelled) return;
-        setGenres(data);
+        if (data && data.length) setGenres(data);
       } catch (e) {
-        if (!cancelled) setError(e.message);
+        // Only show a soft notice if we have nothing to display.
+        if (!cancelled && !hasSeed && genres.length === 0) {
+          setError("Live data unavailable. Try again in a moment.");
+        }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled && !hasSeed) setLoading(false);
       }
     }
     run();
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   /** "Recommended for you" — top 8 backdropped tiles in a horizontal rail. */
@@ -80,20 +98,25 @@ export default function Categories() {
     return [...ordered, ...fillers].slice(0, 12);
   }, [genres, filter]);
 
-  // Stagger fetches so the API isn't hammered; only fetch for the top ~12 items.
+  // Fetch backdrops only for tiles that don't already have one baked in.
+  // With the static seed populated, this loop is usually a no-op on first
+  // mount — the popular tiles render with backdrops immediately.
   useEffect(() => {
     let cancelled = false;
     async function fetchBackdrops() {
+      const missing = popular.filter((g) => !popularBackdrops[g.mal_id]);
+      if (missing.length === 0) return;
       const map = { ...popularBackdrops };
-      for (const g of popular) {
-        if (map[g.mal_id]) continue;
+      for (const g of missing) {
         try {
           const r = await getAnimeByGenre({ genreId: g.mal_id, limit: 1 });
           if (cancelled) return;
           const top = r.data?.[0];
           map[g.mal_id] =
             top?.images?.webp?.large_image_url ??
+            top?.images?.webp?.image_url ??
             top?.images?.jpg?.large_image_url ??
+            top?.images?.jpg?.image_url ??
             null;
           await new Promise((res) => setTimeout(res, 350));
         } catch {
@@ -170,8 +193,8 @@ export default function Categories() {
         </div>
       </div>
 
-      {error && (
-        <div className="mt-8 rounded-lg border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-200">
+      {error && genres.length === 0 && (
+        <div className="mt-8 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
           {error}
         </div>
       )}

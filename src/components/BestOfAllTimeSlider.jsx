@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { IconChevronRight, IconStar, IconTrendUp } from "./Icons.jsx";
 import { getTopAnime } from "../services/jikan.js";
+import POSTERS from "../data/bestOfAllTimePosters.json";
 
 // Same arch palette as the previous Hall-of-Fame design — keeps the visual
 // continuity people are used to.
@@ -44,32 +45,42 @@ const FALLBACK_TOP = {
     { mal_id: 1575, title: "Code Geass: Hangyaku no Lelouch", year: 2006, score: 8.71 },
   ],
   movie: [
-    { mal_id: 5114, title: "Sen to Chihiro no Kamikakushi", title_english: "Spirited Away", year: 2001, score: 8.78 },
     { mal_id: 199, title: "Sen to Chihiro no Kamikakushi", title_english: "Spirited Away", year: 2001, score: 8.78 },
-    { mal_id: 32281, title: "Kimi no Na wa.", title_english: "Your Name.", year: 2016, score: 8.83 },
-    { mal_id: 50594, title: "Suzume no Tojimari", title_english: "Suzume", year: 2022, score: 8.30 },
     { mal_id: 28851, title: "Koe no Katachi", title_english: "A Silent Voice", year: 2016, score: 8.93 },
-    { mal_id: 523, title: "Tonari no Totoro", title_english: "My Neighbor Totoro", year: 1988, score: 8.18 },
-    { mal_id: 164, title: "Mononoke Hime", title_english: "Princess Mononoke", year: 1997, score: 8.65 },
+    { mal_id: 32281, title: "Kimi no Na wa.", title_english: "Your Name.", year: 2016, score: 8.83 },
     { mal_id: 431, title: "Howl no Ugoku Shiro", title_english: "Howl's Moving Castle", year: 2004, score: 8.66 },
+    { mal_id: 164, title: "Mononoke Hime", title_english: "Princess Mononoke", year: 1997, score: 8.65 },
     { mal_id: 578, title: "Hotaru no Haka", title_english: "Grave of the Fireflies", year: 1988, score: 8.51 },
-    { mal_id: 47, title: "Akira", year: 1988, score: 8.13 },
     { mal_id: 38000, title: "Kimetsu no Yaiba: Mugen Ressha-hen", title_english: "Demon Slayer: Mugen Train", year: 2020, score: 8.30 },
+    { mal_id: 50594, title: "Suzume no Tojimari", title_english: "Suzume", year: 2022, score: 8.30 },
     { mal_id: 437, title: "Perfect Blue", year: 1997, score: 8.18 },
+    { mal_id: 523, title: "Tonari no Totoro", title_english: "My Neighbor Totoro", year: 1988, score: 8.18 },
+    { mal_id: 47, title: "Akira", year: 1988, score: 8.13 },
     { mal_id: 43, title: "Koukaku Kidoutai", title_english: "Ghost in the Shell", year: 1995, score: 7.99 },
     { mal_id: 1689, title: "Byousoku 5 Centimeter", title_english: "5 Centimeters per Second", year: 2007, score: 7.59 },
+    { mal_id: 372, title: "Cowboy Bebop: Tengoku no Tobira", title_english: "Cowboy Bebop: The Movie", year: 2001, score: 8.36 },
   ],
 };
 
 function seedAnime(entry) {
+  const poster = POSTERS[entry.mal_id] ?? {};
   return {
     mal_id: entry.mal_id,
     title: entry.title,
     title_english: entry.title_english ?? null,
     year: entry.year ?? null,
     score: entry.score ?? null,
-    images: { webp: {}, jpg: {} },
-    _placeholder: true,
+    images: {
+      webp: {
+        image_url: poster.image_url ?? null,
+        large_image_url: poster.large_image_url ?? null,
+      },
+      jpg: {
+        image_url: poster.image_url ?? null,
+        large_image_url: poster.large_image_url ?? null,
+      },
+    },
+    _placeholder: !poster.image_url,
   };
 }
 

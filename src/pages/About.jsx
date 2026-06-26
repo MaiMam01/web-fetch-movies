@@ -66,20 +66,24 @@ export default function About() {
   const copy = COPY_BY_SLUG[key] || COPY_BY_SLUG.about;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-      <p className="text-xs font-semibold uppercase tracking-widest text-brand-500">
-        AnimeDB
-      </p>
-      <h1 className="mt-2 text-3xl font-black tracking-tight text-zinc-50 sm:text-4xl">
-        {copy.title}
-      </h1>
-      <p className="mt-5 text-base leading-relaxed text-zinc-300">{copy.body}</p>
+    <div className="page-container py-16">
+      {/* Inner reading column — body text stays at a comfortable line length
+          even when the outer container spans the full viewport. */}
+      <div className="mx-auto max-w-3xl">
+        <p className="text-xs font-semibold uppercase tracking-widest text-brand-500">
+          AnimeDB
+        </p>
+        <h1 className="mt-2 text-3xl font-black tracking-tight text-zinc-50 sm:text-4xl">
+          {copy.title}
+        </h1>
+        <p className="mt-5 text-base leading-relaxed text-zinc-300">{copy.body}</p>
+      </div>
 
       <div className="mt-10 rounded-xl border border-zinc-800 bg-zinc-900/40 p-5">
         <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400">
           Where to next
         </h2>
-        <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
           {[
             ["Browse top anime", "/"],
             ["Browse categories", "/categories"],

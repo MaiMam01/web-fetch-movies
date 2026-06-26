@@ -95,11 +95,19 @@ if (storage && typeof window !== "undefined") {
 // whole SPA every fetch goes through this queue so concurrent components
 // (Home loads top + featured TV + featured Films + character rail + best-of
 // slider simultaneously) can't burst past those caps.
+//
+// Key design decision: WE NEVER LET A REQUEST WAIT MORE THAN ~2 SECONDS IN
+// THE QUEUE. If the queue is congested or we've hit the per-minute window
+// cap, we fail-fast with a synthetic 429 so the caller can fall back to
+// stale cache instantly instead of hanging the UI for 60+ seconds. This is
+// the single most important change for perceived page-load speed.
 // ---------------------------------------------------------------------------
 const MAX_CONCURRENT = 3;
 const MIN_GAP_MS = 340; // ≈ 2.94 req/s burst — safely under 3/s ceiling
 const WINDOW_MS = 60_000;
 const WINDOW_LIMIT = 55; // stay under 60/min hard cap
+const MAX_QUEUE_WAIT_MS = 2500; // give up rather than block UI for ages
+const REQUEST_TIMEOUT_MS = 7000; // hard wall-clock per single fetch
 
 const queue = [];
 const recentStarts = [];
@@ -109,7 +117,8 @@ let pumpTimer = null;
 
 function schedule(task) {
   return new Promise((resolve, reject) => {
-    queue.push({ task, resolve, reject });
+    const entry = { task, resolve, reject, enqueuedAt: Date.now() };
+    queue.push(entry);
     pump();
   });
 }
@@ -132,7 +141,18 @@ function pump() {
     if (recentStarts.length >= WINDOW_LIMIT) {
       wait = Math.max(wait, WINDOW_MS - (now - recentStarts[0]) + 100);
     }
+    // Bail out early if every pending request has already been queued long
+    // enough that running them now would exceed MAX_QUEUE_WAIT_MS. Reject
+    // them with a soft "rate-limited" signal so jget() can serve stale.
     if (wait > 0) {
+      const head = queue[0];
+      if (head && now - head.enqueuedAt + wait > MAX_QUEUE_WAIT_MS) {
+        const expired = queue.shift();
+        const err = new Error("Jikan queue wait exceeded — try stale cache");
+        err.code = "QUEUE_TIMEOUT";
+        expired.reject(err);
+        continue;
+      }
       pumpTimer = setTimeout(pump, wait);
       return;
     }
@@ -150,26 +170,35 @@ function pump() {
   }
 }
 
-// Fetch with retry — honors Retry-After header, exponential backoff with
-// jitter on 429 / 5xx. The outer schedule() already limits the rate so most
-// calls won't ever 429, but we still defend against the API's own bursts.
-async function fetchWithRetry(path, signal) {
-  const maxAttempts = 5;
+// Fetch with retry — honors Retry-After header (capped at 2s), exponential
+// backoff with jitter on 429 / 5xx. Retries are aggressive but SHORT — total
+// wall-clock per `fetchWithRetry` is capped around ~3 seconds so a flaky
+// endpoint never freezes a page.
+async function fetchWithRetry(path) {
+  const maxAttempts = 2; // first try + 1 retry
   let attempt = 0;
   while (true) {
+    // Per-request timeout via AbortController. Without this, fetch() can
+    // legitimately hang for 30+ seconds before the browser gives up.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(
+      () => controller.abort(new Error("request timeout")),
+      REQUEST_TIMEOUT_MS
+    );
     let res;
     try {
-      res = await fetch(`${JIKAN_BASE}${path}`, { signal });
+      res = await fetch(`${JIKAN_BASE}${path}`, { signal: controller.signal });
     } catch (networkErr) {
-      // Network failure (offline / DNS). Retry with backoff a few times.
+      clearTimeout(timeoutId);
+      // Network failure / timeout. One quick retry, then give up.
       if (attempt < maxAttempts) {
         attempt += 1;
-        const wait = Math.min(8000, 600 * 2 ** (attempt - 1)) + Math.random() * 250;
-        await new Promise((r) => setTimeout(r, wait));
+        await new Promise((r) => setTimeout(r, 400 + Math.random() * 200));
         continue;
       }
       throw networkErr;
     }
+    clearTimeout(timeoutId);
     if (res.ok) return res.json();
 
     const retryable = res.status === 429 || (res.status >= 500 && res.status < 600);
@@ -177,14 +206,29 @@ async function fetchWithRetry(path, signal) {
       attempt += 1;
       const retryAfterHeader = res.headers.get("retry-after");
       const retryAfterSec = retryAfterHeader ? parseFloat(retryAfterHeader) : 0;
+      // Cap Retry-After at 2s — Jikan sometimes asks for 60s which would
+      // freeze the page. Falling back to stale cache is a better UX.
       const wait =
         retryAfterSec > 0
-          ? retryAfterSec * 1000 + 100
-          : Math.min(8000, 600 * 2 ** (attempt - 1)) + Math.random() * 300;
+          ? Math.min(2000, retryAfterSec * 1000) + 100
+          : Math.min(1500, 500 * 2 ** (attempt - 1)) + Math.random() * 200;
       await new Promise((r) => setTimeout(r, wait));
       continue;
     }
-    throw new Error(`Jikan request failed: ${res.status} ${res.statusText}`);
+    // Friendly error messages — these can bubble up to the UI verbatim.
+    let friendly;
+    if (res.status === 429) {
+      friendly = "Live data is rate-limited. Showing cached results when possible.";
+    } else if (res.status >= 500) {
+      friendly = "Live data temporarily unavailable. Try again in a moment.";
+    } else if (res.status === 404) {
+      friendly = "That entry could not be found.";
+    } else {
+      friendly = `Could not load live data (status ${res.status}).`;
+    }
+    const err = new Error(friendly);
+    err.status = res.status;
+    throw err;
   }
 }
 

@@ -9,6 +9,26 @@ import {
 } from "../components/Icons.jsx";
 import SharedSortDropdown from "../components/SortDropdown.jsx";
 import { getGenres, getAnimeByGenre } from "../services/jikan.js";
+import SEED_CATEGORIES from "../data/categories.json";
+import SEED_GENRE_PAGES from "../data/genreAnimePage1.json";
+
+// The seeded genre pages cover the default view only — page 1, sorted by
+// score desc, no type filter. We only use the seed if the user lands on
+// that exact combination (the common case from clicking a tile).
+function getSeed(id, page, type, orderBy, sortDir) {
+  if (page !== 1 || type || orderBy !== "score" || sortDir !== "desc") {
+    return null;
+  }
+  return SEED_GENRE_PAGES[id] ?? null;
+}
+
+// Merge all the baked genre/theme/demographic lists into one array so the
+// breadcrumb + chip row + heading have data on first render.
+const SEED_GENRE_LIST = [
+  ...(SEED_CATEGORIES.genres ?? []),
+  ...(SEED_CATEGORIES.themes ?? []),
+  ...(SEED_CATEGORIES.demographics ?? []),
+];
 
 const TYPE_FILTERS = [
   { value: "", label: "All" },
@@ -36,10 +56,18 @@ export default function CategoryDetail() {
   const sortKey = params.get("sort") || "score|desc";
   const [orderBy, sortDir] = sortKey.split("|");
 
-  const [genres, setGenres] = useState([]);
-  const [results, setResults] = useState([]);
-  const [pagination, setPagination] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const seed = getSeed(id, page, type, orderBy, sortDir);
+  const [genres, setGenres] = useState(SEED_GENRE_LIST);
+  const [results, setResults] = useState(seed?.items ?? []);
+  const [pagination, setPagination] = useState(
+    seed
+      ? {
+          last_visible_page: seed.last_visible_page ?? 1,
+          items: { total: seed.total ?? null },
+        }
+      : null
+  );
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const activeGenre = useMemo(
@@ -47,6 +75,8 @@ export default function CategoryDetail() {
     [genres, id]
   );
 
+  // Refresh genre list quietly in the background — the seeded list is good
+  // enough for the chip row + breadcrumb on first paint.
   useEffect(() => {
     let cancelled = false;
     async function loadAll() {
@@ -57,9 +87,10 @@ export default function CategoryDetail() {
           getGenres("demographics"),
         ]);
         if (cancelled) return;
-        setGenres(lists.flat());
+        const merged = lists.flat();
+        if (merged.length) setGenres(merged);
       } catch (e) {
-        console.warn("Genre list load failed", e);
+        console.warn("Genre list refresh failed", e);
       }
     }
     loadAll();
@@ -70,9 +101,11 @@ export default function CategoryDetail() {
 
   useEffect(() => {
     let cancelled = false;
+    const hasSeed = !!getSeed(id, page, type, orderBy, sortDir);
+    setError(null);
     async function run() {
       try {
-        setLoading(true);
+        if (!hasSeed) setLoading(true);
         const r = await getAnimeByGenre({
           genreId: id,
           page,
@@ -82,18 +115,22 @@ export default function CategoryDetail() {
           sort: sortDir,
         });
         if (cancelled) return;
-        setResults(r.data);
-        setPagination(r.pagination);
+        if (r.data && r.data.length) setResults(r.data);
+        if (r.pagination) setPagination(r.pagination);
       } catch (e) {
-        if (!cancelled) setError(e.message);
+        // Only surface a soft notice when we have nothing to show.
+        if (!cancelled && !hasSeed && results.length === 0) {
+          setError("Live data unavailable. Try again in a moment.");
+        }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled && !hasSeed) setLoading(false);
       }
     }
     run();
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, page, type, orderBy, sortDir]);
 
   const updateParams = (next) => {
@@ -153,8 +190,8 @@ export default function CategoryDetail() {
         </div>
       </div>
 
-      {error && (
-        <div className="mt-8 rounded-lg border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-200">
+      {error && results.length === 0 && (
+        <div className="mt-8 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
           {error}
         </div>
       )}

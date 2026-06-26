@@ -40,23 +40,31 @@ import {
 } from "../components/Icons.jsx";
 import { resolveFromTitles, getTopAnime } from "../services/jikan.js";
 import featured from "../data/featuredTitles.json";
+import SEED_TOP_ANIME from "../data/topAnimeList.json";
 
 // Synthesise an "editorial-only" anime object so the Landing page can render
 // Featured TV / Films instantly from the JSON file â€” no waiting on Jikan.
 // The API-enriched object replaces this in-place once the network request
 // resolves, but if Jikan is down the user still sees the curated content.
 function editorialSeed(entry) {
+  const poster = entry.cached_poster ?? null;
+  const posterLarge = entry.cached_poster_large ?? poster;
+  const hasCached = Boolean(poster);
   return {
     mal_id: entry.mal_id ?? `editorial-${entry.title}`,
-    title: entry.title,
-    title_english: entry.title,
-    images: { webp: {}, jpg: {} },
-    score: null,
-    episodes: null,
-    year: null,
-    genres: [],
+    title: entry.cached_title ?? entry.title,
+    title_english: entry.cached_title_english ?? entry.title,
+    images: {
+      webp: { image_url: poster, large_image_url: posterLarge },
+      jpg: { image_url: poster, large_image_url: posterLarge },
+    },
+    score: entry.cached_score ?? null,
+    episodes: entry.cached_episodes ?? null,
+    year: entry.cached_year ?? null,
+    type: entry.cached_type ?? null,
+    genres: entry.cached_genres ?? [],
     _editorial: entry,
-    _placeholder: true,
+    _placeholder: !hasCached,
   };
 }
 
@@ -73,9 +81,12 @@ export default function Landing() {
   // replaces these with API-enriched copies as data arrives.
   const [tv, setTv] = useState(INITIAL_TV);
   const [films, setFilms] = useState(INITIAL_FILMS);
-  const [topList, setTopList] = useState([]);
+  // Seed the "Top Rated" grid from the baked JSON so it paints instantly on
+  // first visit. The live API still fires below and replaces page 1 with
+  // fresh data; other pages do a real fetch with a loading state.
+  const [topList, setTopList] = useState(SEED_TOP_ANIME);
   const [topPage, setTopPage] = useState(1);
-  const [topTotalPages, setTopTotalPages] = useState(1);
+  const [topTotalPages, setTopTotalPages] = useState(10);
   const [topLoading, setTopLoading] = useState(false);
   // `loading` here means "still waiting on the first enrichment pass" â€” the
   // sections themselves are already visible. We only show skeleton placeholders
@@ -115,23 +126,29 @@ export default function Landing() {
   // home page browse experience.
   useEffect(() => {
     let cancelled = false;
+    // Page 1 is pre-seeded — refresh silently without flashing the skeleton.
+    // Other pages need a real network round-trip.
+    const isBackgroundRefresh = topPage === 1 && topList.length > 0;
     async function loadTop() {
       try {
-        setTopLoading(true);
+        if (!isBackgroundRefresh) setTopLoading(true);
         const { items, pagination } = await getTopAnime(20, topPage);
         if (cancelled) return;
-        setTopList(items);
-        setTopTotalPages(Math.min(10, pagination?.last_visible_page ?? 1));
+        if (items && items.length) setTopList(items);
+        if (pagination?.last_visible_page) {
+          setTopTotalPages(Math.min(10, pagination.last_visible_page));
+        }
       } catch (e) {
-        if (!cancelled) setError(e.message);
+        if (!cancelled && !isBackgroundRefresh) setError(e.message);
       } finally {
-        if (!cancelled) setTopLoading(false);
+        if (!cancelled && !isBackgroundRefresh) setTopLoading(false);
       }
     }
     loadTop();
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topPage]);
 
   // Smooth-scroll the section into view when paginating so the user sees the

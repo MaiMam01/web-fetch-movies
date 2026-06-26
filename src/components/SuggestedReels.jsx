@@ -9,6 +9,34 @@ const KIND_LABELS = {
   episode: "Episode",
 };
 
+// Jikan's `youtube_id` field is often `null` even when a video exists — the
+// actual ID lives inside `embed_url` (e.g. `youtube-nocookie.com/embed/XXXX`).
+// We also need to synthesize a thumbnail since Jikan's `image_url` is
+// frequently null too.
+function pickYouTubeId(node) {
+  if (!node) return null;
+  if (node.youtube_id) return node.youtube_id;
+  const src = node.embed_url || node.url || "";
+  const m = src.match(/embed\/([\w-]{6,})/) || src.match(/[?&]v=([\w-]{6,})/);
+  return m ? m[1] : null;
+}
+
+function pickThumbnail(node, fallbackAnime) {
+  return (
+    node?.image_url ??
+    node?.images?.maximum_image_url ??
+    node?.images?.large_image_url ??
+    node?.images?.image_url ??
+    (() => {
+      const yt = pickYouTubeId(node);
+      return yt ? `https://i.ytimg.com/vi/${yt}/hqdefault.jpg` : null;
+    })() ??
+    fallbackAnime?.images?.webp?.image_url ??
+    fallbackAnime?.images?.jpg?.image_url ??
+    null
+  );
+}
+
 export default function SuggestedReels({
   animeList = [],
   title = "Suggested Scenes & Reels",
@@ -49,25 +77,29 @@ export default function SuggestedReels({
         if (!videos) continue;
 
         (videos.promo ?? []).forEach((p, i) => {
-          if (!p.trailer?.image_url) return;
+          const yt = pickYouTubeId(p.trailer);
+          const thumb = pickThumbnail(p.trailer, anime);
+          if (!yt && !thumb) return;
           collected.push({
             id: `${anime.mal_id}-promo-${i}`,
             kind: "promo",
             title: p.title || `Trailer ${i + 1}`,
-            thumbnail: p.trailer.image_url,
-            youtubeId: p.trailer.youtube_id,
+            thumbnail: thumb,
+            youtubeId: yt,
             anime,
           });
         });
 
         (videos.music_videos ?? []).forEach((m, i) => {
-          if (!m.video?.image_url) return;
+          const yt = pickYouTubeId(m.video);
+          const thumb = pickThumbnail(m.video, anime);
+          if (!yt && !thumb) return;
           collected.push({
             id: `${anime.mal_id}-music-${i}`,
             kind: "music",
             title: m.title || m.meta?.title || `Music Video ${i + 1}`,
-            thumbnail: m.video.image_url,
-            youtubeId: m.video.youtube_id,
+            thumbnail: thumb,
+            youtubeId: yt,
             anime,
           });
         });

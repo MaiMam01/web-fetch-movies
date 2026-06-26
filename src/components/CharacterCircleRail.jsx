@@ -1,98 +1,30 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { IconChevronRight } from "./Icons.jsx";
-import { getCharacterFull } from "../services/jikan.js";
-import CharacterCircle, {
-  displayFirstName,
-} from "./CharacterCircle.jsx";
+import CharacterCircle from "./CharacterCircle.jsx";
+import ICONIC from "../data/iconicCharacters.json";
 
 /**
- * Curated list of iconic / mainstream anime characters that almost everyone
- * recognizes — mixes family-friendly mascots (Doraemon, Shinchan, Pikachu)
- * with shonen heavyweights. Each entry has a baked-in MAL `id` so we can
- * fetch the character directly (no search step) AND so the rail still renders
- * a clickable "editorial" circle for every character even when Jikan is
- * down — only the avatar image is missing in that case.
+ * Iconic anime characters rail. Sourced from the baked-in JSON file
+ * (src/data/iconicCharacters.json) which is populated via
+ * scripts/precompute-characters.mjs. Every entry already has a verified
+ * MAL `id` and a `cached_image` URL, so the avatars show up instantly on
+ * first render — no Jikan API calls required.
+ *
+ * If you want to refresh / extend the list, edit the JSON directly (image
+ * URLs come straight from cdn.myanimelist.net and remain stable).
  */
-const ICONIC_CHARACTERS = [
-  { id: 7723, name: "Doraemon" },
-  { id: 16104, name: "Shin Nohara" }, // Crayon Shin-chan
-  { id: 169, name: "Pikachu" },
-  { id: 17, name: "Naruto Uzumaki" },
-  { id: 13, name: "Sasuke Uchiha" },
-  { id: 246, name: "Son Goku" },
-  { id: 913, name: "Vegeta" },
-  { id: 40, name: "Monkey D. Luffy" },
-  { id: 62, name: "Roronoa Zoro" },
-  { id: 5, name: "Ichigo Kurosaki" },
-  { id: 80, name: "Light Yagami" },
-  { id: 71, name: "L Lawliet" },
-  { id: 11, name: "Edward Elric" },
-  { id: 40882, name: "Eren Yeager" },
-  { id: 45627, name: "Levi Ackerman" },
-  { id: 40881, name: "Mikasa Ackerman" },
-  { id: 146156, name: "Tanjiro Kamado" },
-  { id: 146157, name: "Nezuko Kamado" },
-  { id: 113138, name: "Saitama" },
-  { id: 417, name: "Lelouch Lamperouge" },
-  { id: 1, name: "Spike Spiegel" },
-  { id: 30, name: "Killua Zoldyck" },
-  { id: 31, name: "Gon Freecss" },
-  { id: 1057, name: "Astro Boy" },
-];
-
-// Builds an "editorial-only" character object that renders correctly even
-// when the Jikan API never returns. The MAL `mal_id` links to the proper
-// detail page; the gradient ring + first-name label keep the section
-// visually populated.
-function seedCharacter(entry) {
-  return {
-    mal_id: entry.id,
-    name: entry.name,
-    images: { webp: {}, jpg: {} },
-    _label: displayFirstName(entry.name),
-  };
-}
-
-const INITIAL_CHARACTERS = ICONIC_CHARACTERS.map(seedCharacter);
+const ITEMS = ICONIC.map((entry) => ({
+  mal_id: entry.id,
+  name: entry.name,
+  images: {
+    webp: { image_url: entry.cached_image ?? null },
+    jpg: { image_url: entry.cached_image ?? null },
+  },
+  _label: entry.label,
+}));
 
 export default function CharacterCircleRail() {
-  // Seed with the editorial list so the rail renders immediately. The async
-  // fetch below replaces each entry with its API-enriched copy (which adds
-  // the avatar image) as data arrives.
-  const [items, setItems] = useState(INITIAL_CHARACTERS);
   const scrollerRef = useRef(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function run() {
-      // Fetch in parallel — the global Jikan rate limiter paces requests so we
-      // can't burst past API limits. Each successful response updates the rail
-      // in-place via mal_id match, keeping the static fallback for any that
-      // fail.
-      await Promise.all(
-        ICONIC_CHARACTERS.map(async (entry) => {
-          if (cancelled) return;
-          try {
-            const c = await getCharacterFull(entry.id);
-            if (cancelled || !c) return;
-            setItems((prev) =>
-              prev.map((p) =>
-                p.mal_id === entry.id
-                  ? { ...c, _label: displayFirstName(entry.name) }
-                  : p
-              )
-            );
-          } catch {
-            /* keep the seed entry — graceful degradation */
-          }
-        })
-      );
-    }
-    run();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const scroll = (dir) => {
     const el = scrollerRef.current;
@@ -142,7 +74,7 @@ export default function CharacterCircleRail() {
         ref={scrollerRef}
         className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0"
       >
-        {items.map((c) => (
+        {ITEMS.map((c) => (
           <CharacterCircle key={c.mal_id} character={c} />
         ))}
       </div>

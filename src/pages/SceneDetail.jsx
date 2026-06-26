@@ -71,10 +71,7 @@ function SceneDetailBody({ scene }) {
         if (cancelled) return;
         setAnime(a);
         setCharacters(chars);
-        setTrailer(
-          videos?.promo?.[0]?.trailer ??
-            (a?.trailer?.youtube_id ? a.trailer : null)
-        );
+        setTrailer(videos?.promo?.[0]?.trailer ?? a?.trailer ?? null);
       } catch (e) {
         console.warn("Scene detail fetch failed", e);
       }
@@ -99,7 +96,14 @@ function SceneDetailBody({ scene }) {
     [characters]
   );
 
-  const youtubeId = trailer?.youtube_id;
+  // Jikan often returns `youtube_id: null` even when a video exists — the
+  // real ID lives in `embed_url`. Extract it as a fallback.
+  const youtubeId = (() => {
+    if (trailer?.youtube_id) return trailer.youtube_id;
+    const src = trailer?.embed_url || trailer?.url || "";
+    const m = src.match(/embed\/([\w-]{6,})/) || src.match(/[?&]v=([\w-]{6,})/);
+    return m ? m[1] : null;
+  })();
   const playerImage =
     scene.image ||
     trailer?.images?.maximum_image_url ||
