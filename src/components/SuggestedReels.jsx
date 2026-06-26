@@ -135,8 +135,11 @@ function SuggestionTile({ tile }) {
   const watchHref = tile.youtubeId
     ? `https://www.youtube.com/watch?v=${tile.youtubeId}`
     : tile.episodeUrl;
-  const isExternal = Boolean(watchHref);
+  const playable = Boolean(watchHref);
 
+  // We render the thumbnail and the title/anime row as siblings (not nested)
+  // so we don't end up with <a> inside <a> when a tile both plays externally
+  // *and* exposes a link to the anime detail page.
   const Thumbnail = (
     <div className="relative aspect-video w-full overflow-hidden rounded-md bg-zinc-900 ring-1 ring-zinc-800 transition group-hover:ring-brand-500">
       {tile.thumbnail && (
@@ -163,13 +166,27 @@ function SuggestionTile({ tile }) {
     </div>
   );
 
-  const Meta = (
-    <>
+  return (
+    <div className="group">
+      {playable ? (
+        <a
+          href={watchHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Play ${tile.title}`}
+          className="block"
+        >
+          {Thumbnail}
+        </a>
+      ) : (
+        <Link to={animeHref} aria-label={tile.title} className="block">
+          {Thumbnail}
+        </Link>
+      )}
       <div className="mt-2 flex items-center gap-1 text-[11px]">
         <Link
           to={animeHref}
           className="line-clamp-1 font-bold text-brand-500 hover:underline"
-          onClick={(e) => e.stopPropagation()}
         >
           {tile.anime.title}
         </Link>
@@ -189,28 +206,7 @@ function SuggestionTile({ tile }) {
       <p className="mt-1 line-clamp-2 text-xs font-semibold text-zinc-100 transition group-hover:text-brand-500">
         {tile.title}
       </p>
-    </>
-  );
-
-  if (isExternal && tile.youtubeId) {
-    return (
-      <a
-        href={watchHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group block"
-      >
-        {Thumbnail}
-        {Meta}
-      </a>
-    );
-  }
-
-  return (
-    <Link to={animeHref} className="group block">
-      {Thumbnail}
-      {Meta}
-    </Link>
+    </div>
   );
 }
 

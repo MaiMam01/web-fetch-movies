@@ -1,19 +1,31 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 const STORAGE_KEY = "animedb_age_confirmed_v1";
 
-export default function AgeGate({ children, title = "Mature Content Ahead" }) {
-  const [confirmed, setConfirmed] = useState(false);
+function readConfirmed() {
+  if (typeof window === "undefined") return false;
+  try {
+    return sessionStorage.getItem(STORAGE_KEY) === "1";
+  } catch {
+    // Private mode / disabled storage — fall back to gating each session.
+    return false;
+  }
+}
 
-  useEffect(() => {
-    setConfirmed(sessionStorage.getItem(STORAGE_KEY) === "1");
-  }, []);
+export default function AgeGate({ children, title = "Mature Content Ahead" }) {
+  // Lazy initialiser reads sessionStorage synchronously on mount so users who
+  // already confirmed don't see the gate flash on every Scenes navigation.
+  const [confirmed, setConfirmed] = useState(readConfirmed);
 
   if (confirmed) return children;
 
   const confirm = () => {
-    sessionStorage.setItem(STORAGE_KEY, "1");
+    try {
+      sessionStorage.setItem(STORAGE_KEY, "1");
+    } catch {
+      /* storage disabled — confirmation will reset next reload */
+    }
     setConfirmed(true);
   };
 
@@ -32,15 +44,13 @@ export default function AgeGate({ children, title = "Mature Content Ahead" }) {
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <button
+            type="button"
             onClick={confirm}
-            className="rounded-md bg-amber-500 px-5 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-amber-400"
+            className="btn btn-lg bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 text-zinc-950 shadow-[0_8px_24px_-6px_rgba(251,146,60,0.45)] hover:brightness-110"
           >
             I am 18+ — Continue
           </button>
-          <Link
-            to="/"
-            className="rounded-md border border-zinc-700 px-5 py-2.5 text-sm font-semibold text-zinc-200 transition hover:bg-zinc-800"
-          >
+          <Link to="/" className="btn btn-secondary btn-lg">
             Go back
           </Link>
         </div>

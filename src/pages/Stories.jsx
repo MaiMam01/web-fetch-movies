@@ -31,7 +31,7 @@ export default function Stories() {
     async function run() {
       try {
         setLoading(true);
-        const top = await getTopAnime(SEED_LIMIT);
+        const top = (await getTopAnime(SEED_LIMIT)).items;
         if (cancelled) return;
 
         const collected = [];
@@ -99,8 +99,18 @@ export default function Stories() {
   const filtered = useMemo(() => {
     let list = stories;
     if (tab !== "all") list = list.filter((s) => s.kind === tab);
-    if (sort === "title")
-      list = [...list].sort((a, b) => a.title.localeCompare(b.title));
+    if (sort === "title") {
+      list = [...list].sort((a, b) =>
+        (a.title || "").localeCompare(b.title || "")
+      );
+    } else if (sort === "newest") {
+      // Reels arrived in API order (top anime first). Reverse so the latest
+      // additions visually come first — gives users a usable "Newest" option.
+      list = [...list].reverse();
+    } else if (sort === "trending") {
+      // Higher member count on the source anime → more "trending".
+      list = [...list].sort((a, b) => (b.views ?? 0) - (a.views ?? 0));
+    }
     return list;
   }, [stories, tab, sort]);
 
@@ -112,7 +122,7 @@ export default function Stories() {
             Vertical reels
           </p>
           <h1 className="mt-1 text-2xl font-bold text-zinc-50 sm:text-3xl">
-            Stories at <span className="text-brand-500">AnimeDB</span>
+            Stories at <span className="text-funk-gradient">AnimeDB</span>
           </h1>
           <p className="mt-1 text-sm text-zinc-400">
             OP/ED snippets, music videos, and promos — pulled live from each
@@ -129,7 +139,7 @@ export default function Stories() {
                 onClick={() => setTab(t.value)}
                 className={`rounded px-3 py-1.5 font-semibold transition ${
                   tab === t.value
-                    ? "bg-brand-500 text-zinc-950"
+                    ? "bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white shadow-[0_0_18px_-4px_rgba(232,121,249,0.55)] ring-1 ring-fuchsia-300/50"
                     : "text-zinc-300 hover:text-zinc-100"
                 }`}
               >

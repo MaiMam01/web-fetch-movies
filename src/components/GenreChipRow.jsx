@@ -12,7 +12,7 @@ export default function GenreChipRow({ genres = [], activeId = null }) {
             to={`/categories/${g.mal_id}`}
             className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
               active
-                ? "bg-brand-500 text-zinc-950"
+                ? "bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white shadow-[0_0_18px_-4px_rgba(232,121,249,0.55)] ring-1 ring-fuchsia-300/50"
                 : "bg-zinc-900 text-zinc-300 ring-1 ring-zinc-800 hover:text-zinc-100"
             }`}
           >

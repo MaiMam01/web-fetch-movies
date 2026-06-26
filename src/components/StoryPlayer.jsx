@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import Logo from "./Logo.jsx";
 import {
   IconCheck,
   IconChevronDown,
@@ -138,14 +139,7 @@ export default function StoryPlayer({ stories, index, onClose, onChange }) {
           >
             <IconChevronRight className="h-5 w-5 rotate-180" />
           </button>
-          <Link
-            to="/"
-            onClick={onClose}
-            className="flex items-center gap-1 font-black tracking-tight"
-          >
-            <span className="text-zinc-100">Anime</span>
-            <span className="rounded-sm bg-brand-500 px-1 text-zinc-950">DB</span>
-          </Link>
+          <Logo size="xs" to="/" animated={false} onClick={onClose} />
           <span className="ml-2 hidden rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-zinc-200 sm:inline-block">
             Reels · {index + 1} / {total}
           </span>
@@ -257,7 +251,7 @@ export default function StoryPlayer({ stories, index, onClose, onChange }) {
               className={`absolute -bottom-1.5 left-1/2 grid h-6 w-6 -translate-x-1/2 place-items-center rounded-full ring-2 ring-zinc-950 transition ${
                 following
                   ? "bg-emerald-500 text-zinc-950"
-                  : "bg-brand-500 text-zinc-950 hover:bg-brand-400"
+                  : "bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white shadow-[0_0_18px_-4px_rgba(232,121,249,0.55)] ring-1 ring-fuchsia-300/50 hover:from-fuchsia-400 hover:to-cyan-300"
               }`}
             >
               {following ? (

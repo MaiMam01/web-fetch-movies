@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import Logo from "./Logo.jsx";
 import {
   IconHeart,
   IconStar,
@@ -8,6 +9,7 @@ import {
   IconImage,
   IconGrid,
   IconChevronRight,
+  IconCheck,
   IconMessage,
   IconRss,
   IconGlobe,
@@ -152,10 +154,20 @@ export default function Footer() {
             />
             <button
               type="submit"
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-br from-fuchsia-500 via-violet-500 to-cyan-400 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-fuchsia-500/30 transition hover:opacity-90"
+              className="btn btn-primary shrink-0"
+              disabled={subscribed}
             >
-              {subscribed ? "Subscribed!" : "Subscribe"}
-              {!subscribed && <IconChevronRight className="h-4 w-4" />}
+              {subscribed ? (
+                <>
+                  <IconCheck className="h-4 w-4" />
+                  Subscribed!
+                </>
+              ) : (
+                <>
+                  Subscribe
+                  <IconChevronRight className="h-4 w-4" />
+                </>
+              )}
             </button>
           </form>
         </div>
@@ -165,14 +177,7 @@ export default function Footer() {
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:px-8">
         {/* Brand block */}
         <div className="space-y-5 sm:col-span-2 lg:col-span-4">
-          <Link to="/" className="inline-flex items-center gap-1.5">
-            <span className="text-2xl font-black tracking-tight">
-              <span className="text-funk-gradient">Anime</span>
-              <span className="ml-0.5 rounded-md bg-gradient-to-br from-fuchsia-500 via-violet-500 to-cyan-400 px-1.5 py-0.5 text-zinc-950 shadow-lg shadow-fuchsia-500/30">
-                DB
-              </span>
-            </span>
-          </Link>
+          <Logo size="lg" tagline="The funky anime archive" />
           <p className="max-w-sm text-sm leading-relaxed text-zinc-400">
             A curated archive cataloging notable scenes from anime — fight
             choreography, pivotal narrative beats, and the medium's most iconic
@@ -197,7 +202,7 @@ export default function Footer() {
                   key={s.label}
                   href={s.href}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   aria-label={s.label}
                   className={`grid h-9 w-9 place-items-center rounded-full border border-zinc-800 bg-zinc-900/60 text-zinc-300 backdrop-blur transition ${s.color}`}
                 >
@@ -240,7 +245,7 @@ export default function Footer() {
             <a
               href="https://jikan.moe"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-1 transition hover:text-cyan-300"
             >
               Data via Jikan / MyAnimeList

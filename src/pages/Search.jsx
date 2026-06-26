@@ -149,7 +149,7 @@ export default function Search() {
               }
               className={`rounded px-3 py-1.5 font-semibold transition ${
                 tab === t.value
-                  ? "bg-brand-500 text-zinc-950"
+                  ? "bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white shadow-[0_0_18px_-4px_rgba(232,121,249,0.55)] ring-1 ring-fuchsia-300/50"
                   : "text-zinc-300 hover:text-zinc-100"
               }`}
             >

@@ -5,6 +5,7 @@ import Tabs from "../components/Tabs.jsx";
 import SceneActionBar from "../components/SceneActionBar.jsx";
 import SceneTile from "../components/SceneTile.jsx";
 import PersonCard from "../components/PersonCard.jsx";
+import SceneUploaderChip from "../components/SceneUploaderChip.jsx";
 import {
   IconPlay,
   IconChevronRight,
@@ -126,7 +127,9 @@ function SceneDetailBody({ scene }) {
         characters={featuredCharacters}
       />
 
-      <SceneActionBar />
+      <SceneUploaderChip anime={anime} scene={scene} />
+
+      <SceneActionBar scene={scene} />
 
       {scene.tags?.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
@@ -196,28 +199,36 @@ function SceneDetailBody({ scene }) {
 }
 
 function Breadcrumbs({ anime, sceneTitle }) {
+  const crumbLink =
+    "shrink-0 rounded-full bg-zinc-900/60 px-2.5 py-1 text-zinc-400 ring-1 ring-zinc-800 transition hover:bg-zinc-800 hover:text-white hover:ring-fuchsia-400/30";
   return (
-    <nav className="mb-3 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs text-zinc-500">
-      <Link to="/" className="shrink-0 hover:text-zinc-300">
+    <nav
+      aria-label="Breadcrumb"
+      className="mb-3 flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-[11px] font-semibold"
+    >
+      <Link to="/" className={crumbLink}>
         Home
       </Link>
-      <IconChevronRight className="h-3 w-3 shrink-0" />
-      <Link to="/scenes" className="shrink-0 hover:text-zinc-300">
+      <IconChevronRight className="h-3 w-3 shrink-0 text-zinc-600" />
+      <Link to="/scenes" className={crumbLink}>
         Scenes
       </Link>
       {anime && (
         <>
-          <IconChevronRight className="h-3 w-3 shrink-0" />
+          <IconChevronRight className="h-3 w-3 shrink-0 text-zinc-600" />
           <Link
             to={`/anime/${anime.mal_id}`}
-            className="line-clamp-1 max-w-[160px] hover:text-zinc-300 sm:max-w-xs"
+            className={`${crumbLink} line-clamp-1 max-w-[160px] sm:max-w-xs`}
           >
             {anime.title}
           </Link>
         </>
       )}
-      <IconChevronRight className="h-3 w-3 shrink-0" />
-      <span className="line-clamp-1 max-w-[180px] text-zinc-300 sm:max-w-xs">
+      <IconChevronRight className="h-3 w-3 shrink-0 text-fuchsia-400/70" />
+      <span
+        className="line-clamp-1 max-w-[180px] rounded-full bg-gradient-to-r from-fuchsia-500/15 via-violet-500/10 to-cyan-400/10 px-2.5 py-1 text-fuchsia-100 ring-1 ring-fuchsia-400/30 sm:max-w-xs"
+        aria-current="page"
+      >
         {sceneTitle}
       </span>
     </nav>

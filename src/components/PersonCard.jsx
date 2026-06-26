@@ -1,13 +1,8 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { IconEye, IconHeart, StarRating, formatCompact } from "./Icons.jsx";
 
-export default function PersonCard({
-  person,
-  to,
-  subtitle,
-  stats = [],
-  rating = null,
-}) {
+function PersonCard({ person, to, subtitle, stats = [], rating = null }) {
   const img =
     person.images?.webp?.image_url ??
     person.images?.jpg?.image_url ??
@@ -24,6 +19,9 @@ export default function PersonCard({
             src={img}
             alt={name}
             loading="lazy"
+            decoding="async"
+            width="300"
+            height="300"
             className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
           />
         ) : (
@@ -65,3 +63,8 @@ export default function PersonCard({
     </Link>
   );
 }
+
+export default memo(
+  PersonCard,
+  (a, b) => a.person?.mal_id === b.person?.mal_id && a.to === b.to
+);

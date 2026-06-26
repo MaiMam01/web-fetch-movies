@@ -13,12 +13,14 @@ import SceneTile from "../components/SceneTile.jsx";
 import FilterPills from "../components/FilterPills.jsx";
 import RecommendedRail from "../components/RecommendedRail.jsx";
 import TagChips from "../components/TagChips.jsx";
+import useLocalToggle from "../hooks/useLocalToggle.js";
 import {
   IconImage,
   IconPlay,
   IconEye,
   IconHeart,
   IconAlert,
+  IconCheck,
   StarRating,
   formatCompact,
 } from "../components/Icons.jsx";
@@ -130,7 +132,10 @@ export default function AnimeDetail() {
             </h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
               {charsByGroup.map((c) => (
-                <CharacterCard key={c.character.mal_id} character={c} />
+                <CharacterCard
+                  key={`${c.character.mal_id}-${c.role ?? "any"}`}
+                  character={c}
+                />
               ))}
             </div>
           </section>
@@ -195,6 +200,9 @@ function Hero({ anime, sceneCount }) {
     anime.images?.webp?.large_image_url ||
     anime.images?.jpg?.large_image_url;
   const year = anime.year || anime.aired?.prop?.from?.year;
+  const [favorited, toggleFav] = useLocalToggle(
+    `animedb:fav:anime:${anime.mal_id}`
+  );
 
   return (
     <section className="mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -212,6 +220,10 @@ function Hero({ anime, sceneCount }) {
             <img
               src={poster}
               alt={anime.title}
+              width="320"
+              height="480"
+              decoding="async"
+              fetchPriority="high"
               className="aspect-[2/3] w-32 flex-shrink-0 rounded-lg object-cover shadow-2xl ring-1 ring-zinc-700 sm:w-40"
             />
           )}
@@ -253,10 +265,25 @@ function Hero({ anime, sceneCount }) {
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-md bg-brand-500 px-4 py-2 text-sm font-bold text-zinc-950 transition hover:bg-amber-400"
+                onClick={toggleFav}
+                aria-pressed={favorited}
+                className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-bold transition active:scale-[0.97] ${
+                  favorited
+                    ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-700 hover:bg-zinc-700"
+                    : "bg-brand-500 text-zinc-950 hover:bg-amber-400"
+                }`}
               >
-                <IconHeart className="h-4 w-4" />
-                Add to Favorites
+                {favorited ? (
+                  <>
+                    <IconCheck className="h-4 w-4" />
+                    Favorited
+                  </>
+                ) : (
+                  <>
+                    <IconHeart className="h-4 w-4" />
+                    Add to Favorites
+                  </>
+                )}
               </button>
               <Link
                 to={`/anime/${anime.mal_id}/scenes`}
@@ -265,13 +292,13 @@ function Hero({ anime, sceneCount }) {
                 <IconPlay className="h-4 w-4" />
                 Browse Scenes
               </Link>
-              <button
-                type="button"
+              <a
+                href="/feedback"
                 className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300"
               >
                 <IconAlert className="h-3.5 w-3.5" />
                 Report content issue
-              </button>
+              </a>
             </div>
           </div>
         </div>

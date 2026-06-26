@@ -58,9 +58,13 @@ export default function Characters() {
   }, [page]);
 
   const sorted = [...characters].sort((a, b) => {
-    if (sort === "alphabetical") return a.name.localeCompare(b.name);
-    if (sort === "favorites") return (b.favorites ?? 0) - (a.favorites ?? 0);
-    return 0;
+    if (sort === "alphabetical")
+      return (a.name || "").localeCompare(b.name || "");
+    if (sort === "favorites")
+      return (b.favorites ?? 0) - (a.favorites ?? 0);
+    // "trending" mirrors MAL's own popularity ordering — return API order
+    // but break ties by favorites so the rail feels stable.
+    return (b.favorites ?? 0) - (a.favorites ?? 0);
   });
 
   const filtered = activeTag
@@ -79,7 +83,7 @@ export default function Characters() {
             onClick={() => setActiveTag(activeTag === t ? null : t)}
             className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
               activeTag === t
-                ? "bg-brand-500 text-zinc-950"
+                ? "bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white shadow-[0_0_18px_-4px_rgba(232,121,249,0.55)] ring-1 ring-fuchsia-300/50"
                 : "bg-zinc-900 text-zinc-300 ring-1 ring-zinc-800 hover:text-zinc-100"
             }`}
           >
@@ -92,7 +96,7 @@ export default function Characters() {
         <div>
           <h1 className="text-2xl font-bold text-zinc-50 sm:text-3xl">
             Browse Characters at{" "}
-            <span className="text-brand-500">AnimeDB</span>
+            <span className="text-funk-gradient">AnimeDB</span>
           </h1>
           <p className="mt-1 text-sm text-zinc-400">
             Iconic protagonists, scene-stealing villains, and beloved supporting

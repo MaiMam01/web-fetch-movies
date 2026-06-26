@@ -6,6 +6,7 @@ import ProfileInfoGrid from "../components/ProfileInfoGrid.jsx";
 import SceneTile from "../components/SceneTile.jsx";
 import AnimeGroupHeader from "../components/AnimeGroupHeader.jsx";
 import SuggestedReels from "../components/SuggestedReels.jsx";
+import RecommendedCharactersRail from "../components/RecommendedCharactersRail.jsx";
 import {
   IconHeart,
   IconShare,
@@ -15,9 +16,11 @@ import {
   IconImage,
   IconUser,
   IconExternalLink,
+  IconCheck,
   IconChevronDown,
 } from "../components/Icons.jsx";
 import { getCharacterFull } from "../services/jikan.js";
+import useLocalToggle from "../hooks/useLocalToggle.js";
 import scenesData from "../data/scenes.json";
 
 export default function CharacterDetail() {
@@ -26,6 +29,12 @@ export default function CharacterDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("overview");
+  const [favorited, toggleFav] = useLocalToggle(
+    id ? `animedb:fav:character:${id}` : null
+  );
+  const [following, toggleFollow] = useLocalToggle(
+    id ? `animedb:follow:character:${id}` : null
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -187,13 +196,46 @@ export default function CharacterDetail() {
           <>
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 rounded-md bg-brand-500 px-3.5 py-2 text-xs font-bold text-zinc-950 transition hover:bg-amber-400"
+              onClick={toggleFav}
+              aria-pressed={favorited}
+              className={`inline-flex items-center gap-1.5 rounded-md px-3.5 py-2 text-xs font-bold transition active:scale-[0.97] ${
+                favorited
+                  ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-700 hover:bg-zinc-700"
+                  : "bg-brand-500 text-zinc-950 hover:bg-amber-400"
+              }`}
             >
-              <IconHeart className="h-4 w-4" />
-              Add to Favorites
+              {favorited ? (
+                <>
+                  <IconCheck className="h-4 w-4" />
+                  Favorited
+                </>
+              ) : (
+                <>
+                  <IconHeart className="h-4 w-4" />
+                  Add to Favorites
+                </>
+              )}
             </button>
             <button
               type="button"
+              onClick={() => {
+                const data = {
+                  title: character.name,
+                  url:
+                    typeof window !== "undefined" ? window.location.href : "",
+                };
+                if (
+                  typeof navigator !== "undefined" &&
+                  typeof navigator.share === "function"
+                ) {
+                  navigator.share(data).catch(() => {});
+                } else if (
+                  typeof navigator !== "undefined" &&
+                  navigator.clipboard
+                ) {
+                  navigator.clipboard.writeText(data.url).catch(() => {});
+                }
+              }}
               className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs font-bold text-zinc-200 transition hover:bg-zinc-800"
             >
               <IconShare className="h-4 w-4" />
@@ -201,10 +243,25 @@ export default function CharacterDetail() {
             </button>
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-950 px-3.5 py-2 text-xs font-bold text-zinc-100 transition hover:bg-zinc-900"
+              onClick={toggleFollow}
+              aria-pressed={following}
+              className={`inline-flex items-center gap-1.5 rounded-md px-3.5 py-2 text-xs font-bold transition active:scale-[0.97] ${
+                following
+                  ? "border border-emerald-500/40 bg-emerald-500/15 text-emerald-200"
+                  : "border border-zinc-800 bg-zinc-950 text-zinc-100 hover:bg-zinc-900"
+              }`}
             >
-              <IconBell className="h-4 w-4" />
-              Follow
+              {following ? (
+                <>
+                  <IconCheck className="h-4 w-4" />
+                  Following
+                </>
+              ) : (
+                <>
+                  <IconBell className="h-4 w-4" />
+                  Follow
+                </>
+              )}
             </button>
           </>
         }
@@ -322,6 +379,15 @@ export default function CharacterDetail() {
             </details>
           </section>
         )}
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <RecommendedCharactersRail
+          currentId={character.mal_id}
+          animeAppearances={animeAppearances}
+          title={`Fans of ${character.name} also love`}
+          subtitle={`Other faces from ${character.name}'s anime — tap any to jump in.`}
+        />
       </div>
 
       <SuggestedReels

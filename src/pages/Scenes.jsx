@@ -5,8 +5,14 @@ import FilterPills from "../components/FilterPills.jsx";
 import SceneTile from "../components/SceneTile.jsx";
 import CharacterRowHeader from "../components/CharacterRowHeader.jsx";
 import SortDropdown from "../components/SortDropdown.jsx";
-import { IconAlert, IconChevronRight, IconHeart } from "../components/Icons.jsx";
+import {
+  IconAlert,
+  IconCheck,
+  IconChevronRight,
+  IconHeart,
+} from "../components/Icons.jsx";
 import { getAnimeById, getCharacters } from "../services/jikan.js";
+import useLocalToggle from "../hooks/useLocalToggle.js";
 import scenesData from "../data/scenes.json";
 
 const SEVERITY_FILTERS = (counts) => [
@@ -133,13 +139,17 @@ export default function Scenes() {
       )
     ).then((entries) => {
       if (cancelled) return;
-      const next = {};
-      for (const [id, a] of entries) {
-        if (!a) continue;
-        next[id] =
-          a.images?.webp?.large_image_url ?? a.images?.jpg?.large_image_url;
-      }
-      setPosters(next);
+      // Merge rather than replace so posters fetched on an earlier
+      // navigation (e.g. /scenes/123 → /scenes) aren't lost.
+      setPosters((prev) => {
+        const next = { ...prev };
+        for (const [id, a] of entries) {
+          if (!a) continue;
+          next[id] =
+            a.images?.webp?.large_image_url ?? a.images?.jpg?.large_image_url;
+        }
+        return next;
+      });
     });
     return () => {
       cancelled = true;
@@ -239,6 +249,9 @@ function SceneHero({ anime, count }) {
     anime.images?.webp?.large_image_url ?? anime.images?.jpg?.large_image_url;
   const bg = anime.images?.webp?.large_image_url ?? poster;
   const year = anime.year || anime.aired?.prop?.from?.year;
+  const [favorited, toggleFav] = useLocalToggle(
+    `animedb:fav:anime:${anime.mal_id}`
+  );
   return (
     <div className="relative isolate overflow-hidden rounded-2xl bg-zinc-900 ring-1 ring-zinc-800">
       {bg && (
@@ -278,10 +291,25 @@ function SceneHero({ anime, count }) {
             </Link>
             <button
               type="button"
-              className="inline-flex items-center gap-1 rounded-md bg-brand-500 px-3 py-1.5 text-xs font-bold text-zinc-950 hover:bg-amber-400"
+              onClick={toggleFav}
+              aria-pressed={favorited}
+              className={`inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-bold transition active:scale-[0.97] ${
+                favorited
+                  ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-700 hover:bg-zinc-700"
+                  : "bg-brand-500 text-zinc-950 hover:bg-amber-400"
+              }`}
             >
-              <IconHeart className="h-3.5 w-3.5" />
-              Favorite
+              {favorited ? (
+                <>
+                  <IconCheck className="h-3.5 w-3.5" />
+                  Favorited
+                </>
+              ) : (
+                <>
+                  <IconHeart className="h-3.5 w-3.5" />
+                  Favorite
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -348,7 +376,7 @@ function KindFilterPills({ value, onChange, options }) {
             onClick={() => onChange(opt.value)}
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition ${
               active
-                ? "bg-brand-500 text-zinc-950 shadow-[0_0_0_3px_rgba(244,114,32,0.18)]"
+                ? "bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white shadow-[0_0_0_3px_rgba(232,121,249,0.18),0_0_18px_-4px_rgba(232,121,249,0.55)] ring-1 ring-fuchsia-300/50"
                 : "bg-zinc-900 text-zinc-200 ring-1 ring-zinc-800 hover:bg-zinc-800 hover:text-white"
             }`}
             aria-pressed={active}

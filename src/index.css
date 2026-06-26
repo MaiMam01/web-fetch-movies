@@ -33,27 +33,294 @@ body,
   min-height: 100%;
 }
 
+/* ---------------------------------------------------------------------------
+   Hide scrollbars globally — content stays scrollable (wheel, trackpad, touch,
+   keyboard, JS). The gradient scroll-progress bar pinned to the top of the
+   viewport serves as the visual indicator.
+   ------------------------------------------------------------------------- */
+* {
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE / legacy Edge */
+}
+*::-webkit-scrollbar {             /* Chromium / Safari */
+  width: 0;
+  height: 0;
+  display: none;
+}
+
 body {
   font-family: var(--font-display);
-  background-color: #09090b; /* zinc-950 fallback */
+  background-color: #07060d; /* slightly deeper, more cosmic base */
   background-image:
     radial-gradient(
-      1100px 600px at 8% -10%,
-      rgba(168, 85, 247, 0.16),
+      1100px 600px at 5% -5%,
+      rgba(168, 85, 247, 0.28),
       transparent 60%
     ),
     radial-gradient(
       900px 500px at 100% 0%,
-      rgba(34, 211, 238, 0.10),
-      transparent 60%
+      rgba(34, 211, 238, 0.18),
+      transparent 62%
     ),
     radial-gradient(
-      1000px 700px at 50% 105%,
-      rgba(232, 121, 249, 0.10),
+      1000px 700px at 55% 105%,
+      rgba(232, 121, 249, 0.20),
       transparent 65%
+    ),
+    radial-gradient(
+      700px 500px at 15% 65%,
+      rgba(163, 230, 53, 0.06),
+      transparent 70%
     );
   background-attachment: fixed;
   background-repeat: no-repeat;
+}
+
+/* Animated rainbow border — apply via class on any element you want to outline
+   with a slowly shifting gradient. Uses a thin gradient under the element. */
+.funk-border {
+  position: relative;
+  isolation: isolate;
+}
+.funk-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    120deg,
+    #e879f9,
+    #a855f7,
+    #22d3ee,
+    #a3e635,
+    #fbbf24,
+    #fb7185,
+    #e879f9
+  );
+  background-size: 300% 300%;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.funk-border:hover::before,
+.funk-border:focus-visible::before {
+  opacity: 1;
+  animation: funkSlide 6s linear infinite;
+}
+@keyframes funkSlide {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+/* Animated gradient glow shadow (subtle outer halo, fuchsia → cyan).
+   Use sparingly on focal cards. */
+.funk-glow {
+  box-shadow:
+    0 0 0 1px rgba(232, 121, 249, 0.18),
+    0 18px 60px -20px rgba(232, 121, 249, 0.35),
+    0 18px 60px -25px rgba(34, 211, 238, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .funk-border:hover::before { animation: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   Dropdown / popover panels — shared visual shell so every menu in the app
+   feels like the same family. Use:
+     <div className="dropdown-panel"> ... </div>
+   ------------------------------------------------------------------------- */
+.dropdown-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem; /* 16px */
+  border: 1px solid rgb(39, 39, 42); /* zinc-800 */
+  background-color: rgba(10, 8, 20, 0.96);
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(232, 121, 249, 0.14), transparent 55%),
+    radial-gradient(circle at 90% 100%, rgba(34, 211, 238, 0.10), transparent 55%);
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.85),
+    0 0 50px -15px rgba(232, 121, 249, 0.35);
+  backdrop-filter: blur(8px);
+  animation: menuPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.dropdown-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    #e879f9,
+    #a855f7,
+    #22d3ee,
+    #a3e635
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes menuPop {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dropdown-panel { animation: none; }
+}
+
+/* Flag emojis — use system color emoji fonts so they render as flags on
+   Windows (Segoe UI Emoji), macOS / iOS, and Android / Linux fallbacks. */
+.flag {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji", "Twemoji Mozilla", "EmojiOne Color", emoji;
+  font-variant-emoji: emoji;
+  line-height: 1;
+}
+
+/* Subtle pulsing glow for the AnimeDB logo mark.
+   Combines a slight scale breath with a brightening drop-shadow. */
+@keyframes logoPulse {
+  0%, 100% {
+    filter: drop-shadow(0 4px 14px rgba(232, 121, 249, 0.4));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 6px 22px rgba(232, 121, 249, 0.65));
+    transform: scale(1.04);
+  }
+}
+.animate-logo-pulse {
+  animation: logoPulse 4.5s ease-in-out infinite;
+  transform-origin: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-logo-pulse { animation: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   Button system
+   ------------------------------------------------------------------------- */
+
+/* Shared base: typography, focus ring, tactile transform, disabled state. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem; /* 12px */
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.2s ease,
+    border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease,
+    opacity 0.2s ease;
+  will-change: transform;
+}
+.btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
+}
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #07060d,
+    0 0 0 4px rgba(232, 121, 249, 0.7);
+}
+
+/* Sizes */
+.btn-sm { padding: 0.375rem 0.75rem; font-size: 0.75rem; border-radius: 0.5rem; }
+.btn-lg { padding: 0.75rem 1.25rem; font-size: 0.95rem; border-radius: 1rem; }
+
+/* Primary — the signature gradient pill.
+   Adds a slow shine that sweeps on hover via a ::after pseudo-element. */
+.btn-primary {
+  position: relative;
+  color: #fff;
+  background-image: linear-gradient(120deg, #e879f9, #a855f7 45%, #22d3ee);
+  background-size: 200% 100%;
+  background-position: 0% 50%;
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.18) inset,
+    0 8px 24px -6px rgba(232, 121, 249, 0.45),
+    0 4px 16px -6px rgba(34, 211, 238, 0.35);
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn-primary:hover:not(:disabled) {
+  background-position: 100% 50%;
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.22) inset,
+    0 10px 32px -6px rgba(232, 121, 249, 0.55),
+    0 6px 22px -6px rgba(34, 211, 238, 0.45);
+  transform: translateY(-1px);
+}
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.btn-primary:hover:not(:disabled)::after { transform: translateX(120%); }
+.btn-primary > * { position: relative; z-index: 2; }
+
+/* Secondary — translucent surface, gradient ring appears on hover. */
+.btn-secondary {
+  color: #e4e4e7;
+  background-color: rgba(24, 24, 27, 0.6);
+  border: 1px solid rgb(39, 39, 42);
+  backdrop-filter: blur(6px);
+}
+.btn-secondary:hover:not(:disabled) {
+  color: #fff;
+  border-color: rgba(232, 121, 249, 0.4);
+  background-color: rgba(39, 39, 42, 0.8);
+  transform: translateY(-1px);
+}
+
+/* Ghost — completely transparent until hover. */
+.btn-ghost {
+  color: #d4d4d8;
+  background: transparent;
+}
+.btn-ghost:hover:not(:disabled) {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Icon-only square button. Combine with .btn-ghost or .btn-secondary. */
+.btn-icon {
+  padding: 0.5rem;
+  border-radius: 0.625rem; /* 10px */
+  aspect-ratio: 1 / 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn { transition: none; }
+  .btn-primary::after { display: none; }
 }
 
 /* Reusable gradient text — used for headline / logo accents */

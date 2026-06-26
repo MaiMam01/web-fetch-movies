@@ -17,12 +17,25 @@ export default function Pagination({ page = 1, totalPages = 1, onChange }) {
   const items = buildPageList(page, totalPages);
 
   return (
-    <nav className="mt-10 flex flex-wrap items-center justify-center gap-1.5">
+    <nav
+      aria-label="Pagination"
+      className="mt-10 flex flex-wrap items-center justify-center gap-1.5"
+    >
+      <button
+        type="button"
+        onClick={() => onChange(Math.max(1, page - 1))}
+        disabled={page <= 1}
+        aria-label="Previous page"
+        className="btn btn-secondary btn-sm btn-icon"
+      >
+        <IconChevronRight className="h-4 w-4 -scale-x-100" />
+      </button>
       {items.map((p, i) =>
         p === "…" ? (
           <span
             key={`ellipsis-${i}`}
             className="grid h-9 w-9 place-items-center text-zinc-500"
+            aria-hidden
           >
             …
           </span>
@@ -32,10 +45,11 @@ export default function Pagination({ page = 1, totalPages = 1, onChange }) {
             type="button"
             onClick={() => onChange(p)}
             aria-current={p === page ? "page" : undefined}
-            className={`grid h-9 min-w-[2.25rem] place-items-center rounded-md px-2 text-sm font-semibold transition ${
+            aria-label={`Go to page ${p}`}
+            className={`btn btn-sm min-w-[2.25rem] !rounded-md ${
               p === page
-                ? "bg-brand-500 text-zinc-950"
-                : "border border-zinc-800 bg-zinc-900 text-zinc-200 hover:bg-zinc-800"
+                ? "bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white shadow-[0_0_14px_-4px_rgba(232,121,249,0.6)] ring-1 ring-fuchsia-300/50"
+                : "border border-zinc-800 bg-zinc-900 text-zinc-200 hover:bg-zinc-800 hover:text-white"
             }`}
           >
             {p}
@@ -46,9 +60,9 @@ export default function Pagination({ page = 1, totalPages = 1, onChange }) {
         type="button"
         onClick={() => onChange(Math.min(totalPages, page + 1))}
         disabled={page >= totalPages}
-        className="ml-1 inline-flex h-9 items-center gap-1 rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm font-semibold text-zinc-200 hover:bg-zinc-800 disabled:opacity-40"
+        aria-label="Next page"
+        className="btn btn-secondary btn-sm btn-icon"
       >
-        Next
         <IconChevronRight className="h-4 w-4" />
       </button>
     </nav>

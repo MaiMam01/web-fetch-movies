@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 
-export default function CharacterCard({ character }) {
+function CharacterCard({ character }) {
   const c = character.character;
   const va = character.voice_actors?.find((v) => v.language === "Japanese");
 
@@ -17,6 +18,9 @@ export default function CharacterCard({ character }) {
             src={c.images.webp.image_url}
             alt={c.name}
             loading="lazy"
+            decoding="async"
+            width="225"
+            height="300"
             className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
           />
         ) : (
@@ -41,3 +45,8 @@ export default function CharacterCard({ character }) {
     </Link>
   );
 }
+
+export default memo(
+  CharacterCard,
+  (a, b) => a.character?.character?.mal_id === b.character?.character?.mal_id
+);

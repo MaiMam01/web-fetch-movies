@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import Logo from "./Logo.jsx";
+import LanguageDropdown, { findLanguage } from "./LanguageDropdown.jsx";
 import {
   getGenres,
   getTopAnime,
@@ -26,9 +28,7 @@ import {
   IconMessage,
   IconPlus,
   IconUserPlus,
-  IconThumbsUp,
   IconUpload,
-  IconGlobe,
   IconLocation,
   IconHelp,
   IconRss,
@@ -167,7 +167,7 @@ export default function Header() {
           getGenres("genres"),
           getGenres("themes"),
           getGenres("demographics"),
-          getTopAnime(4).catch(() => []),
+          getTopAnime(4).then((r) => r.items).catch(() => []),
         ]);
         if (cancelled) return;
         setGenres(g);
@@ -332,14 +332,7 @@ export default function Header() {
             )}
           </div>
 
-          <Link to="/" className="flex shrink-0 items-center gap-1.5">
-            <span className="text-lg font-black tracking-tight">
-              <span className="text-funk-gradient">Anime</span>
-              <span className="ml-0.5 rounded-md bg-gradient-to-br from-fuchsia-500 via-violet-500 to-cyan-400 px-1.5 py-0.5 text-zinc-950 shadow-lg shadow-fuchsia-500/30">
-                DB
-              </span>
-            </span>
-          </Link>
+          <Logo size="sm" className="shrink-0" />
 
           <form
             ref={searchRef}
@@ -384,18 +377,12 @@ export default function Header() {
           <div className="ml-auto flex items-center gap-2">
             <Link
               to="/scenes"
-              className="hidden rounded-md bg-gradient-to-r from-fuchsia-500 to-violet-500 px-3 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-fuchsia-500/20 transition hover:from-fuchsia-400 hover:to-violet-400 sm:inline-flex"
+              className="btn btn-primary btn-sm hidden uppercase tracking-wider sm:inline-flex"
             >
               Top Scenes
             </Link>
-            <button
-              type="button"
-              className="hidden items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 lg:inline-flex"
-            >
-              <span aria-hidden>🌐</span>
-              Region
-              <IconChevronDown className="h-3.5 w-3.5" />
-            </button>
+            <LanguageDropdown className="hidden lg:block" />
+            <LanguageDropdown compact className="lg:hidden" />
             <div className="relative" ref={accountRef}>
               <button
                 type="button"
@@ -404,15 +391,21 @@ export default function Header() {
                   setTrendingOpen(false);
                   setOpenNav(null);
                 }}
-                className={`grid h-9 w-9 place-items-center rounded-full border transition ${
+                className={`group relative grid h-9 w-9 place-items-center rounded-full transition active:scale-95 ${
                   accountOpen
-                    ? "border-brand-500 bg-zinc-800 text-brand-500"
-                    : "border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800"
+                    ? "bg-gradient-to-br from-fuchsia-500 via-violet-500 to-cyan-400 text-white shadow-[0_0_18px_-4px_rgba(232,121,249,0.6)]"
+                    : "border border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-fuchsia-400/40 hover:bg-zinc-800 hover:text-white"
                 }`}
                 aria-label="Account"
                 aria-expanded={accountOpen}
               >
                 <IconUser className="h-4 w-4" />
+                {!accountOpen && (
+                  <span
+                    aria-hidden
+                    className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-fuchsia-400 ring-2 ring-zinc-950 shadow-[0_0_6px_currentColor]"
+                  />
+                )}
               </button>
 
               {accountOpen && (
@@ -487,14 +480,24 @@ export default function Header() {
                   to={item.to}
                   end={item.end}
                   className={({ isActive }) =>
-                    `inline-flex items-center gap-1 rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+                    `relative inline-flex items-center gap-1 rounded px-3 py-1.5 text-sm font-medium transition-colors ${
                       isActive
-                        ? "text-brand-500"
+                        ? "text-white"
                         : "text-zinc-300 hover:text-white"
                     }`
                   }
                 >
-                  {item.label}
+                  {({ isActive }) => (
+                    <>
+                      {item.label}
+                      {isActive && (
+                        <span
+                          aria-hidden
+                          className="absolute inset-x-2 -bottom-[2px] h-[2px] rounded-full bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 shadow-[0_0_8px_rgba(232,121,249,0.6)]"
+                        />
+                      )}
+                    </>
+                  )}
                 </NavLink>
               </li>
             );
@@ -534,7 +537,7 @@ export default function Header() {
                   className={({ isActive }) =>
                     `block rounded px-3 py-2.5 text-sm font-medium ${
                       isActive
-                        ? "bg-brand-500/10 text-brand-500"
+                        ? "bg-gradient-to-r from-fuchsia-500/15 via-violet-500/10 to-cyan-400/10 text-fuchsia-200 ring-1 ring-fuchsia-400/20"
                         : "text-zinc-200 hover:bg-zinc-900"
                     }`
                   }
@@ -574,22 +577,29 @@ function SearchSuggestionsPanel({ query, topAnime, results, onClose }) {
   const showTrending = q.length < 2;
 
   return (
-    <div className="absolute left-0 right-0 top-12 z-50 max-h-[75vh] w-full overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-950 p-5 shadow-2xl">
+    <div className="dropdown-panel absolute left-0 right-0 top-12 z-50 max-h-[75vh] w-full overflow-y-auto p-5 pt-6">
+      <div className="relative z-[2]">
       {showTrending ? (
         <>
           <SuggestSection title="Trending Searches">
-            <ul className="space-y-1.5">
-              {TRENDING_SEARCHES.map((t) => (
-                <li key={t}>
-                  <Link
-                    to={`/search?q=${encodeURIComponent(t)}`}
-                    onClick={onClose}
-                    className="block rounded px-1 py-0.5 text-sm text-zinc-200 transition hover:text-brand-500"
-                  >
-                    {t}
-                  </Link>
-                </li>
-              ))}
+            <ul className="-mx-1 flex flex-wrap gap-1.5">
+              {TRENDING_SEARCHES.map((t, i) => {
+                const palette = ["fuchsia", "cyan", "lime", "amber", "violet", "rose"];
+                const accent = palette[i % palette.length];
+                const a = COLUMN_ACCENTS[accent];
+                return (
+                  <li key={t}>
+                    <Link
+                      to={`/search?q=${encodeURIComponent(t)}`}
+                      onClick={onClose}
+                      className={`group inline-flex items-center gap-1 rounded-full bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-200 ring-1 ring-zinc-800 transition hover:bg-zinc-800 ${a.hoverText} ${a.hoverRing}`}
+                    >
+                      <span aria-hidden className="text-[10px] opacity-50 group-hover:opacity-90">#</span>
+                      {t}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </SuggestSection>
 
@@ -609,9 +619,9 @@ function SearchSuggestionsPanel({ query, topAnime, results, onClose }) {
                       <Link
                         to={`/anime/${a.mal_id}`}
                         onClick={onClose}
-                        className="group flex items-center gap-3 rounded p-1.5 transition hover:bg-zinc-900"
+                        className="group flex items-center gap-3 rounded-lg p-1.5 transition hover:bg-zinc-900/70"
                       >
-                        <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-zinc-800 ring-1 ring-zinc-800">
+                        <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-zinc-800 ring-1 ring-zinc-800 transition group-hover:ring-fuchsia-400/40">
                           {img && (
                             <img
                               src={img}
@@ -622,13 +632,14 @@ function SearchSuggestionsPanel({ query, topAnime, results, onClose }) {
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="line-clamp-1 text-sm font-semibold text-zinc-100 group-hover:text-brand-500">
+                          <p className="line-clamp-1 text-sm font-semibold text-zinc-100 transition group-hover:text-fuchsia-200">
                             {a.title}
                           </p>
                           <p className="text-[11px] text-zinc-500">
                             {a.type ?? "TV"} · ★ {a.score?.toFixed(1) ?? "—"}
                           </p>
                         </div>
+                        <IconChevronRight className="h-3.5 w-3.5 text-zinc-700 transition group-hover:translate-x-0.5 group-hover:text-fuchsia-300" />
                       </Link>
                     </li>
                   );
@@ -654,7 +665,7 @@ function SearchSuggestionsPanel({ query, topAnime, results, onClose }) {
                 <Link
                   to={`/search?q=${encodeURIComponent(q)}`}
                   onClick={onClose}
-                  className="font-bold text-brand-500 hover:underline"
+                  className="font-bold text-funk-gradient hover:opacity-90"
                 >
                   See full search results
                 </Link>
@@ -716,20 +727,22 @@ function SearchSuggestionsPanel({ query, topAnime, results, onClose }) {
             </SuggestSection>
           )}
 
-          <div className="mt-4 border-t border-zinc-900 pt-3">
+          <div className="mt-4 border-t border-zinc-900/80 pt-3">
             <Link
               to={`/search?q=${encodeURIComponent(q)}`}
               onClick={onClose}
-              className="flex items-center justify-between rounded px-2 py-2 text-sm font-bold text-brand-500 transition hover:bg-zinc-900"
+              className="group flex items-center justify-between rounded-lg bg-gradient-to-r from-fuchsia-500/10 via-violet-500/5 to-cyan-400/10 px-3 py-2.5 text-sm font-bold text-fuchsia-100 ring-1 ring-fuchsia-400/20 transition hover:from-fuchsia-500/20 hover:via-violet-500/15 hover:to-cyan-400/20 hover:ring-fuchsia-400/40"
             >
               <span>
-                See all results for <span className="italic">"{q}"</span>
+                See all results for{" "}
+                <span className="italic text-funk-gradient">&quot;{q}&quot;</span>
               </span>
-              <IconChevronRight className="h-4 w-4" />
+              <IconChevronRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
             </Link>
           </div>
         </>
       )}
+      </div>
     </div>
   );
 }
@@ -738,14 +751,18 @@ function SuggestSection({ title, viewAllTo, onClose, className = "", children })
   return (
     <div className={className}>
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-base font-bold text-zinc-50">{title}</h3>
+        <h3 className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-fuchsia-200">
+          <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-fuchsia-400 shadow-[0_0_8px_currentColor]" />
+          {title}
+        </h3>
         {viewAllTo && (
           <Link
             to={viewAllTo}
             onClick={onClose}
-            className="text-xs font-bold text-brand-500 hover:underline"
+            className="group inline-flex items-center gap-1 text-[11px] font-bold text-funk-gradient hover:opacity-90"
           >
             View all
+            <IconChevronRight className="h-3 w-3 text-fuchsia-300 transition group-hover:translate-x-0.5" />
           </Link>
         )}
       </div>
@@ -764,9 +781,9 @@ function ResultList({ items, makeTo, getName, getImg, getMeta, onClose }) {
             <Link
               to={makeTo(it)}
               onClick={onClose}
-              className="group flex items-center gap-3 rounded p-1.5 transition hover:bg-zinc-900"
+              className="group flex items-center gap-3 rounded-lg p-1.5 transition hover:bg-zinc-900/70"
             >
-              <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-zinc-800 ring-1 ring-zinc-800">
+              <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-zinc-800 ring-1 ring-zinc-800 transition group-hover:ring-fuchsia-400/40">
                 {img && (
                   <img
                     src={img}
@@ -777,11 +794,12 @@ function ResultList({ items, makeTo, getName, getImg, getMeta, onClose }) {
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="line-clamp-1 text-sm font-semibold text-zinc-100 group-hover:text-brand-500">
+                <p className="line-clamp-1 text-sm font-semibold text-zinc-100 transition group-hover:text-fuchsia-200">
                   {getName(it)}
                 </p>
                 <p className="text-[11px] text-zinc-500">{getMeta(it)}</p>
               </div>
+              <IconChevronRight className="h-3.5 w-3.5 text-zinc-700 transition group-hover:translate-x-0.5 group-hover:text-fuchsia-300" />
             </Link>
           </li>
         );
@@ -791,61 +809,134 @@ function ResultList({ items, makeTo, getName, getImg, getMeta, onClose }) {
 }
 
 function AccountDropdown({ onClose, onSignUp, onLogIn }) {
-  const [language, setLanguage] = useState("English");
+  // Read the same persisted language key the LanguageDropdown writes to so this
+  // row always shows what's currently selected (and updates live via the
+  // `animedb:lang` event the picker broadcasts).
+  const [langCode, setLangCode] = useState(() => {
+    if (typeof window === "undefined") return "en";
+    try {
+      return localStorage.getItem("animedb_lang") || "en";
+    } catch {
+      return "en";
+    }
+  });
+  useEffect(() => {
+    const onLang = (e) => setLangCode(e.detail ?? "en");
+    window.addEventListener("animedb:lang", onLang);
+    return () => window.removeEventListener("animedb:lang", onLang);
+  }, []);
+  const currentLanguage = findLanguage(langCode);
   const [region, setRegion] = useState("United States");
 
   return (
     <div
-      className="absolute right-0 top-12 z-50 w-[min(94vw,320px)] origin-top-right overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950 p-4 shadow-2xl"
+      className="absolute right-0 top-12 z-50 w-[min(94vw,340px)] origin-top-right overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.85),0_0_50px_-15px_rgba(232,121,249,0.35)]"
       role="menu"
+      style={{ animation: "menuPop 0.22s cubic-bezier(0.16, 1, 0.3, 1)" }}
     >
-      <div className="grid grid-cols-3 gap-2">
-        <AccountIconButton
-          icon={<IconUserPlus className="h-5 w-5" />}
-          label="Sign Up"
-          onClick={onSignUp}
-          accent
+      {/* Rainbow top edge */}
+      <div
+        aria-hidden
+        className="h-[2px] bg-gradient-to-r from-fuchsia-500 via-violet-500 via-cyan-400 to-lime-400"
+      />
+
+      {/* Guest hero */}
+      <div className="relative overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-90"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 20% 20%, rgba(232,121,249,0.22), transparent 55%), radial-gradient(circle at 85% 90%, rgba(34,211,238,0.18), transparent 55%)",
+          }}
         />
-        <AccountIconButton
-          icon={<IconUser className="h-5 w-5" />}
-          label="Log In"
-          onClick={onLogIn}
-        />
-        <AccountIconButton
-          icon={<IconThumbsUp className="h-5 w-5" />}
-          label="Watchlist"
-          to="/community"
-          onClose={onClose}
-        />
+        <div className="relative flex items-center gap-3 px-4 py-3.5">
+          <div className="relative">
+            <span className="grid h-11 w-11 place-items-center rounded-full bg-zinc-900 ring-2 ring-fuchsia-400/40">
+              <IconUser className="h-5 w-5 text-zinc-300" />
+            </span>
+            <span
+              aria-hidden
+              className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-zinc-500 ring-2 ring-zinc-950"
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-bold text-white">Hello, guest</p>
+            <p className="truncate text-[11px] text-zinc-400">
+              Sign in to save scenes & watchlists
+            </p>
+          </div>
+        </div>
       </div>
 
-      <ul className="mt-4 space-y-0.5 border-t border-zinc-900 pt-3">
+      {/* CTAs */}
+      <div className="px-3 pb-3 pt-1">
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={onSignUp}
+            className="btn btn-primary btn-sm justify-center"
+          >
+            <IconUserPlus className="h-4 w-4" />
+            Sign up
+          </button>
+          <button
+            type="button"
+            onClick={onLogIn}
+            className="btn btn-secondary btn-sm justify-center"
+          >
+            <IconUser className="h-4 w-4" />
+            Log in
+          </button>
+        </div>
+
+        {/* Quick tiles */}
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          <QuickTile
+            icon={<IconHeart className="h-4 w-4" />}
+            label="Watchlist"
+            to="/community"
+            onClose={onClose}
+            accent="rose"
+          />
+          <QuickTile
+            icon={<IconRss className="h-4 w-4" />}
+            label="Activity"
+            to="/community"
+            onClose={onClose}
+            accent="cyan"
+          />
+          <QuickTile
+            icon={<IconUpload className="h-4 w-4" />}
+            label="Submit"
+            to="/request"
+            onClose={onClose}
+            accent="lime"
+          />
+        </div>
+      </div>
+
+      {/* Settings list */}
+      <ul className="border-t border-zinc-900 px-2 py-2">
         <DropdownRow
-          icon={<IconRss className="h-4 w-4" />}
-          label="Activity Feed"
-          to="/community"
-          onClose={onClose}
-        />
-        <DropdownRow
-          icon={<IconUpload className="h-4 w-4" />}
-          label="Submit a Scene"
-          to="/request"
-          onClose={onClose}
-        />
-        <DropdownRow
-          icon={<IconGlobe className="h-4 w-4" />}
-          label={language}
-          chevron
-          onClick={() =>
-            setLanguage((l) =>
-              l === "English" ? "Japanese" : l === "Japanese" ? "Spanish" : "English"
-            )
+          icon={
+            <span className="flag text-base leading-none" aria-hidden>
+              {currentLanguage.flag}
+            </span>
           }
+          label="Language"
+          value={currentLanguage.native}
+          onClick={() => {
+            // Close this dropdown and open the global picker via a custom event
+            // that LanguageDropdown listens to.
+            onClose?.();
+            window.dispatchEvent(new CustomEvent("animedb:lang:open"));
+          }}
         />
         <DropdownRow
           icon={<IconLocation className="h-4 w-4" />}
-          label={region}
-          chevron
+          label="Region"
+          value={region}
           onClick={() =>
             setRegion((r) =>
               r === "United States"
@@ -869,46 +960,83 @@ function AccountDropdown({ onClose, onSignUp, onLogIn }) {
           onClose={onClose}
         />
       </ul>
+
+      {/* Footer mini-strip */}
+      <div className="flex items-center justify-between border-t border-zinc-900 bg-zinc-950/60 px-4 py-2.5 text-[10px] text-zinc-500">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-lime-400 shadow-[0_0_6px_currentColor]" />
+          All systems operational
+        </span>
+        <Link
+          to="/privacy"
+          onClick={onClose}
+          className="font-semibold text-zinc-400 hover:text-fuchsia-300"
+        >
+          Privacy
+        </Link>
+      </div>
+
+      <style>{`
+        @keyframes menuPop {
+          from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0)    scale(1); }
+        }
+      `}</style>
     </div>
   );
 }
 
-function AccountIconButton({ icon, label, onClick, to, onClose, accent = false }) {
-  const ringClass = accent
-    ? "ring-brand-500/60 text-brand-500 group-hover:bg-brand-500 group-hover:text-zinc-950"
-    : "ring-zinc-800 text-zinc-200 group-hover:bg-zinc-800 group-hover:text-white";
+// Quick-action tile — square, accent ring + glow on hover.
+const QUICK_TILE_ACCENTS = {
+  rose: {
+    icon: "text-rose-300",
+    bg: "bg-rose-500/10 group-hover:bg-rose-500/20",
+    ring: "ring-rose-400/30 group-hover:ring-rose-400/50",
+    glow: "group-hover:shadow-[0_0_18px_-6px_rgba(251,113,133,0.6)]",
+  },
+  cyan: {
+    icon: "text-cyan-300",
+    bg: "bg-cyan-500/10 group-hover:bg-cyan-500/20",
+    ring: "ring-cyan-400/30 group-hover:ring-cyan-400/50",
+    glow: "group-hover:shadow-[0_0_18px_-6px_rgba(34,211,238,0.6)]",
+  },
+  lime: {
+    icon: "text-lime-300",
+    bg: "bg-lime-500/10 group-hover:bg-lime-500/20",
+    ring: "ring-lime-400/30 group-hover:ring-lime-400/50",
+    glow: "group-hover:shadow-[0_0_18px_-6px_rgba(163,230,53,0.6)]",
+  },
+};
 
-  const inner = (
-    <div className="group flex flex-col items-center gap-1.5">
-      <span
-        className={`grid h-12 w-12 place-items-center rounded-full bg-zinc-900 ring-1 transition ${ringClass}`}
-      >
-        {icon}
-      </span>
-      <span className="text-[11px] font-bold text-zinc-200">{label}</span>
-    </div>
-  );
-
-  if (to) {
-    return (
-      <Link to={to} onClick={onClose} className="block">
-        {inner}
-      </Link>
-    );
-  }
+function QuickTile({ icon, label, to, onClose, accent = "rose" }) {
+  const a = QUICK_TILE_ACCENTS[accent];
   return (
-    <button type="button" onClick={onClick} className="block w-full">
-      {inner}
-    </button>
+    <Link
+      to={to}
+      onClick={onClose}
+      className={`group flex flex-col items-center gap-1.5 rounded-xl ${a.bg} px-2 py-2.5 ring-1 transition ${a.ring} ${a.glow}`}
+    >
+      <span className={`grid h-7 w-7 place-items-center ${a.icon}`}>{icon}</span>
+      <span className="text-[11px] font-bold text-zinc-100">{label}</span>
+    </Link>
   );
 }
 
-function DropdownRow({ icon, label, to, onClick, onClose, chevron = false }) {
+function DropdownRow({ icon, label, value, to, onClick, onClose }) {
   const content = (
     <span className="flex w-full items-center gap-3">
-      <span className="text-zinc-400">{icon}</span>
-      <span className="flex-1 text-sm font-semibold text-zinc-100">{label}</span>
-      {chevron && <IconChevronDown className="h-3.5 w-3.5 text-zinc-500" />}
+      <span className="grid h-7 w-7 place-items-center rounded-md bg-zinc-900 text-zinc-400 ring-1 ring-zinc-800 transition group-hover:bg-fuchsia-500/10 group-hover:text-fuchsia-300 group-hover:ring-fuchsia-400/30">
+        {icon}
+      </span>
+      <span className="flex-1 text-sm font-semibold text-zinc-200 group-hover:text-white">
+        {label}
+      </span>
+      {value && (
+        <span className="text-xs font-medium text-zinc-500 group-hover:text-zinc-300">
+          {value}
+        </span>
+      )}
+      <IconChevronRight className="h-3.5 w-3.5 text-zinc-600 transition group-hover:translate-x-0.5 group-hover:text-fuchsia-300" />
     </span>
   );
 
@@ -918,7 +1046,7 @@ function DropdownRow({ icon, label, to, onClick, onClose, chevron = false }) {
         <Link
           to={to}
           onClick={onClose}
-          className="group flex items-center rounded px-2 py-2.5 transition hover:bg-zinc-900"
+          className="group flex items-center rounded-lg px-2 py-2 transition hover:bg-zinc-900/80"
         >
           {content}
         </Link>
@@ -931,7 +1059,7 @@ function DropdownRow({ icon, label, to, onClick, onClose, chevron = false }) {
       <button
         type="button"
         onClick={onClick}
-        className="group flex w-full items-center rounded px-2 py-2.5 transition hover:bg-zinc-900"
+        className="group flex w-full items-center rounded-lg px-2 py-2 transition hover:bg-zinc-900/80"
       >
         {content}
       </button>
@@ -943,37 +1071,38 @@ function MiniDropdown({ title, items, viewAllTo, align = "left", onClose }) {
   const sideClass = align === "right" ? "right-0" : "left-0";
   return (
     <div
-      className={`absolute ${sideClass} top-11 z-50 w-[min(94vw,320px)] origin-top overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950 shadow-2xl`}
+      className={`dropdown-panel absolute ${sideClass} top-11 z-50 w-[min(94vw,340px)] origin-top`}
       role="menu"
     >
-      <div className="flex items-center justify-between border-b border-zinc-900 px-4 py-2.5">
-        <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-100">
+      <div className="relative z-[2] flex items-center justify-between border-b border-zinc-900/80 px-4 py-2.5">
+        <h3 className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-fuchsia-200">
+          <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-fuchsia-400 shadow-[0_0_8px_currentColor]" />
           {title}
         </h3>
         {viewAllTo && (
           <Link
             to={viewAllTo}
             onClick={onClose}
-            className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-500 hover:underline"
+            className="group inline-flex items-center gap-1 text-[11px] font-bold text-funk-gradient hover:opacity-90"
           >
             View all
-            <IconChevronRight className="h-3 w-3" />
+            <IconChevronRight className="h-3 w-3 text-fuchsia-300 transition group-hover:translate-x-0.5" />
           </Link>
         )}
       </div>
-      <ul className="p-1.5">
+      <ul className="relative z-[2] p-1.5">
         {items.map((it) => (
           <li key={it.label}>
             <Link
               to={it.to}
               onClick={onClose}
-              className="group flex items-start gap-3 rounded px-3 py-2.5 transition hover:bg-zinc-900"
+              className="group flex items-start gap-3 rounded-lg px-3 py-2.5 transition hover:bg-zinc-900/70"
             >
-              <span className="mt-0.5 text-zinc-500 group-hover:text-brand-500">
+              <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-md bg-zinc-900 text-zinc-400 ring-1 ring-zinc-800 transition group-hover:bg-fuchsia-500/10 group-hover:text-fuchsia-300 group-hover:ring-fuchsia-400/30">
                 {it.icon}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-zinc-100 group-hover:text-brand-500">
+                <span className="block text-sm font-semibold text-zinc-100 transition group-hover:text-white">
                   {it.label}
                 </span>
                 {it.hint && (
@@ -982,6 +1111,7 @@ function MiniDropdown({ title, items, viewAllTo, align = "left", onClose }) {
                   </span>
                 )}
               </span>
+              <IconChevronRight className="mt-1 h-3.5 w-3.5 text-zinc-700 transition group-hover:translate-x-0.5 group-hover:text-fuchsia-300" />
             </Link>
           </li>
         ))}
@@ -991,12 +1121,15 @@ function MiniDropdown({ title, items, viewAllTo, align = "left", onClose }) {
 }
 
 function CategoryMegaPanel({ onClose, genres, themes, demographics, topAnime }) {
+  // Anchored to the viewport (not the Categories <li>) so the 1180px-wide
+  // mega panel always centers under the header instead of overflowing off
+  // the right edge. Header total height: 56px (row 1) + 48px (row 2) = 104px.
   return (
     <div
-      className="absolute left-0 top-11 z-50 max-h-[80vh] w-[min(96vw,1180px)] origin-top overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-950 shadow-2xl"
+      className="dropdown-panel fixed left-1/2 top-[104px] z-50 max-h-[calc(100vh-120px)] w-[min(96vw,1180px)] origin-top -translate-x-1/2 overflow-y-auto"
       role="menu"
     >
-      <div className="grid gap-5 p-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+      <div className="relative z-[2] grid gap-5 p-5 pt-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
         <DiscoverColumn onClick={onClose} />
         <ThumbsColumn
           title="Top Rated"
@@ -1032,20 +1165,33 @@ function CategoryMegaPanel({ onClose, genres, themes, demographics, topAnime }) 
   );
 }
 
-function ColumnHeader({ title, to, onClick }) {
+// Static accent-name → tailwind classes lookup so each column can carry its own
+// funky hue without breaking JIT class detection.
+const COLUMN_ACCENTS = {
+  fuchsia: { dot: "bg-fuchsia-400", text: "text-fuchsia-200", hoverText: "group-hover:text-fuchsia-300", hoverBg: "group-hover:bg-fuchsia-500/10", hoverRing: "group-hover:ring-fuchsia-400/30" },
+  cyan:    { dot: "bg-cyan-400",    text: "text-cyan-200",    hoverText: "group-hover:text-cyan-300",    hoverBg: "group-hover:bg-cyan-500/10",    hoverRing: "group-hover:ring-cyan-400/30"    },
+  violet:  { dot: "bg-violet-400",  text: "text-violet-200",  hoverText: "group-hover:text-violet-300",  hoverBg: "group-hover:bg-violet-500/10",  hoverRing: "group-hover:ring-violet-400/30"  },
+  lime:    { dot: "bg-lime-400",    text: "text-lime-200",    hoverText: "group-hover:text-lime-300",    hoverBg: "group-hover:bg-lime-500/10",    hoverRing: "group-hover:ring-lime-400/30"    },
+  amber:   { dot: "bg-amber-400",   text: "text-amber-200",   hoverText: "group-hover:text-amber-300",   hoverBg: "group-hover:bg-amber-500/10",   hoverRing: "group-hover:ring-amber-400/30"   },
+  rose:    { dot: "bg-rose-400",    text: "text-rose-200",    hoverText: "group-hover:text-rose-300",    hoverBg: "group-hover:bg-rose-500/10",    hoverRing: "group-hover:ring-rose-400/30"    },
+};
+
+function ColumnHeader({ title, to, onClick, accent = "fuchsia" }) {
+  const a = COLUMN_ACCENTS[accent] ?? COLUMN_ACCENTS.fuchsia;
   return (
     <div className="mb-3 flex items-center justify-between">
-      <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-100">
+      <h3 className={`inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] ${a.text}`}>
+        <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${a.dot} shadow-[0_0_8px_currentColor]`} />
         {title}
       </h3>
       {to && (
         <Link
           to={to}
           onClick={onClick}
-          className="grid h-5 w-5 place-items-center rounded-full text-zinc-500 transition hover:bg-zinc-900 hover:text-brand-500"
+          className="group grid h-5 w-5 place-items-center rounded-full text-zinc-500 transition hover:bg-zinc-900 hover:text-fuchsia-300"
           aria-label={`View all ${title}`}
         >
-          <IconChevronRight className="h-3.5 w-3.5" />
+          <IconChevronRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
         </Link>
       )}
     </div>
@@ -1055,16 +1201,16 @@ function ColumnHeader({ title, to, onClick }) {
 function DiscoverColumn({ onClick }) {
   return (
     <div>
-      <h3 className="mb-3 text-sm font-bold text-zinc-100">Discover Anime</h3>
+      <ColumnHeader title="Discover Anime" accent="fuchsia" />
       <ul className="space-y-0.5">
         {DISCOVER_ITEMS.map((it) => (
           <li key={it.label}>
             <Link
               to={it.to}
               onClick={onClick}
-              className="group flex items-center gap-2.5 rounded px-1.5 py-1.5 text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-brand-500"
+              className="group flex items-center gap-2.5 rounded-lg px-1.5 py-1.5 text-sm text-zinc-300 transition hover:bg-zinc-900/70 hover:text-white"
             >
-              <span className="text-zinc-500 group-hover:text-brand-500">
+              <span className="grid h-7 w-7 place-items-center rounded-md bg-zinc-900 text-zinc-400 ring-1 ring-zinc-800 transition group-hover:bg-fuchsia-500/10 group-hover:text-fuchsia-300 group-hover:ring-fuchsia-400/30">
                 {it.icon}
               </span>
               {it.label}
@@ -1079,7 +1225,7 @@ function DiscoverColumn({ onClick }) {
 function ThumbsColumn({ title, to, items, onClick }) {
   return (
     <div>
-      <ColumnHeader title={title} to={to} onClick={onClick} />
+      <ColumnHeader title={title} to={to} onClick={onClick} accent="cyan" />
       <ul className="space-y-2">
         {items.length === 0 &&
           Array.from({ length: 3 }).map((_, i) => (
@@ -1102,9 +1248,9 @@ function ThumbsColumn({ title, to, items, onClick }) {
               <Link
                 to={`/anime/${a.mal_id}`}
                 onClick={onClick}
-                className="group flex gap-2 rounded p-1.5 transition hover:bg-zinc-900"
+                className="group flex gap-2 rounded-lg p-1.5 transition hover:bg-zinc-900/70"
               >
-                <div className="relative aspect-video w-20 shrink-0 overflow-hidden rounded bg-zinc-800">
+                <div className="relative aspect-video w-20 shrink-0 overflow-hidden rounded-md bg-zinc-800 ring-1 ring-zinc-800 transition group-hover:ring-cyan-400/40">
                   {img && (
                     <img
                       src={img}
@@ -1114,13 +1260,13 @@ function ThumbsColumn({ title, to, items, onClick }) {
                     />
                   )}
                   {a.score && (
-                    <span className="absolute right-0.5 bottom-0.5 rounded bg-zinc-950/85 px-1 py-px text-[9px] font-bold text-brand-500">
+                    <span className="absolute right-0.5 bottom-0.5 rounded bg-zinc-950/85 px-1 py-px text-[9px] font-bold text-cyan-200 ring-1 ring-cyan-400/30">
                       ★ {a.score.toFixed(1)}
                     </span>
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="line-clamp-2 text-xs font-semibold leading-snug text-zinc-100 group-hover:text-brand-500">
+                  <p className="line-clamp-2 text-xs font-semibold leading-snug text-zinc-100 transition group-hover:text-cyan-200">
                     {a.title}
                   </p>
                   <p className="mt-0.5 line-clamp-1 text-[10px] text-zinc-500">
@@ -1136,21 +1282,32 @@ function ThumbsColumn({ title, to, items, onClick }) {
   );
 }
 
+// Each LinkListColumn auto-rotates a funky accent based on its title hash so
+// Genres / Themes / Demographics each get a different vibe in the mega panel.
+function pickColumnAccent(title) {
+  const accents = ["fuchsia", "violet", "lime", "amber", "rose"];
+  let h = 0;
+  for (let i = 0; i < title.length; i++) h = (h * 31 + title.charCodeAt(i)) | 0;
+  return accents[Math.abs(h) % accents.length];
+}
+
 function LinkListColumn({ title, to, items, onClick }) {
+  const accent = pickColumnAccent(title);
+  const a = COLUMN_ACCENTS[accent];
   return (
     <div>
-      <ColumnHeader title={title} to={to} onClick={onClick} />
+      <ColumnHeader title={title} to={to} onClick={onClick} accent={accent} />
       <ul className="space-y-0.5">
         {items.map((g) => (
           <li key={g.mal_id}>
             <Link
               to={`/categories/${g.mal_id}`}
               onClick={onClick}
-              className="flex items-center justify-between rounded px-1.5 py-1 text-sm text-zinc-200 transition hover:bg-zinc-900 hover:text-brand-500"
+              className={`group flex items-center justify-between rounded-lg px-2 py-1.5 text-sm text-zinc-300 transition hover:bg-zinc-900/70 ${a.hoverText}`}
             >
               <span className="line-clamp-1">{g.name}</span>
               {g.count != null && (
-                <span className="ml-2 text-[10px] tabular-nums text-zinc-500">
+                <span className="ml-2 text-[10px] tabular-nums text-zinc-500 transition group-hover:text-zinc-300">
                   {g.count.toLocaleString()}
                 </span>
               )}
@@ -1165,21 +1322,24 @@ function LinkListColumn({ title, to, items, onClick }) {
 function ChipsColumn({ title, chips, onClick }) {
   return (
     <div>
-      <h3 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-zinc-100">
-        {title}
-      </h3>
+      <ColumnHeader title={title} accent="rose" />
       <ul className="flex flex-wrap gap-1.5">
-        {chips.map((c) => (
-          <li key={c}>
-            <Link
-              to={`/search?q=${encodeURIComponent(c)}`}
-              onClick={onClick}
-              className="inline-block rounded-md bg-zinc-900 px-2.5 py-1 text-[11px] font-semibold text-zinc-200 ring-1 ring-zinc-800 transition hover:bg-zinc-800 hover:text-brand-500"
-            >
-              {c}
-            </Link>
-          </li>
-        ))}
+        {chips.map((c, i) => {
+          const palette = ["fuchsia", "cyan", "lime", "amber", "violet", "rose"];
+          const accent = palette[i % palette.length];
+          const a = COLUMN_ACCENTS[accent];
+          return (
+            <li key={c}>
+              <Link
+                to={`/search?q=${encodeURIComponent(c)}`}
+                onClick={onClick}
+                className={`group inline-block rounded-full bg-zinc-900 px-2.5 py-1 text-[11px] font-semibold text-zinc-300 ring-1 ring-zinc-800 transition hover:bg-zinc-800 ${a.hoverText} ${a.hoverRing}`}
+              >
+                {c}
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

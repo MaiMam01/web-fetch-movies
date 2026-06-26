@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { IconChevronDown } from "./Icons.jsx";
+import { IconChevronDown, IconCheck } from "./Icons.jsx";
 
 export default function SortDropdown({
   value,
@@ -32,7 +32,7 @@ export default function SortDropdown({
   }, [open]);
 
   const triggerSize =
-    size === "sm" ? "h-8 px-2.5 text-[11px]" : "h-9 px-3 text-xs";
+    size === "sm" ? "h-8 px-3 text-[11px]" : "h-9 px-3.5 text-xs";
   const panelAlign = align === "left" ? "left-0" : "right-0";
 
   return (
@@ -42,13 +42,17 @@ export default function SortDropdown({
         onClick={() => setOpen((s) => !s)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className={`inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900 font-semibold text-zinc-200 transition hover:bg-zinc-800 ${triggerSize}`}
+        className={`group inline-flex items-center gap-2 rounded-full border bg-zinc-900/70 font-semibold backdrop-blur transition active:scale-[0.98] ${triggerSize} ${
+          open
+            ? "border-fuchsia-400/50 text-white shadow-[0_0_18px_-6px_rgba(232,121,249,0.55)]"
+            : "border-zinc-800 text-zinc-200 hover:border-fuchsia-400/30 hover:bg-zinc-800/80 hover:text-white"
+        }`}
       >
-        <span className="text-zinc-400">{label}:</span>
-        <span className="italic text-zinc-100">{current?.label}</span>
+        <span className="text-zinc-500 group-hover:text-zinc-400">{label}:</span>
+        <span className="text-funk-gradient">{current?.label}</span>
         <IconChevronDown
           className={`h-3.5 w-3.5 text-zinc-400 transition ${
-            open ? "rotate-180" : ""
+            open ? "rotate-180 text-fuchsia-300" : ""
           }`}
         />
       </button>
@@ -56,12 +60,13 @@ export default function SortDropdown({
       {open && (
         <ul
           role="listbox"
-          className={`absolute ${panelAlign} top-11 z-30 min-w-[200px] overflow-hidden rounded-md border border-zinc-800 bg-zinc-950 p-1.5 shadow-2xl`}
+          aria-label={label}
+          className={`dropdown-panel absolute ${panelAlign} top-11 z-30 min-w-[220px] p-2 pt-3`}
         >
           {options.map((opt) => {
             const active = opt.value === value;
             return (
-              <li key={opt.value}>
+              <li key={opt.value} className="relative z-[2]">
                 <button
                   type="button"
                   role="option"
@@ -70,17 +75,20 @@ export default function SortDropdown({
                     onChange(opt.value);
                     setOpen(false);
                   }}
-                  className={`flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left text-sm font-bold transition ${
+                  className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${
                     active
-                      ? "bg-brand-500 text-zinc-950"
-                      : "text-zinc-200 hover:bg-zinc-900 hover:text-white"
+                      ? "bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white shadow-[0_0_14px_-4px_rgba(232,121,249,0.6)]"
+                      : "text-zinc-200 hover:bg-zinc-900/70 hover:text-white"
                   }`}
                 >
-                  <span>{opt.label}</span>
+                  <span className="flex items-center gap-2">
+                    {active && <IconCheck className="h-3.5 w-3.5" />}
+                    {opt.label}
+                  </span>
                   {opt.hint && (
                     <span
                       className={`text-[10px] font-semibold ${
-                        active ? "text-zinc-900/70" : "text-zinc-500"
+                        active ? "text-white/80" : "text-zinc-500"
                       }`}
                     >
                       {opt.hint}

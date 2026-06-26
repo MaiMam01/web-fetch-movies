@@ -259,7 +259,7 @@ function CommunityHero() {
           Anime fans · everywhere
         </p>
         <h1 className="mt-3 text-3xl font-extrabold uppercase tracking-tight text-zinc-50 sm:text-4xl lg:text-5xl">
-          The <span className="text-brand-500">AnimeDB</span> Community Wants You
+          The <span className="text-funk-gradient">AnimeDB</span> Community Wants You
         </h1>
         <p className="mt-3 max-w-2xl text-sm text-zinc-400 sm:text-base">
           Rate seasons, post takes on iconic scenes, build watchlists, and find
@@ -268,7 +268,7 @@ function CommunityHero() {
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-md bg-brand-500 px-5 py-2.5 text-sm font-bold text-zinc-950 transition hover:bg-brand-400"
+            className="btn btn-primary"
           >
             <IconPlus className="h-4 w-4" />
             Create an account
@@ -417,8 +417,7 @@ function FeaturedMembersCard() {
           Featured Verified Members
         </h3>
         <Link
-          to="#"
-          onClick={(e) => e.preventDefault()}
+          to="/community?tab=members"
           className="text-[11px] font-bold text-brand-500 hover:underline"
         >
           View all
@@ -586,7 +585,7 @@ function AdvancedSearchTab() {
         <div className="md:col-span-2">
           <button
             type="submit"
-            className="inline-flex items-center gap-2 rounded-md bg-brand-500 px-5 py-2.5 text-sm font-bold text-zinc-950 transition hover:bg-brand-400"
+            className="btn btn-primary"
           >
             <IconSearch className="h-4 w-4" />
             Search members
@@ -599,8 +598,12 @@ function AdvancedSearchTab() {
 
 function Field({ label, children, inline = false }) {
   return (
-    <label className={`block ${inline ? "flex items-center gap-2" : ""}`}>
-      <span className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-zinc-500">
+    <label className={inline ? "flex items-center gap-2" : "block"}>
+      <span
+        className={`text-[11px] font-bold uppercase tracking-widest text-zinc-500 ${
+          inline ? "" : "mb-1 block"
+        }`}
+      >
         {label}
       </span>
       {children}

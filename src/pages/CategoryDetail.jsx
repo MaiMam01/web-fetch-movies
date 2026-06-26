@@ -130,7 +130,7 @@ export default function CategoryDetail() {
         <div>
           <h1 className="text-2xl font-bold text-zinc-50 sm:text-3xl">
             {activeGenre?.name || "Category"} Anime at{" "}
-            <span className="text-brand-500">AnimeDB</span>
+            <span className="text-funk-gradient">AnimeDB</span>
           </h1>
           <p className="mt-1 text-sm text-zinc-400">
             {totalItems != null
@@ -183,17 +183,27 @@ export default function CategoryDetail() {
 }
 
 function Breadcrumbs({ name }) {
+  const crumbLink =
+    "shrink-0 rounded-full bg-zinc-900/60 px-2.5 py-1 text-zinc-400 ring-1 ring-zinc-800 transition hover:bg-zinc-800 hover:text-white hover:ring-fuchsia-400/30";
   return (
-    <nav className="mb-3 flex items-center gap-1 text-xs text-zinc-500">
-      <Link to="/" className="hover:text-zinc-300">
+    <nav
+      aria-label="Breadcrumb"
+      className="mb-3 flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-[11px] font-semibold"
+    >
+      <Link to="/" className={crumbLink}>
         Home
       </Link>
-      <IconChevronRight className="h-3 w-3" />
-      <Link to="/categories" className="hover:text-zinc-300">
+      <IconChevronRight className="h-3 w-3 shrink-0 text-zinc-600" />
+      <Link to="/categories" className={crumbLink}>
         Categories
       </Link>
-      <IconChevronRight className="h-3 w-3" />
-      <span className="text-zinc-300">{name || "Loading…"}</span>
+      <IconChevronRight className="h-3 w-3 shrink-0 text-fuchsia-400/70" />
+      <span
+        className="line-clamp-1 max-w-[200px] rounded-full bg-gradient-to-r from-fuchsia-500/15 via-violet-500/10 to-cyan-400/10 px-2.5 py-1 text-fuchsia-100 ring-1 ring-fuchsia-400/30 sm:max-w-xs"
+        aria-current="page"
+      >
+        {name || "Loading…"}
+      </span>
     </nav>
   );
 }
@@ -236,7 +246,7 @@ function TypeSwitcher({ value, onChange }) {
             onClick={() => onChange(t.value)}
             className={`whitespace-nowrap rounded px-2.5 py-1.5 font-semibold transition ${
               value === t.value
-                ? "bg-brand-500 text-zinc-950"
+                ? "bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white shadow-[0_0_18px_-4px_rgba(232,121,249,0.55)] ring-1 ring-fuchsia-300/50"
                 : "text-zinc-300 hover:text-zinc-100"
             }`}
           >
