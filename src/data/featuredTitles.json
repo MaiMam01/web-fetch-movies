@@ -3,6 +3,7 @@
     {
       "title": "Fullmetal Alchemist: Brotherhood",
       "search": "Fullmetal Alchemist: Brotherhood",
+      "mal_id": 5114,
       "imdb_rating": 9.1,
       "vibe": "Action / Dark Fantasy",
       "blurb": "Widely considered the gold standard of anime. Perfect pacing, zero filler, and incredible philosophical themes around sacrifice and ambition."
@@ -10,6 +11,7 @@
     {
       "title": "Attack on Titan",
       "search": "Shingeki no Kyojin",
+      "mal_id": 16498,
       "imdb_rating": 9.1,
       "vibe": "Dark Thriller / Action",
       "blurb": "A masterclass in plot twists, political intrigue, and high-stakes tension. The storytelling is tightly wound from the very first episode."
@@ -17,6 +19,7 @@
     {
       "title": "Hunter x Hunter (2011)",
       "search": "Hunter x Hunter 2011",
+      "mal_id": 11061,
       "imdb_rating": 9.0,
       "vibe": "Adventure / Shonen",
       "blurb": "Don't let the bright art style fool you — this series evolves into one of the darkest, most psychologically complex power systems in anime."
@@ -24,6 +27,7 @@
     {
       "title": "Death Note",
       "search": "Death Note",
+      "mal_id": 1535,
       "imdb_rating": 8.9,
       "vibe": "Psychological Thriller",
       "blurb": "The ultimate high-IQ cat-and-mouse game between a brilliant high schooler with a death god's notebook and an eccentric detective."
@@ -31,6 +35,7 @@
     {
       "title": "Cowboy Bebop",
       "search": "Cowboy Bebop",
+      "mal_id": 1,
       "imdb_rating": 8.9,
       "vibe": "Sci-Fi / Space Western",
       "blurb": "Pure style, a legendary jazz soundtrack, and an episodic exploration of loneliness, regret, and running from your past."
@@ -38,6 +43,7 @@
     {
       "title": "Vinland Saga",
       "search": "Vinland Saga",
+      "mal_id": 37521,
       "imdb_rating": 8.8,
       "vibe": "Historical Epic / Action",
       "blurb": "A breathtaking Viking epic that transitions from a brutal revenge story into a deep, emotional masterpiece about peace and redemption."
@@ -45,6 +51,7 @@
     {
       "title": "Steins;Gate",
       "search": "Steins;Gate",
+      "mal_id": 9253,
       "imdb_rating": 8.8,
       "vibe": "Sci-Fi / Time Travel",
       "blurb": "One of the best-written time-travel thrillers in fiction. It starts slow as a quirky slice-of-life before pulling the rug out from under you."
@@ -52,6 +59,7 @@
     {
       "title": "Monster",
       "search": "Monster",
+      "mal_id": 19,
       "imdb_rating": 8.7,
       "vibe": "Crime / Psychological",
       "blurb": "A slow-burn masterpiece following a brain surgeon who accidentally saves the life of a young boy who grows up to be a charismatic serial killer."
@@ -59,6 +67,7 @@
     {
       "title": "Code Geass: Lelouch of the Rebellion",
       "search": "Code Geass: Hangyaku no Lelouch",
+      "mal_id": 1575,
       "imdb_rating": 8.7,
       "vibe": "Mecha / Political Sci-Fi",
       "blurb": "Features one of the greatest anti-heroes in fiction. It's essentially chess on a global scale with mechs and mind control."
@@ -66,6 +75,7 @@
     {
       "title": "Jujutsu Kaisen",
       "search": "Jujutsu Kaisen",
+      "mal_id": 40748,
       "imdb_rating": 8.6,
       "vibe": "Action / Supernatural",
       "blurb": "Modern shonen at its peak, offering some of the most fluid, jaw-droppingly animated combat sequences of the last decade."
@@ -75,6 +85,7 @@
     {
       "title": "Spirited Away",
       "search": "Sen to Chihiro no Kamikakushi",
+      "mal_id": 199,
       "imdb_rating": 8.6,
       "vibe": "Fantasy / Adventure",
       "blurb": "Studio Ghibli's crowning achievement. A magical, beautifully animated masterpiece that won an Academy Award for a reason."
@@ -82,6 +93,7 @@
     {
       "title": "Grave of the Fireflies",
       "search": "Hotaru no Haka",
+      "mal_id": 578,
       "imdb_rating": 8.5,
       "vibe": "Historical Drama",
       "blurb": "A deeply emotional, devastatingly realistic look at two siblings trying to survive in Japan during the final months of WWII."
@@ -89,6 +101,7 @@
     {
       "title": "Your Name",
       "search": "Kimi no Na wa",
+      "mal_id": 32281,
       "imdb_rating": 8.4,
       "vibe": "Romance / Sci-Fi",
       "blurb": "A visual marvel by Makoto Shinkai. It seamlessly blends a body-swapping comedy with a massive, high-stakes cosmic mystery."
@@ -96,6 +109,7 @@
     {
       "title": "Princess Mononoke",
       "search": "Mononoke Hime",
+      "mal_id": 164,
       "imdb_rating": 8.4,
       "vibe": "Epic Fantasy / Eco-Fiction",
       "blurb": "A gritty, beautiful clash between industrializing humanity and the ancient gods of nature. There are no clear villains, just complex perspectives."
@@ -103,6 +117,7 @@
     {
       "title": "Howl's Moving Castle",
       "search": "Howl no Ugoku Shiro",
+      "mal_id": 431,
       "imdb_rating": 8.2,
       "vibe": "Romance / Fantasy",
       "blurb": "Whimsical, visual storytelling at its best, focusing on a young woman cursed with old age and a vain wizard living in a walking fortress."
@@ -110,6 +125,7 @@
     {
       "title": "A Silent Voice",
       "search": "Koe no Katachi",
+      "mal_id": 28851,
       "imdb_rating": 8.2,
       "vibe": "Drama / Coming-of-Age",
       "blurb": "A profoundly moving story dealing with heavy themes of bullying, disability (deafness), mental health, and ultimate self-forgiveness."
@@ -117,6 +133,7 @@
     {
       "title": "Akira",
       "search": "Akira",
+      "mal_id": 47,
       "imdb_rating": 8.0,
       "vibe": "Cyberpunk / Sci-Fi",
       "blurb": "The film that broke anime into the global mainstream. Visually unmatched cel animation featuring a gritty, neon-drenched dystopian Neo-Tokyo."
@@ -124,6 +141,7 @@
     {
       "title": "Ghost in the Shell",
       "search": "Koukaku Kidoutai",
+      "mal_id": 43,
       "imdb_rating": 8.0,
       "vibe": "Neo-Noir / Cyberpunk",
       "blurb": "A deep philosophical dive into what constitutes a human soul in a completely cybernetic world. This heavily inspired The Matrix."
@@ -131,6 +149,7 @@
     {
       "title": "Perfect Blue",
       "search": "Perfect Blue",
+      "mal_id": 437,
       "imdb_rating": 8.0,
       "vibe": "Psychological Thriller",
       "blurb": "A deeply unsettling, brilliant look at the dark side of pop-idol stardom, blurring the lines between reality, dreams, and online delusion."

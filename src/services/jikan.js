@@ -96,8 +96,8 @@ if (storage && typeof window !== "undefined") {
 // (Home loads top + featured TV + featured Films + character rail + best-of
 // slider simultaneously) can't burst past those caps.
 // ---------------------------------------------------------------------------
-const MAX_CONCURRENT = 2;
-const MIN_GAP_MS = 380; // ≈ 2.6 req/s burst — safely under 3/s ceiling
+const MAX_CONCURRENT = 3;
+const MIN_GAP_MS = 340; // ≈ 2.94 req/s burst — safely under 3/s ceiling
 const WINDOW_MS = 60_000;
 const WINDOW_LIMIT = 55; // stay under 60/min hard cap
 
@@ -374,23 +374,53 @@ export async function getAnimeByGenre({
   return { data: json?.data ?? [], pagination: json?.pagination ?? null };
 }
 
+/**
+ * Builds a minimum-viable anime object from an editorial JSON entry so the UI
+ * can render immediately even if Jikan is completely unreachable. Returned
+ * shape mirrors the Jikan response just enough for FeaturedCard / AnimeCard
+ * to display title + blurb + rank without a network call.
+ */
+function editorialFallback(entry) {
+  if (!entry || typeof entry !== "object") return null;
+  return {
+    mal_id: entry.mal_id ?? `editorial-${entry.title}`,
+    title: entry.title,
+    title_english: entry.title,
+    images: { webp: {}, jpg: {} },
+    score: null,
+    episodes: null,
+    year: null,
+    genres: [],
+    _editorial: entry,
+    _placeholder: true,
+  };
+}
+
 export async function resolveFromTitles(entries) {
   // The global limiter already enforces per-second + per-minute caps, so we
-  // can fire these in parallel and let the queue pace them. This is faster
-  // than the old sequential 350ms-spaced loop without risking 429s.
+  // can fire these in parallel and let the queue pace them. Prefer the direct
+  // /anime/{id}/full endpoint when the editorial JSON has a baked-in mal_id —
+  // skips the search step entirely, halving the requests we need and yielding
+  // exact matches instead of "popular hit for this query".
   const lookups = entries.map(async (entry) => {
     const isObj = entry && typeof entry === "object";
     const query = isObj ? entry.search ?? entry.title : entry;
+    const malId = isObj ? entry.mal_id : null;
     try {
+      if (malId) {
+        const hit = await getAnimeById(malId);
+        if (hit) return { ...hit, _editorial: isObj ? entry : undefined };
+      }
       const hits = await searchAnime(query, 1);
       if (hits[0]) {
         return isObj ? { ...hits[0], _editorial: entry } : hits[0];
       }
-      return null;
     } catch (e) {
       console.warn(`Jikan lookup failed for "${query}":`, e);
-      return null;
     }
+    // Never drop the entry — synthesize a placeholder so the editorial card
+    // (title / blurb / vibe) still renders even when the API is down.
+    return isObj ? editorialFallback(entry) : null;
   });
   const results = await Promise.all(lookups);
   return results.filter(Boolean);

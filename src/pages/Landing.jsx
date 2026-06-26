@@ -37,33 +37,63 @@ import {
 import { resolveFromTitles, getTopAnime } from "../services/jikan.js";
 import featured from "../data/featuredTitles.json";
 
+// Synthesise an "editorial-only" anime object so the Landing page can render
+// Featured TV / Films instantly from the JSON file — no waiting on Jikan.
+// The API-enriched object replaces this in-place once the network request
+// resolves, but if Jikan is down the user still sees the curated content.
+function editorialSeed(entry) {
+  return {
+    mal_id: entry.mal_id ?? `editorial-${entry.title}`,
+    title: entry.title,
+    title_english: entry.title,
+    images: { webp: {}, jpg: {} },
+    score: null,
+    episodes: null,
+    year: null,
+    genres: [],
+    _editorial: entry,
+    _placeholder: true,
+  };
+}
+
+const INITIAL_TV = (featured.tv ?? []).map(editorialSeed);
+const INITIAL_FILMS = (featured.films ?? []).map(editorialSeed);
+
 export default function Landing() {
   const [params] = useSearchParams();
   const typeFilter = params.get("type");
   const showTv = !typeFilter || typeFilter === "tv";
   const showFilms = !typeFilter || typeFilter === "movie";
-  const [tv, setTv] = useState([]);
-  const [films, setFilms] = useState([]);
+  // Seed with editorial-only entries so the cards paint on first render even
+  // before Jikan responds (or if it's completely down). The async fetch below
+  // replaces these with API-enriched copies as data arrives.
+  const [tv, setTv] = useState(INITIAL_TV);
+  const [films, setFilms] = useState(INITIAL_FILMS);
   const [topList, setTopList] = useState([]);
   const [topPage, setTopPage] = useState(1);
   const [topTotalPages, setTopTotalPages] = useState(1);
   const [topLoading, setTopLoading] = useState(false);
+  // `loading` here means "still waiting on the first enrichment pass" — the
+  // sections themselves are already visible. We only show skeleton placeholders
+  // for the parts that depend purely on the live API (e.g. Top Rated grid).
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // One-time initial load — Featured TV + Featured Films + first page of Top
-  // Rated. Subsequent Top Rated pages are fetched by the effect below.
+  // One-time initial load — enrich the seeded Featured TV + Films with live
+  // Jikan data (posters, scores, episode counts, genres). Failures fall back
+  // to the seed objects so cards never disappear.
   useEffect(() => {
     let cancelled = false;
     async function run() {
       try {
         setLoading(true);
-        const tvData = await resolveFromTitles(featured.tv ?? []);
+        const [tvData, filmData] = await Promise.all([
+          resolveFromTitles(featured.tv ?? []),
+          resolveFromTitles(featured.films ?? []),
+        ]);
         if (cancelled) return;
-        setTv(tvData);
-        const filmData = await resolveFromTitles(featured.films ?? []);
-        if (cancelled) return;
-        setFilms(filmData);
+        if (tvData.length) setTv(tvData);
+        if (filmData.length) setFilms(filmData);
       } catch (e) {
         if (!cancelled) setError(e.message);
       } finally {
