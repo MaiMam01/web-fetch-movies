@@ -299,35 +299,48 @@ function Hero({ posters = [] }) {
         const tl = gsap.timeline({
           defaults: { ease: "power3.out", duration: 0.8 },
         });
-        tl.from("[data-hero='badge']", { y: 16, opacity: 0, duration: 0.5 })
-          .from(
+        // Use fromTo() (not from()) so that the explicit END state always
+        // wins — otherwise React 18's strict-mode double-invoke can call
+        // ctx.revert() mid-tween and leave elements stuck at opacity:0.
+        tl.fromTo(
+            "[data-hero='badge']",
+            { y: 16, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.5 }
+          )
+          .fromTo(
             "[data-hero='title']",
-            { y: 24, opacity: 0, duration: 0.9 },
+            { y: 24, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.9 },
             "-=0.2"
           )
-          .from(
+          .fromTo(
             "[data-hero='subtitle']",
-            { y: 16, opacity: 0, duration: 0.6 },
+            { y: 16, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.6 },
             "-=0.5"
           )
-          .from(
+          .fromTo(
             "[data-hero='search']",
-            { y: 16, opacity: 0, scale: 0.98, duration: 0.6 },
+            { y: 16, opacity: 0, scale: 0.98 },
+            { y: 0, opacity: 1, scale: 1, duration: 0.6 },
             "-=0.35"
           )
-          .from(
+          .fromTo(
             "[data-hero='cta']",
-            { y: 14, opacity: 0, stagger: 0.08, duration: 0.5 },
+            { y: 14, opacity: 0 },
+            { y: 0, opacity: 1, stagger: 0.08, duration: 0.5 },
             "-=0.35"
           )
-          .from(
+          .fromTo(
             "[data-hero='stat']",
-            { y: 18, opacity: 0, stagger: 0.1, duration: 0.5 },
+            { y: 18, opacity: 0 },
+            { y: 0, opacity: 1, stagger: 0.1, duration: 0.5 },
             "-=0.3"
           )
-          .from(
+          .fromTo(
             "[data-hero='spotlight']",
-            { x: 40, opacity: 0, scale: 0.96, duration: 0.9 },
+            { x: 40, opacity: 0, scale: 0.96 },
+            { x: 0, opacity: 1, scale: 1, duration: 0.9 },
             "-=0.8"
           );
 
@@ -1080,27 +1093,44 @@ function Section({
   const ref = useRef(null);
 
   useEffect(() => {
-    if (!ref.current) return;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    if (!ref.current) return undefined;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches)
+      return undefined;
     const el = ref.current;
+    let gsapMod = null;
+    let cancelled = false;
+    import("gsap").then(({ default: gsap }) => {
+      if (!cancelled) gsapMod = gsap;
+    });
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
-          gsap.from(entry.target.querySelectorAll("[data-reveal]"), {
-            y: 24,
-            opacity: 0,
-            duration: 0.6,
-            ease: "power3.out",
-            stagger: 0.06,
-          });
+          // If gsap hasn't arrived yet, just unobserve — the elements remain
+          // in their default visible state. Better than throwing.
+          if (gsapMod) {
+            gsapMod.fromTo(
+              entry.target.querySelectorAll("[data-reveal]"),
+              { y: 24, opacity: 0 },
+              {
+                y: 0,
+                opacity: 1,
+                duration: 0.6,
+                ease: "power3.out",
+                stagger: 0.06,
+              }
+            );
+          }
           io.unobserve(entry.target);
         });
       },
       { threshold: 0.15 }
     );
     io.observe(el);
-    return () => io.disconnect();
+    return () => {
+      cancelled = true;
+      io.disconnect();
+    };
   }, []);
 
   // Pull the accent name out of e.g. "text-fuchsia-400" so we can theme the divider line.
