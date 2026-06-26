@@ -189,17 +189,19 @@ export default function Community() {
   }, [filter]);
 
   return (
-    <div>
+    <div className="page-container py-8 sm:py-10">
       <CommunityHero />
 
-      <div className="page-container">
-        <CommunityTabs tab={tab} onTab={handleTab} />
+      <CommunityTabs tab={tab} onTab={handleTab} />
 
-        {tab === "feed" && (
-          <div className="grid gap-6 py-6 lg:grid-cols-[1fr_320px]">
+      {tab === "feed" && (
+          <div className="grid gap-6 pt-6 lg:grid-cols-[1fr_320px]">
             <div>
               <div className="mb-4 flex items-center justify-between gap-3">
-                <h2 className="text-xl font-bold text-zinc-50">All Activity</h2>
+                <h2 className="inline-flex items-center gap-2 text-base font-bold text-zinc-100">
+                  <span className="h-1.5 w-1.5 rounded-full bg-fuchsia-400 shadow-[0_0_6px_currentColor]" />
+                  All Activity
+                </h2>
                 <SortDropdown
                   label="Filter"
                   value={filter}
@@ -222,7 +224,7 @@ export default function Community() {
               <div className="mt-6 flex justify-center">
                 <button
                   type="button"
-                  className="rounded-md border border-zinc-800 bg-zinc-900 px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-zinc-200 transition hover:bg-zinc-800 hover:text-brand-500"
+                  className="rounded-full border border-zinc-800 bg-zinc-900 px-5 py-2 text-xs font-bold uppercase tracking-widest text-zinc-200 transition hover:border-fuchsia-400/40 hover:bg-zinc-800 hover:text-fuchsia-200"
                 >
                   Load more activity
                 </button>
@@ -239,55 +241,92 @@ export default function Community() {
 
         {tab === "members" && <MembersTab />}
         {tab === "search" && <AdvancedSearchTab />}
-      </div>
     </div>
   );
 }
 
+const HERO_ACCENT = "from-fuchsia-400 via-violet-400 to-cyan-300";
+
 function CommunityHero() {
   return (
-    <div className="relative overflow-hidden border-b border-zinc-900 bg-zinc-950">
+    <header className="relative overflow-hidden rounded-3xl border border-zinc-900 bg-zinc-950/60 px-6 py-10 sm:px-10 sm:py-12">
       <div
-        className="pointer-events-none absolute inset-0 opacity-20"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 20% 20%, rgba(244,114,32,0.18), transparent 45%), radial-gradient(circle at 80% 60%, rgba(99,102,241,0.18), transparent 45%)",
-        }}
+        aria-hidden
+        className={`pointer-events-none absolute -top-32 -right-20 h-80 w-80 rounded-full bg-gradient-to-br ${HERO_ACCENT} opacity-[0.14] blur-3xl`}
       />
-      <div className="page-container relative flex flex-col items-center justify-center py-14 text-center">
-        <p className="text-[11px] font-bold uppercase tracking-[0.4em] text-brand-500">
+      <div
+        aria-hidden
+        className={`pointer-events-none absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-gradient-to-tr ${HERO_ACCENT} opacity-[0.08] blur-3xl`}
+      />
+
+      <div className="relative flex flex-col items-center justify-center text-center">
+        <p className="inline-flex items-center gap-2 rounded-full bg-fuchsia-400/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-fuchsia-200 ring-1 ring-fuchsia-400/30">
+          <span aria-hidden className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-current opacity-60" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-current shadow-[0_0_8px_currentColor]" />
+          </span>
           Anime fans · everywhere
         </p>
-        <h1 className="mt-3 text-3xl font-extrabold uppercase tracking-tight text-zinc-50 sm:text-4xl lg:text-5xl">
-          The <span className="text-funk-gradient">AnimeDB</span> Community Wants You
+        <h1 className="mt-4 text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+          The{" "}
+          <span
+            className={`bg-gradient-to-r ${HERO_ACCENT} bg-clip-text text-transparent`}
+          >
+            AnimeDB
+          </span>{" "}
+          Community Wants You
         </h1>
         <p className="mt-3 max-w-2xl text-sm text-zinc-400 sm:text-base">
           Rate seasons, post takes on iconic scenes, build watchlists, and find
           the reviewers whose taste actually matches yours.
         </p>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+
+        {/* Inline stat strip */}
+        <ul className="mt-6 grid w-full max-w-3xl grid-cols-2 gap-2 sm:grid-cols-4">
+          {COMMUNITY_STATS.map((s, i) => (
+            <li
+              key={s.label}
+              className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 px-3 py-2.5 text-left"
+            >
+              <span
+                aria-hidden
+                className={`block h-[2px] w-8 rounded-full bg-gradient-to-r ${
+                  ["from-fuchsia-400 to-violet-500", "from-cyan-300 to-sky-500", "from-amber-300 to-orange-500", "from-emerald-300 to-teal-500"][i % 4]
+                }`}
+              />
+              <p className="mt-1.5 text-lg font-black tabular-nums text-white">
+                {s.value}
+              </p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                {s.label}
+              </p>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
           <button
             type="button"
-            className="btn btn-primary"
+            className={`inline-flex items-center gap-2 rounded-full bg-gradient-to-r ${HERO_ACCENT} px-5 py-2.5 text-sm font-bold text-zinc-950 shadow-[0_0_22px_-6px_rgba(232,121,249,0.6)] ring-1 ring-white/30 transition hover:brightness-110 active:scale-[0.97]`}
           >
             <IconPlus className="h-4 w-4" />
             Create an account
           </button>
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-md border border-zinc-700 bg-zinc-900/80 px-5 py-2.5 text-sm font-bold text-zinc-200 transition hover:bg-zinc-800"
+            className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900/80 px-5 py-2.5 text-sm font-bold text-zinc-200 transition hover:border-fuchsia-400/40 hover:bg-zinc-800"
           >
             Sign in
           </button>
         </div>
       </div>
-    </div>
+    </header>
   );
 }
 
 function CommunityTabs({ tab, onTab }) {
   return (
-    <div className="-mb-px flex items-center gap-1 overflow-x-auto border-b border-zinc-900 pt-4">
+    <div className="mt-6 -mx-1 inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-full border border-zinc-800 bg-zinc-900/70 p-1 backdrop-blur scrollbar-thin">
       {TABS.map((t) => {
         const active = t.id === tab;
         return (
@@ -295,16 +334,14 @@ function CommunityTabs({ tab, onTab }) {
             key={t.id}
             type="button"
             onClick={() => onTab(t.id)}
-            className={`relative whitespace-nowrap px-4 py-3 text-sm font-bold transition ${
+            aria-pressed={active}
+            className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-[0.97] ${
               active
-                ? "text-brand-500"
-                : "text-zinc-400 hover:text-zinc-200"
+                ? `bg-gradient-to-r ${HERO_ACCENT} text-zinc-950 shadow-[0_0_18px_-6px_rgba(232,121,249,0.55)] ring-1 ring-white/40`
+                : "text-zinc-300 hover:bg-zinc-800/80 hover:text-white"
             }`}
           >
             {t.label}
-            {active && (
-              <span className="absolute inset-x-3 -bottom-px h-0.5 rounded bg-brand-500" />
-            )}
           </button>
         );
       })}
@@ -329,7 +366,7 @@ function Avatar({ name, hue, size = "md" }) {
 function FeedCard({ item }) {
   const badge = KIND_BADGES[item.kind];
   return (
-    <li className="rounded-lg border border-zinc-900 bg-zinc-900/40 p-4 transition hover:border-zinc-800 hover:bg-zinc-900/60">
+    <li className="group rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-4 transition hover:-translate-y-0.5 hover:border-zinc-700 hover:bg-zinc-900/70 hover:shadow-[0_8px_28px_-12px_rgba(0,0,0,0.6)]">
       <div className="flex items-start gap-3">
         <Avatar name={item.user} hue={item.avatarHue} />
         <div className="min-w-0 flex-1">
@@ -393,7 +430,7 @@ function FeedCard({ item }) {
 
 function CommunityStatsCard() {
   return (
-    <div className="rounded-lg border border-zinc-900 bg-zinc-900/40 p-4">
+    <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-4">
       <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">
         Community at a glance
       </h3>
@@ -411,7 +448,7 @@ function CommunityStatsCard() {
 
 function FeaturedMembersCard() {
   return (
-    <div className="rounded-lg border border-zinc-900 bg-zinc-900/40 p-4">
+    <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-4">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">
           Featured Verified Members
@@ -459,7 +496,7 @@ function TrendingTopicsCard() {
     "Time Loop Anime",
   ];
   return (
-    <div className="rounded-lg border border-zinc-900 bg-zinc-900/40 p-4">
+    <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-4">
       <h3 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-zinc-500">
         Trending in the community
       </h3>

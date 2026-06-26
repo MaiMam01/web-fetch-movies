@@ -198,10 +198,10 @@ export default function CharacterDetail() {
               type="button"
               onClick={toggleFav}
               aria-pressed={favorited}
-              className={`inline-flex items-center gap-1.5 rounded-md px-3.5 py-2 text-xs font-bold transition active:scale-[0.97] ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold transition active:scale-[0.97] ${
                 favorited
                   ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-700 hover:bg-zinc-700"
-                  : "bg-brand-500 text-zinc-950 hover:bg-amber-400"
+                  : "bg-gradient-to-r from-fuchsia-400 via-violet-400 to-cyan-300 text-zinc-950 shadow-[0_0_18px_-6px_rgba(232,121,249,0.55)] ring-1 ring-white/30 hover:brightness-110"
               }`}
             >
               {favorited ? (
@@ -236,7 +236,7 @@ export default function CharacterDetail() {
                   navigator.clipboard.writeText(data.url).catch(() => {});
                 }
               }}
-              className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs font-bold text-zinc-200 transition hover:bg-zinc-800"
+              className="inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs font-bold text-zinc-200 transition hover:border-fuchsia-400/40 hover:bg-zinc-800"
             >
               <IconShare className="h-4 w-4" />
               Share
@@ -245,10 +245,10 @@ export default function CharacterDetail() {
               type="button"
               onClick={toggleFollow}
               aria-pressed={following}
-              className={`inline-flex items-center gap-1.5 rounded-md px-3.5 py-2 text-xs font-bold transition active:scale-[0.97] ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold transition active:scale-[0.97] ${
                 following
                   ? "border border-emerald-500/40 bg-emerald-500/15 text-emerald-200"
-                  : "border border-zinc-800 bg-zinc-950 text-zinc-100 hover:bg-zinc-900"
+                  : "border border-zinc-800 bg-zinc-950 text-zinc-100 hover:border-fuchsia-400/40 hover:bg-zinc-900"
               }`}
             >
               {following ? (
@@ -281,7 +281,12 @@ export default function CharacterDetail() {
       <div className="page-container mt-10">
         {showScenes && (
           <section className="mt-2">
-            <SectionTitle title="Scene Highlights" count={characterScenes.length} />
+            <SectionTitle
+              eyebrow="Iconic moments"
+              title="Scene Highlights"
+              count={characterScenes.length}
+              accent="fuchsia"
+            />
             {sceneGroups.length === 0 ? (
               <EmptyHint name={character.name} />
             ) : (
@@ -322,8 +327,10 @@ export default function CharacterDetail() {
         {showAppearances && animeAppearances.length > 0 && (
           <section className="mt-12">
             <SectionTitle
+              eyebrow="Featured in"
               title="Anime Appearances"
               count={animeAppearances.length}
+              accent="cyan"
             />
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {animeAppearances.map((a) => (
@@ -338,13 +345,18 @@ export default function CharacterDetail() {
 
         {showVoices && character.voices?.length > 0 && (
           <section className="mt-12">
-            <SectionTitle title="Voice Cast" count={character.voices.length} />
+            <SectionTitle
+              eyebrow="Voiced by"
+              title="Voice Cast"
+              count={character.voices.length}
+              accent="amber"
+            />
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {character.voices.slice(0, 10).map((v) => (
                 <Link
                   key={v.person.mal_id}
                   to={`/voice-actors/${v.person.mal_id}`}
-                  className="group flex items-center gap-3 rounded-lg bg-zinc-900/50 p-2 ring-1 ring-zinc-800 transition hover:ring-brand-500"
+                  className="group flex items-center gap-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/50 p-2.5 transition hover:-translate-y-0.5 hover:border-fuchsia-400/40 hover:bg-zinc-900"
                 >
                   <img
                     src={
@@ -353,13 +365,16 @@ export default function CharacterDetail() {
                     }
                     alt={v.person.name}
                     loading="lazy"
-                    className="h-14 w-14 flex-shrink-0 rounded-md object-cover ring-1 ring-zinc-800"
+                    decoding="async"
+                    className="h-14 w-14 flex-shrink-0 rounded-xl object-cover ring-1 ring-zinc-800"
                   />
-                  <div className="min-w-0">
-                    <p className="line-clamp-1 text-sm font-semibold group-hover:text-brand-500">
+                  <div className="min-w-0 flex-1">
+                    <p className="line-clamp-1 text-sm font-bold text-zinc-100 group-hover:text-fuchsia-200">
                       {v.person.name}
                     </p>
-                    <p className="text-[11px] text-zinc-500">{v.language}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                      {v.language}
+                    </p>
                   </div>
                 </Link>
               ))}
@@ -369,13 +384,13 @@ export default function CharacterDetail() {
 
         {showOverview && character.about && character.about.length > aboutSummary?.length && (
           <section className="mt-12 max-w-3xl">
-            <SectionTitle title="Full Biography" />
-            <details className="text-sm leading-relaxed text-zinc-300">
-              <summary className="mb-3 inline-flex cursor-pointer items-center gap-1 text-xs font-bold uppercase tracking-wider text-brand-500">
+            <SectionTitle eyebrow="Profile" title="Full Biography" accent="cyan" />
+            <details className="group rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5 text-sm leading-relaxed text-zinc-300">
+              <summary className="inline-flex cursor-pointer items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-fuchsia-300 transition hover:text-fuchsia-200">
                 Read full bio
-                <IconChevronDown className="h-3.5 w-3.5" />
+                <IconChevronDown className="h-3.5 w-3.5 transition group-open:rotate-180" />
               </summary>
-              <p className="whitespace-pre-line">{character.about}</p>
+              <p className="mt-4 whitespace-pre-line">{character.about}</p>
             </details>
           </section>
         )}
@@ -399,13 +414,43 @@ export default function CharacterDetail() {
   );
 }
 
-function SectionTitle({ title, count }) {
+const SECTION_ACCENTS = {
+  fuchsia: { dot: "bg-fuchsia-400", text: "text-fuchsia-200", line: "via-fuchsia-500/60" },
+  cyan: { dot: "bg-cyan-400", text: "text-cyan-200", line: "via-cyan-400/60" },
+  amber: { dot: "bg-amber-400", text: "text-amber-200", line: "via-amber-400/60" },
+};
+
+function SectionTitle({ title, count, eyebrow, accent = "fuchsia" }) {
+  const a = SECTION_ACCENTS[accent] ?? SECTION_ACCENTS.fuchsia;
   return (
-    <div className="mb-4 flex items-baseline gap-2">
-      <h2 className="text-base font-bold text-zinc-100">{title}</h2>
-      {count != null && (
-        <span className="text-xs text-zinc-500">{count.toLocaleString()}</span>
-      )}
+    <div className="mb-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          {eyebrow && (
+            <p
+              className={`text-[10px] font-bold uppercase tracking-[0.18em] ${a.text}`}
+            >
+              {eyebrow}
+            </p>
+          )}
+          <h2 className="mt-1 inline-flex items-center gap-2 text-lg font-bold tracking-tight text-white sm:text-xl">
+            <span
+              aria-hidden
+              className={`h-1.5 w-1.5 rounded-full ${a.dot} shadow-[0_0_8px_currentColor]`}
+            />
+            {title}
+          </h2>
+        </div>
+        {count != null && (
+          <span className="rounded-full bg-zinc-900 px-3 py-1 text-[11px] font-bold tabular-nums text-zinc-400 ring-1 ring-zinc-800">
+            {count.toLocaleString()}
+          </span>
+        )}
+      </div>
+      <div
+        aria-hidden
+        className={`mt-3 h-px w-full bg-gradient-to-r from-transparent ${a.line} to-transparent`}
+      />
     </div>
   );
 }
@@ -413,10 +458,11 @@ function SectionTitle({ title, count }) {
 function AppearanceCard({ entry }) {
   const a = entry.anime;
   const img = a.images?.webp?.large_image_url ?? a.images?.jpg?.large_image_url;
+  const isMain = entry.role === "Main";
   return (
     <Link
       to={`/anime/${a.mal_id}`}
-      className="group block overflow-hidden rounded-md bg-zinc-900 ring-1 ring-zinc-800 transition hover:ring-brand-500"
+      className="group block overflow-hidden rounded-2xl bg-zinc-900 ring-1 ring-zinc-800 transition hover:-translate-y-0.5 hover:ring-fuchsia-400/40 hover:shadow-[0_10px_30px_-12px_rgba(232,121,249,0.4)]"
     >
       <div className="relative aspect-[2/3] w-full overflow-hidden bg-zinc-800">
         {img && (
@@ -424,14 +470,22 @@ function AppearanceCard({ entry }) {
             src={img}
             alt={a.title}
             loading="lazy"
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+            decoding="async"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]"
           />
         )}
-        <span className="absolute right-1.5 top-1.5 rounded bg-zinc-950/85 px-1.5 py-0.5 text-[10px] font-bold text-brand-500">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-zinc-950/80 to-transparent" />
+        <span
+          className={`absolute right-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ring-1 ${
+            isMain
+              ? "bg-gradient-to-r from-fuchsia-400 via-violet-400 to-cyan-300 text-zinc-950 ring-white/30"
+              : "bg-zinc-950/80 text-zinc-200 ring-zinc-700 backdrop-blur"
+          }`}
+        >
           {entry.role}
         </span>
       </div>
-      <p className="line-clamp-1 px-2 py-2 text-xs font-semibold group-hover:text-brand-500">
+      <p className="line-clamp-1 px-2.5 py-2 text-xs font-semibold text-zinc-200 group-hover:text-white">
         {a.title}
       </p>
     </Link>
@@ -440,15 +494,17 @@ function AppearanceCard({ entry }) {
 
 function EmptyHint({ name }) {
   return (
-    <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/30 p-8 text-center">
-      <p className="text-sm font-semibold text-zinc-200">
+    <div className="grid place-items-center rounded-3xl border border-dashed border-zinc-800 bg-zinc-950/40 p-10 text-center">
+      <div className="grid h-14 w-14 place-items-center rounded-full bg-zinc-900 ring-1 ring-zinc-800">
+        <IconImage className="h-6 w-6 text-zinc-500" />
+      </div>
+      <p className="mt-4 text-sm font-semibold text-zinc-200">
         No scenes catalogued for{" "}
-        <span className="text-brand-500">{name}</span> yet.
+        <span className="text-fuchsia-300">{name}</span> yet
       </p>
-      <p className="mt-2 text-xs text-zinc-500">
-        Add entries to{" "}
-        <code className="text-brand-500">src/data/scenes.json</code> with{" "}
-        <code>character: "{name}"</code> to surface them here.
+      <p className="mt-1 max-w-xs text-xs text-zinc-500">
+        Editorial scenes are curated by hand — check back soon, or browse
+        another character.
       </p>
     </div>
   );

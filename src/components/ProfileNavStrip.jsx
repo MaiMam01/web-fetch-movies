@@ -1,8 +1,9 @@
 export default function ProfileNavStrip({ tabs = [], value, onChange, actions }) {
   return (
     <div className="page-container">
-      <div className="mt-5 flex flex-col gap-3 border-b border-zinc-800 pb-3 sm:flex-row sm:items-center sm:justify-between">
-        <nav className="scrollbar-thin -mx-1 flex gap-1 overflow-x-auto px-1">
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        {/* Tab pills — matches the rest of the site (fuchsia → cyan gradient on active) */}
+        <nav className="-mx-1 inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-full border border-zinc-800 bg-zinc-900/70 p-1 backdrop-blur scrollbar-thin">
           {tabs.map((t) => {
             const active = t.value === value;
             return (
@@ -10,30 +11,22 @@ export default function ProfileNavStrip({ tabs = [], value, onChange, actions })
                 key={t.value}
                 type="button"
                 onClick={() => onChange(t.value)}
+                aria-pressed={active}
                 aria-current={active ? "page" : undefined}
-                className="group relative inline-flex shrink-0 flex-col items-center gap-1 px-3 py-1.5 sm:flex-row sm:gap-2 sm:py-2"
+                className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-[0.97] ${
+                  active
+                    ? "bg-gradient-to-r from-fuchsia-400 via-violet-400 to-cyan-300 text-zinc-950 shadow-[0_0_18px_-6px_rgba(232,121,249,0.55)] ring-1 ring-white/40"
+                    : "text-zinc-300 hover:bg-zinc-800/80 hover:text-white"
+                }`}
               >
                 <span
-                  className={`grid h-8 w-8 place-items-center transition ${
-                    active
-                      ? "text-brand-500"
-                      : "text-zinc-400 group-hover:text-zinc-100"
+                  className={`grid h-4 w-4 place-items-center ${
+                    active ? "text-zinc-950" : "text-zinc-400"
                   }`}
                 >
                   {t.icon}
                 </span>
-                <span
-                  className={`text-[10px] font-bold uppercase tracking-wider sm:text-xs ${
-                    active
-                      ? "text-brand-500"
-                      : "text-zinc-300 group-hover:text-zinc-100"
-                  }`}
-                >
-                  {t.label}
-                </span>
-                {active && (
-                  <span className="absolute -bottom-[13px] left-3 right-3 h-0.5 rounded-t bg-brand-500" />
-                )}
+                {t.label}
               </button>
             );
           })}

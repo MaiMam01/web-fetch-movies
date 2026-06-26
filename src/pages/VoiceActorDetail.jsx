@@ -199,10 +199,10 @@ export default function VoiceActorDetail() {
               type="button"
               onClick={toggleFav}
               aria-pressed={favorited}
-              className={`inline-flex items-center gap-1.5 rounded-md px-3.5 py-2 text-xs font-bold transition active:scale-[0.97] ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold transition active:scale-[0.97] ${
                 favorited
                   ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-700 hover:bg-zinc-700"
-                  : "bg-brand-500 text-zinc-950 hover:bg-amber-400"
+                  : "bg-gradient-to-r from-cyan-300 via-sky-400 to-violet-400 text-zinc-950 shadow-[0_0_18px_-6px_rgba(34,211,238,0.55)] ring-1 ring-white/30 hover:brightness-110"
               }`}
             >
               {favorited ? (
@@ -220,8 +220,6 @@ export default function VoiceActorDetail() {
             <button
               type="button"
               onClick={() => {
-                // Use the native share sheet when available; fall back to a
-                // clipboard copy so the button always feels responsive.
                 const data = {
                   title: person.name,
                   url: typeof window !== "undefined" ? window.location.href : "",
@@ -235,7 +233,7 @@ export default function VoiceActorDetail() {
                   navigator.clipboard.writeText(data.url).catch(() => {});
                 }
               }}
-              className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs font-bold text-zinc-200 transition hover:bg-zinc-800"
+              className="inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs font-bold text-zinc-200 transition hover:border-cyan-400/40 hover:bg-zinc-800"
             >
               <IconShare className="h-4 w-4" />
               Share
@@ -244,10 +242,10 @@ export default function VoiceActorDetail() {
               type="button"
               onClick={toggleFollow}
               aria-pressed={following}
-              className={`inline-flex items-center gap-1.5 rounded-md px-3.5 py-2 text-xs font-bold transition active:scale-[0.97] ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold transition active:scale-[0.97] ${
                 following
                   ? "border border-emerald-500/40 bg-emerald-500/15 text-emerald-200"
-                  : "border border-zinc-800 bg-zinc-950 text-zinc-100 hover:bg-zinc-900"
+                  : "border border-zinc-800 bg-zinc-950 text-zinc-100 hover:border-cyan-400/40 hover:bg-zinc-900"
               }`}
             >
               {following ? (
@@ -283,7 +281,12 @@ export default function VoiceActorDetail() {
       <div className="page-container mt-10">
         {showVoices && groupedByAnime.length > 0 && (
           <section className="mt-2">
-            <SectionTitle title="Voice Roles" count={voiceRoles.length} />
+            <SectionTitle
+              eyebrow="Casting"
+              title="Voice Roles"
+              count={voiceRoles.length}
+              accent="cyan"
+            />
             <div className="space-y-10">
               {groupedByAnime.map((g, gi) => (
                 <div key={g.anime?.mal_id ?? `group-${gi}`}>
@@ -313,40 +316,16 @@ export default function VoiceActorDetail() {
 
         {showAnimeGrid && groupedByAnime.length > 0 && (
           <section className="mt-2">
-            <SectionTitle title="Anime" count={groupedByAnime.length} />
+            <SectionTitle
+              eyebrow="Filmography"
+              title="Anime"
+              count={groupedByAnime.length}
+              accent="fuchsia"
+            />
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
               {groupedByAnime.map(
                 (g) =>
-                  g.anime && (
-                    <Link
-                      key={g.anime.mal_id}
-                      to={`/anime/${g.anime.mal_id}`}
-                      className="group block overflow-hidden rounded-md bg-zinc-900 ring-1 ring-zinc-800 transition hover:ring-brand-500"
-                    >
-                      <div className="aspect-[2/3] w-full overflow-hidden bg-zinc-800">
-                        {(g.anime.images?.webp?.large_image_url ||
-                          g.anime.images?.jpg?.large_image_url) && (
-                          <img
-                            src={
-                              g.anime.images?.webp?.large_image_url ??
-                              g.anime.images?.jpg?.large_image_url
-                            }
-                            alt={g.anime.title}
-                            loading="lazy"
-                            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
-                          />
-                        )}
-                      </div>
-                      <div className="p-2">
-                        <p className="line-clamp-1 text-xs font-semibold group-hover:text-brand-500">
-                          {g.anime.title}
-                        </p>
-                        <p className="text-[10px] text-zinc-500">
-                          {g.roles.length} role{g.roles.length > 1 ? "s" : ""}
-                        </p>
-                      </div>
-                    </Link>
-                  )
+                  g.anime && <FilmographyCard key={g.anime.mal_id} group={g} />
               )}
             </div>
           </section>
@@ -354,37 +333,18 @@ export default function VoiceActorDetail() {
 
         {showStaff && animeStaff.length > 0 && (
           <section className="mt-12">
-            <SectionTitle title="Staff Credits" count={animeStaff.length} />
+            <SectionTitle
+              eyebrow="Off-screen"
+              title="Staff Credits"
+              count={animeStaff.length}
+              accent="amber"
+            />
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
               {animeStaff.map((entry) => (
-                <Link
+                <StaffCard
                   key={`${entry.anime.mal_id}-${entry.position}`}
-                  to={`/anime/${entry.anime.mal_id}`}
-                  className="group block overflow-hidden rounded-md bg-zinc-900 ring-1 ring-zinc-800 transition hover:ring-brand-500"
-                >
-                  <div className="aspect-[2/3] w-full overflow-hidden bg-zinc-800">
-                    {(entry.anime.images?.webp?.large_image_url ||
-                      entry.anime.images?.jpg?.large_image_url) && (
-                      <img
-                        src={
-                          entry.anime.images?.webp?.large_image_url ??
-                          entry.anime.images?.jpg?.large_image_url
-                        }
-                        alt={entry.anime.title}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
-                      />
-                    )}
-                  </div>
-                  <div className="p-2">
-                    <p className="line-clamp-1 text-xs font-semibold group-hover:text-brand-500">
-                      {entry.anime.title}
-                    </p>
-                    <p className="text-[10px] uppercase text-zinc-500">
-                      {entry.position}
-                    </p>
-                  </div>
-                </Link>
+                  entry={entry}
+                />
               ))}
             </div>
           </section>
@@ -394,13 +354,13 @@ export default function VoiceActorDetail() {
           person.about &&
           person.about.length > (aboutSummary?.length ?? 0) && (
             <section className="mt-12 max-w-3xl">
-              <SectionTitle title="Full Biography" />
-              <details className="text-sm leading-relaxed text-zinc-300">
-                <summary className="mb-3 inline-flex cursor-pointer items-center gap-1 text-xs font-bold uppercase tracking-wider text-brand-500">
+              <SectionTitle eyebrow="Profile" title="Full Biography" accent="cyan" />
+              <details className="group rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5 text-sm leading-relaxed text-zinc-300">
+                <summary className="inline-flex cursor-pointer items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-cyan-300 transition hover:text-cyan-200">
                   Read full bio
-                  <IconChevronDown className="h-3.5 w-3.5" />
+                  <IconChevronDown className="h-3.5 w-3.5 transition group-open:rotate-180" />
                 </summary>
-                <p className="whitespace-pre-line">{person.about}</p>
+                <p className="mt-4 whitespace-pre-line">{person.about}</p>
               </details>
             </section>
           )}
@@ -415,13 +375,43 @@ export default function VoiceActorDetail() {
   );
 }
 
-function SectionTitle({ title, count }) {
+const VA_SECTION_ACCENTS = {
+  fuchsia: { dot: "bg-fuchsia-400", text: "text-fuchsia-200", line: "via-fuchsia-500/60" },
+  cyan: { dot: "bg-cyan-400", text: "text-cyan-200", line: "via-cyan-400/60" },
+  amber: { dot: "bg-amber-400", text: "text-amber-200", line: "via-amber-400/60" },
+};
+
+function SectionTitle({ title, count, eyebrow, accent = "fuchsia" }) {
+  const a = VA_SECTION_ACCENTS[accent] ?? VA_SECTION_ACCENTS.fuchsia;
   return (
-    <div className="mb-4 flex items-baseline gap-2">
-      <h2 className="text-base font-bold text-zinc-100">{title}</h2>
-      {count != null && (
-        <span className="text-xs text-zinc-500">{count.toLocaleString()}</span>
-      )}
+    <div className="mb-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          {eyebrow && (
+            <p
+              className={`text-[10px] font-bold uppercase tracking-[0.18em] ${a.text}`}
+            >
+              {eyebrow}
+            </p>
+          )}
+          <h2 className="mt-1 inline-flex items-center gap-2 text-lg font-bold tracking-tight text-white sm:text-xl">
+            <span
+              aria-hidden
+              className={`h-1.5 w-1.5 rounded-full ${a.dot} shadow-[0_0_8px_currentColor]`}
+            />
+            {title}
+          </h2>
+        </div>
+        {count != null && (
+          <span className="rounded-full bg-zinc-900 px-3 py-1 text-[11px] font-bold tabular-nums text-zinc-400 ring-1 ring-zinc-800">
+            {count.toLocaleString()}
+          </span>
+        )}
+      </div>
+      <div
+        aria-hidden
+        className={`mt-3 h-px w-full bg-gradient-to-r from-transparent ${a.line} to-transparent`}
+      />
     </div>
   );
 }
@@ -429,10 +419,11 @@ function SectionTitle({ title, count }) {
 function VoiceRoleCard({ role }) {
   const c = role.character;
   if (!c) return null;
+  const isMain = role.role === "Main";
   return (
     <Link
       to={`/characters/${c.mal_id}`}
-      className="group block overflow-hidden rounded-md bg-zinc-900 ring-1 ring-zinc-800 transition hover:ring-brand-500"
+      className="group block overflow-hidden rounded-2xl bg-zinc-900 ring-1 ring-zinc-800 transition hover:-translate-y-0.5 hover:ring-cyan-400/40 hover:shadow-[0_10px_30px_-12px_rgba(34,211,238,0.4)]"
     >
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-zinc-800">
         {(c.images?.webp?.image_url || c.images?.jpg?.image_url) && (
@@ -440,16 +431,86 @@ function VoiceRoleCard({ role }) {
             src={c.images?.webp?.image_url ?? c.images?.jpg?.image_url}
             alt={c.name}
             loading="lazy"
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+            decoding="async"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]"
           />
         )}
-        <span className="absolute right-1.5 top-1.5 rounded bg-zinc-950/85 px-1.5 py-0.5 text-[10px] font-bold text-brand-500">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-zinc-950/80 to-transparent" />
+        <span
+          className={`absolute right-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ring-1 ${
+            isMain
+              ? "bg-gradient-to-r from-cyan-300 via-sky-400 to-violet-400 text-zinc-950 ring-white/30"
+              : "bg-zinc-950/80 text-zinc-200 ring-zinc-700 backdrop-blur"
+          }`}
+        >
           {role.role}
         </span>
       </div>
-      <div className="space-y-0.5 p-2">
-        <p className="line-clamp-1 text-xs font-semibold group-hover:text-brand-500">
+      <div className="p-2.5">
+        <p className="line-clamp-1 text-xs font-bold text-zinc-200 group-hover:text-white">
           {c.name}
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+function FilmographyCard({ group }) {
+  const a = group.anime;
+  const img = a.images?.webp?.large_image_url ?? a.images?.jpg?.large_image_url;
+  return (
+    <Link
+      to={`/anime/${a.mal_id}`}
+      className="group block overflow-hidden rounded-2xl bg-zinc-900 ring-1 ring-zinc-800 transition hover:-translate-y-0.5 hover:ring-fuchsia-400/40 hover:shadow-[0_10px_30px_-12px_rgba(232,121,249,0.4)]"
+    >
+      <div className="relative aspect-[2/3] w-full overflow-hidden bg-zinc-800">
+        {img && (
+          <img
+            src={img}
+            alt={a.title}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]"
+          />
+        )}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-zinc-950/80 to-transparent" />
+        <span className="absolute right-2 top-2 rounded-full bg-zinc-950/80 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-zinc-200 ring-1 ring-zinc-700 backdrop-blur">
+          {group.roles.length} role{group.roles.length > 1 ? "s" : ""}
+        </span>
+      </div>
+      <p className="line-clamp-1 px-2.5 py-2 text-xs font-bold text-zinc-200 group-hover:text-white">
+        {a.title}
+      </p>
+    </Link>
+  );
+}
+
+function StaffCard({ entry }) {
+  const a = entry.anime;
+  const img = a.images?.webp?.large_image_url ?? a.images?.jpg?.large_image_url;
+  return (
+    <Link
+      to={`/anime/${a.mal_id}`}
+      className="group block overflow-hidden rounded-2xl bg-zinc-900 ring-1 ring-zinc-800 transition hover:-translate-y-0.5 hover:ring-amber-400/40 hover:shadow-[0_10px_30px_-12px_rgba(251,191,36,0.35)]"
+    >
+      <div className="relative aspect-[2/3] w-full overflow-hidden bg-zinc-800">
+        {img && (
+          <img
+            src={img}
+            alt={a.title}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]"
+          />
+        )}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-zinc-950/80 to-transparent" />
+      </div>
+      <div className="p-2.5">
+        <p className="line-clamp-1 text-xs font-bold text-zinc-200 group-hover:text-white">
+          {a.title}
+        </p>
+        <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-300/80">
+          {entry.position}
         </p>
       </div>
     </Link>

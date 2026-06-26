@@ -136,22 +136,37 @@ function SceneDetailBody({ scene }) {
       <SceneActionBar scene={scene} />
 
       {scene.tags?.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-5 flex flex-wrap gap-2">
           {scene.tags.map((t) => (
-            <span
+            <Link
               key={t}
-              className="rounded-md bg-zinc-900 px-2.5 py-1 text-xs font-semibold text-zinc-200 ring-1 ring-zinc-800"
+              to={`/scenes?tag=${encodeURIComponent(t)}`}
+              className="rounded-full bg-zinc-900/80 px-2.5 py-1 text-xs font-semibold text-zinc-300 ring-1 ring-zinc-800 transition hover:border-fuchsia-400/40 hover:bg-zinc-900 hover:text-fuchsia-200"
             >
-              {t}
-            </span>
+              #{t.replace(/\s+/g, "")}
+            </Link>
           ))}
         </div>
       )}
 
-      <div className="mt-10">
-        <p className="mb-3 text-center text-xs font-semibold uppercase tracking-widest text-zinc-500">
-          More from {anime?.title ?? scene.anime_title}
-        </p>
+      <div className="mt-12">
+        <div className="mb-5">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-fuchsia-300">
+            Keep watching
+          </p>
+          <h2 className="mt-1 inline-flex items-center gap-2 text-lg font-bold tracking-tight text-white sm:text-xl">
+            <span
+              aria-hidden
+              className="h-1.5 w-1.5 rounded-full bg-fuchsia-400 shadow-[0_0_8px_currentColor]"
+            />
+            More from {anime?.title ?? scene.anime_title}
+          </h2>
+          <div
+            aria-hidden
+            className="mt-3 h-px w-full bg-gradient-to-r from-transparent via-fuchsia-500/60 to-transparent"
+          />
+        </div>
+
         <Tabs
           value={tab}
           onChange={setTab}
@@ -165,7 +180,7 @@ function SceneDetailBody({ scene }) {
           ]}
         />
 
-        <div className="mt-5">
+        <div className="mt-6">
           {tab === "related" ? (
             sameAnime.length === 0 ? (
               <EmptyHint anime={anime?.title ?? scene.anime_title} />
@@ -173,9 +188,7 @@ function SceneDetailBody({ scene }) {
               <SceneGrid scenes={sameAnime} animeTitle={anime?.title} />
             )
           ) : recommended.length === 0 ? (
-            <p className="text-sm text-zinc-500">
-              No similar-severity scenes catalogued yet.
-            </p>
+            <EmptyHint anime="similar severity" />
           ) : (
             <SceneGrid scenes={recommended} />
           )}
@@ -184,9 +197,22 @@ function SceneDetailBody({ scene }) {
 
       {recommendedPeople.length > 0 && (
         <section className="mt-12">
-          <h2 className="mb-4 text-base font-bold text-zinc-100">
-            Recommended Characters
-          </h2>
+          <div className="mb-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-200">
+              Featured cast
+            </p>
+            <h2 className="mt-1 inline-flex items-center gap-2 text-lg font-bold tracking-tight text-white sm:text-xl">
+              <span
+                aria-hidden
+                className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_currentColor]"
+              />
+              Characters in this title
+            </h2>
+            <div
+              aria-hidden
+              className="mt-3 h-px w-full bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent"
+            />
+          </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10">
             {recommendedPeople.map((c) => (
               <PersonCard
@@ -244,7 +270,7 @@ function Player({ scene, youtubeId, fallbackImage }) {
 
   if (playing && youtubeId) {
     return (
-      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black ring-1 ring-zinc-800">
+      <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black ring-1 ring-fuchsia-400/30 shadow-[0_0_60px_-20px_rgba(232,121,249,0.6)]">
         <iframe
           src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1`}
           title={scene.title}
@@ -262,7 +288,7 @@ function Player({ scene, youtubeId, fallbackImage }) {
       onClick={() => youtubeId && setPlaying(true)}
       aria-label={youtubeId ? `Play trailer for ${scene.title}` : `${scene.title} (trailer unavailable)`}
       disabled={!youtubeId}
-      className="group relative block aspect-video w-full overflow-hidden rounded-xl bg-zinc-900 ring-1 ring-zinc-800 disabled:cursor-default"
+      className="group relative block aspect-video w-full overflow-hidden rounded-2xl bg-zinc-900 ring-1 ring-zinc-800 transition disabled:cursor-default enabled:hover:ring-fuchsia-400/40 enabled:hover:shadow-[0_0_40px_-12px_rgba(232,121,249,0.45)]"
     >
       {fallbackImage && (
         <img
@@ -273,17 +299,55 @@ function Player({ scene, youtubeId, fallbackImage }) {
           className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]"
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent" />
-      <span className="absolute right-3 top-3 rounded bg-zinc-950/80 px-2 py-0.5 text-[11px] font-bold text-zinc-100">
-        ANIMEDB
+      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/85 via-zinc-950/10 to-zinc-950/40" />
+
+      {/* Brand badge */}
+      <span className="absolute left-3 top-3 rounded-full bg-zinc-950/70 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-fuchsia-200 ring-1 ring-fuchsia-400/30 backdrop-blur">
+        AnimeDB
       </span>
+      {scene.severity && (
+        <span
+          className={`absolute right-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] ring-1 backdrop-blur ${
+            scene.severity === "extreme"
+              ? "bg-rose-500/20 text-rose-200 ring-rose-400/40"
+              : scene.severity === "graphic"
+                ? "bg-orange-500/20 text-orange-200 ring-orange-400/40"
+                : scene.severity === "moderate"
+                  ? "bg-amber-500/20 text-amber-200 ring-amber-400/40"
+                  : "bg-emerald-500/20 text-emerald-200 ring-emerald-400/40"
+          }`}
+        >
+          {SEVERITY_LABEL[scene.severity] ?? scene.severity}
+        </span>
+      )}
+
+      {/* Play button */}
       <span className="absolute inset-0 grid place-items-center">
-        <span className="grid h-16 w-16 place-items-center rounded-full bg-brand-500/95 text-zinc-950 shadow-2xl transition group-hover:scale-110">
-          <IconPlay className="h-8 w-8" />
+        <span className="relative">
+          <span
+            aria-hidden
+            className="absolute -inset-3 rounded-full bg-gradient-to-r from-fuchsia-400 via-violet-400 to-cyan-300 opacity-0 blur-xl transition group-enabled:group-hover:opacity-70"
+          />
+          <span className="relative grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-fuchsia-400 via-violet-400 to-cyan-300 text-zinc-950 shadow-2xl ring-1 ring-white/30 transition group-enabled:group-hover:scale-110 sm:h-20 sm:w-20">
+            <IconPlay className="h-7 w-7 translate-x-[1px] sm:h-9 sm:w-9" />
+          </span>
         </span>
       </span>
+
+      {/* Bottom info bar */}
+      <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 sm:p-4">
+        <span className="line-clamp-1 text-sm font-bold text-white drop-shadow sm:text-base">
+          {scene.title}
+        </span>
+        {scene.timestamp && (
+          <span className="shrink-0 rounded-full bg-zinc-950/70 px-2.5 py-1 text-[10px] font-bold tabular-nums text-zinc-200 ring-1 ring-zinc-700 backdrop-blur">
+            {scene.timestamp}
+          </span>
+        )}
+      </span>
+
       {!youtubeId && (
-        <span className="absolute inset-x-0 bottom-3 text-center text-[11px] text-zinc-300">
+        <span className="absolute inset-x-0 bottom-12 text-center text-[11px] font-semibold text-zinc-300 sm:bottom-14">
           Trailer unavailable — showing scene still
         </span>
       )}
@@ -295,39 +359,69 @@ function SidebarRail({ anime, sameAnime }) {
   const items = sameAnime.slice(0, 4);
   return (
     <aside className="hidden flex-col gap-3 lg:flex">
-      <div className="overflow-hidden rounded-xl ring-1 ring-zinc-800">
-        {anime?.images?.webp?.large_image_url && (
-          <img
-            src={anime.images.webp.large_image_url}
-            alt={anime.title}
-            loading="lazy"
-            decoding="async"
-            className="aspect-[3/4] w-full object-cover"
-          />
+      <div className="relative overflow-hidden rounded-2xl ring-1 ring-zinc-800">
+        {anime?.images?.webp?.large_image_url ? (
+          <>
+            <img
+              src={anime.images.webp.large_image_url}
+              alt={anime.title}
+              loading="lazy"
+              decoding="async"
+              className="aspect-[3/4] w-full object-cover"
+            />
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-transparent p-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-fuchsia-300">
+                Source anime
+              </p>
+              {anime && (
+                <Link
+                  to={`/anime/${anime.mal_id}`}
+                  className="mt-1 line-clamp-2 text-sm font-bold text-white hover:text-fuchsia-200"
+                >
+                  {anime.title}
+                </Link>
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="grid aspect-[3/4] place-items-center bg-zinc-900 text-zinc-700">
+            <IconPlay className="h-10 w-10" />
+          </div>
         )}
       </div>
       {items.length > 0 && (
-        <div className="grid grid-cols-2 gap-2">
-          {items.map((s) => (
-            <Link
-              key={s.id}
-              to={`/scenes/${s.id}`}
-              className="group block aspect-video overflow-hidden rounded-md bg-zinc-900 ring-1 ring-zinc-800 hover:ring-brand-500"
-            >
-              {s.image ? (
-                <img
-                  src={s.image}
-                  alt={s.title}
-                  loading="lazy"
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
-                />
-              ) : (
-                <div className="grid h-full place-items-center text-zinc-700">
-                  <IconPlay className="h-6 w-6" />
-                </div>
-              )}
-            </Link>
-          ))}
+        <div>
+          <p className="mb-2 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">
+            <span className="h-1.5 w-1.5 rounded-full bg-fuchsia-400" />
+            More from this title
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {items.map((s) => (
+              <Link
+                key={s.id}
+                to={`/scenes/${s.id}`}
+                className="group relative block aspect-video overflow-hidden rounded-xl bg-zinc-900 ring-1 ring-zinc-800 transition hover:ring-fuchsia-400/40"
+              >
+                {s.image ? (
+                  <img
+                    src={s.image}
+                    alt={s.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]"
+                  />
+                ) : (
+                  <div className="grid h-full place-items-center text-zinc-700">
+                    <IconPlay className="h-6 w-6" />
+                  </div>
+                )}
+                <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-zinc-950/80 to-transparent" />
+                <span className="absolute inset-x-1 bottom-1 line-clamp-1 text-[10px] font-bold text-white drop-shadow">
+                  {s.title}
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </aside>
@@ -337,27 +431,30 @@ function SidebarRail({ anime, sameAnime }) {
 function ThumbnailStrip({ scenes }) {
   if (!scenes.length) return null;
   return (
-    <div className="scrollbar-thin mt-3 flex gap-3 overflow-x-auto pb-1">
+    <div className="-mx-2 mt-4 flex gap-3 overflow-x-auto px-2 pb-1 scrollbar-thin">
       {scenes.map((s) => (
         <Link
           key={s.id}
           to={`/scenes/${s.id}`}
-          className="group relative block aspect-video w-40 shrink-0 overflow-hidden rounded-md bg-zinc-900 ring-1 ring-zinc-800 hover:ring-brand-500"
+          className="group relative block aspect-video w-40 shrink-0 overflow-hidden rounded-xl bg-zinc-900 ring-1 ring-zinc-800 transition hover:ring-fuchsia-400/40"
         >
           {s.image ? (
             <img
               src={s.image}
               alt={s.title}
               loading="lazy"
-              className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+              decoding="async"
+              className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]"
             />
           ) : (
             <div className="grid h-full place-items-center text-zinc-700">
               <IconPlay className="h-6 w-6" />
             </div>
           )}
-          <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950/80 to-transparent p-1.5 text-[10px] font-semibold text-zinc-100">
-            {s.title}
+          <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950/85 to-transparent p-1.5">
+            <span className="line-clamp-1 text-[10px] font-bold text-white drop-shadow">
+              {s.title}
+            </span>
           </span>
         </Link>
       ))}
@@ -365,52 +462,88 @@ function ThumbnailStrip({ scenes }) {
   );
 }
 
-function SceneMeta({ scene, anime, characters }) {
-  const sevLabel = SEVERITY_LABEL[scene.severity] ?? "Scene";
+function SceneMeta({ scene, anime }) {
+  const sevLabel = SEVERITY_LABEL[scene.severity] ?? null;
+  const sevColor =
+    scene.severity === "extreme"
+      ? "bg-rose-500/15 text-rose-200 ring-rose-400/30"
+      : scene.severity === "graphic"
+        ? "bg-orange-500/15 text-orange-200 ring-orange-400/30"
+        : scene.severity === "moderate"
+          ? "bg-amber-500/15 text-amber-200 ring-amber-400/30"
+          : "bg-emerald-500/15 text-emerald-200 ring-emerald-400/30";
+
   return (
-    <div className="mt-6 space-y-1.5">
-      <h1 className="text-lg font-bold sm:text-xl">
+    <div className="mt-6">
+      <div className="flex flex-wrap items-center gap-2">
+        {sevLabel && (
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] ring-1 ${sevColor}`}
+          >
+            {sevLabel}
+          </span>
+        )}
+        {scene.tags?.[0] && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-zinc-900/80 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-300 ring-1 ring-zinc-800">
+            {scene.tags[0]}
+          </span>
+        )}
+        {scene.spoiler && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-200 ring-1 ring-amber-400/30">
+            Spoiler
+          </span>
+        )}
+      </div>
+
+      <h1 className="mt-3 text-2xl font-black leading-tight tracking-tight text-white sm:text-3xl">
         {scene.character && (
           <Link
             to={`/search?q=${encodeURIComponent(scene.character)}&tab=characters`}
-            className="text-brand-500 hover:underline"
+            className="bg-gradient-to-r from-fuchsia-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent hover:underline"
           >
             {scene.character}
           </Link>
         )}
         {scene.character && " — "}
-        <span className="text-zinc-100">
-          {sevLabel} {scene.tags?.[0] ? `· ${scene.tags[0]}` : ""} Scene in
-        </span>{" "}
+        <span className="text-white">{scene.title}</span>
+      </h1>
+
+      <p className="mt-2 inline-flex items-center gap-1 text-xs text-zinc-500">
+        Scene in{" "}
         {anime ? (
           <Link
             to={`/anime/${anime.mal_id}`}
-            className="text-brand-500 hover:underline"
+            className="font-semibold text-zinc-300 hover:text-fuchsia-300"
           >
             {anime.title}
           </Link>
         ) : (
-          <span className="text-zinc-100">{scene.anime_title}</span>
-        )}
-      </h1>
-      <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
-        <span className="inline-flex items-center gap-1">
-          <IconEye className="h-3.5 w-3.5" />
-          {formatCompact(anime?.members ?? 0)} Views
-        </span>
-        <span className="text-zinc-700">|</span>
-        <span>S{scene.season ?? 1}·E{scene.episode} · {scene.timestamp}</span>
-        {scene.spoiler && (
-          <>
-            <span className="text-zinc-700">|</span>
-            <span className="rounded bg-amber-500/15 px-1.5 py-0.5 font-semibold text-amber-300">
-              SPOILER
-            </span>
-          </>
+          <span className="font-semibold text-zinc-300">
+            {scene.anime_title}
+          </span>
         )}
       </p>
+
+      <ul className="mt-4 flex flex-wrap items-center gap-2 text-xs text-zinc-400">
+        <li className="inline-flex items-center gap-1.5 rounded-full bg-zinc-900/50 px-2.5 py-1 ring-1 ring-zinc-800/80">
+          <IconEye className="h-3.5 w-3.5 text-zinc-500" />
+          <span className="font-semibold tabular-nums text-zinc-200">
+            {formatCompact(anime?.members ?? 0)}
+          </span>
+          views
+        </li>
+        <li className="inline-flex items-center gap-1.5 rounded-full bg-zinc-900/50 px-2.5 py-1 font-semibold text-zinc-200 ring-1 ring-zinc-800/80 tabular-nums">
+          S{scene.season ?? 1}·E{scene.episode}
+        </li>
+        {scene.timestamp && (
+          <li className="inline-flex items-center gap-1.5 rounded-full bg-zinc-900/50 px-2.5 py-1 font-semibold text-zinc-200 ring-1 ring-zinc-800/80 tabular-nums">
+            {scene.timestamp}
+          </li>
+        )}
+      </ul>
+
       {scene.description && (
-        <p className="max-w-3xl pt-3 text-sm leading-relaxed text-zinc-300">
+        <p className="mt-5 max-w-3xl text-sm leading-relaxed text-zinc-300 sm:text-[15px]">
           {scene.description}
         </p>
       )}
@@ -430,27 +563,45 @@ function SceneGrid({ scenes }) {
 
 function EmptyHint({ anime }) {
   return (
-    <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/30 p-8 text-center text-sm text-zinc-400">
-      No other scenes catalogued for{" "}
-      <span className="text-zinc-200">{anime}</span> yet.
+    <div className="grid place-items-center rounded-3xl border border-dashed border-zinc-800 bg-zinc-950/40 p-10 text-center">
+      <div className="grid h-14 w-14 place-items-center rounded-full bg-zinc-900 ring-1 ring-zinc-800">
+        <IconPlay className="h-6 w-6 text-zinc-500" />
+      </div>
+      <p className="mt-4 text-sm font-semibold text-zinc-200">
+        No other scenes catalogued for{" "}
+        <span className="text-fuchsia-300">{anime}</span> yet
+      </p>
+      <p className="mt-1 max-w-xs text-xs text-zinc-500">
+        Editorial scenes are curated by hand — check back soon.
+      </p>
     </div>
   );
 }
 
 function NotFoundScene({ id }) {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-      <h1 className="text-3xl font-black text-zinc-100">Scene not found</h1>
-      <p className="mt-2 text-sm text-zinc-400">
-        No entry with id <code className="text-brand-500">{id}</code> exists in
-        the catalog yet.
-      </p>
-      <Link
-        to="/scenes"
-        className="mt-6 inline-block rounded-md bg-brand-500 px-5 py-2.5 text-sm font-bold text-zinc-950 hover:bg-amber-400"
-      >
-        Browse scene catalog
-      </Link>
+    <div className="page-container py-20">
+      <div className="mx-auto max-w-2xl rounded-3xl border border-zinc-900 bg-zinc-950/60 p-10 text-center sm:p-14">
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-zinc-900 ring-1 ring-zinc-800">
+          <IconPlay className="h-7 w-7 text-zinc-500" />
+        </div>
+        <h1 className="mt-5 text-3xl font-black text-white sm:text-4xl">
+          Scene not found
+        </h1>
+        <p className="mt-2 text-sm text-zinc-400">
+          No entry with id{" "}
+          <code className="rounded bg-zinc-900 px-1.5 py-0.5 text-fuchsia-300">
+            {id}
+          </code>{" "}
+          exists in the catalog yet.
+        </p>
+        <Link
+          to="/scenes"
+          className="mt-7 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-fuchsia-400 via-violet-400 to-cyan-300 px-5 py-2.5 text-sm font-bold text-zinc-950 shadow-[0_0_22px_-6px_rgba(232,121,249,0.6)] ring-1 ring-white/30 transition hover:brightness-110"
+        >
+          Browse scene catalog
+        </Link>
+      </div>
     </div>
   );
 }
