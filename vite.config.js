@@ -14,6 +14,11 @@ export default defineConfig({
     sourcemap: false,
     reportCompressedSize: false,
     chunkSizeWarningLimit: 600,
+    // Use esbuild minifier (default) — fast and produces output competitive
+    // with terser for our hand-tuned code.
+    minify: "esbuild",
+    // Inline assets ≤ 4kB as base64 so they don't need an extra request.
+    assetsInlineLimit: 4096,
     rollupOptions: {
       output: {
         // Split heavy vendor libs into long-lived cacheable chunks so the
@@ -35,5 +40,14 @@ export default defineConfig({
         },
       },
     },
+  },
+  // Trim dev-only artifacts from the production build. We keep `console.warn`
+  // and `console.error` so genuine failures still surface in devtools, but
+  // anything noisy (log/debug/info) and stray `debugger` statements are
+  // stripped to shave bytes.
+  esbuild: {
+    legalComments: "none",
+    drop: ["debugger"],
+    pure: ["console.log", "console.debug", "console.info"],
   },
 });

@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { IconPlay, IconEye, formatCompact } from "./Icons.jsx";
 
-export default function StoryReel({ story, onClick }) {
+function StoryReel({ story, onClick }) {
   // Reel renders at ~160×285px in the grid — prefer the medium variant over
   // maximum/large so thumbnails load 3-5× faster. Trailer thumbs from MAL
   // come from i.ytimg.com which is also cheaper at hqdefault size.
@@ -65,3 +66,8 @@ export default function StoryReel({ story, onClick }) {
     </button>
   );
 }
+
+export default memo(
+  StoryReel,
+  (a, b) => a.story?.id === b.story?.id && a.onClick === b.onClick
+);

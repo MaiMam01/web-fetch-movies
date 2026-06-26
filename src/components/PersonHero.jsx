@@ -40,6 +40,11 @@ export default function PersonHero({
             <img
               src={img}
               alt={person.name}
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+              width="176"
+              height="176"
               className="aspect-square w-32 flex-shrink-0 rounded-lg object-cover shadow-2xl ring-1 ring-zinc-700 sm:w-44"
             />
           )}

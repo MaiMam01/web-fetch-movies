@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { IconPlay, IconImage } from "./Icons.jsx";
 
@@ -8,7 +9,7 @@ const SEVERITY_STYLES = {
   extreme: "bg-red-600 text-zinc-50",
 };
 
-export default function SceneTile({ scene, posterFallback, onClick }) {
+function SceneTile({ scene, posterFallback, onClick }) {
   const sevClass = SEVERITY_STYLES[scene.severity] ?? SEVERITY_STYLES.moderate;
   const epLabel = `S${scene.season ?? 1}·E${scene.episode}`;
   const isVideo = scene.kind === "video";
@@ -97,3 +98,11 @@ export default function SceneTile({ scene, posterFallback, onClick }) {
     </Link>
   );
 }
+
+export default memo(
+  SceneTile,
+  (a, b) =>
+    a.scene?.id === b.scene?.id &&
+    a.posterFallback === b.posterFallback &&
+    a.onClick === b.onClick
+);

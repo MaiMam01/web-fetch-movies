@@ -21,35 +21,97 @@ const TABS = [
   { value: "movie", label: "Movies", to: "/top?type=movie" },
 ];
 
+// Hard-coded editorial top-rated list. Used as an immediate render seed so the
+// slider is populated even before / when Jikan can't be reached. Once the API
+// returns, each entry is replaced in-place with the full Jikan record (poster,
+// real-time score, etc.). Each entry includes the canonical MAL id so the
+// Link target is always correct.
+const FALLBACK_TOP = {
+  tv: [
+    { mal_id: 52991, title: "Sousou no Frieren", title_english: "Frieren: Beyond Journey's End", year: 2023, score: 9.32 },
+    { mal_id: 5114, title: "Fullmetal Alchemist: Brotherhood", year: 2009, score: 9.10 },
+    { mal_id: 9253, title: "Steins;Gate", year: 2011, score: 9.07 },
+    { mal_id: 28977, title: "Gintama°", year: 2015, score: 9.06 },
+    { mal_id: 41467, title: "Bleach: Sennen Kessen-hen", title_english: "Bleach: Thousand-Year Blood War", year: 2022, score: 9.05 },
+    { mal_id: 11061, title: "Hunter x Hunter (2011)", year: 2011, score: 9.04 },
+    { mal_id: 9969, title: "Gintama'", year: 2011, score: 9.03 },
+    { mal_id: 53998, title: "Bleach: Sennen Kessen-hen - Ketsubetsu-tan", year: 2023, score: 9.00 },
+    { mal_id: 820, title: "Ginga Eiyuu Densetsu", title_english: "Legend of the Galactic Heroes", year: 1988, score: 9.00 },
+    { mal_id: 35247, title: "Owarimonogatari 2nd Season", year: 2017, score: 8.93 },
+    { mal_id: 15417, title: "Gintama': Enchousen", year: 2012, score: 8.93 },
+    { mal_id: 4181, title: "Clannad: After Story", year: 2008, score: 8.92 },
+    { mal_id: 16498, title: "Shingeki no Kyojin", title_english: "Attack on Titan", year: 2013, score: 8.55 },
+    { mal_id: 1575, title: "Code Geass: Hangyaku no Lelouch", year: 2006, score: 8.71 },
+  ],
+  movie: [
+    { mal_id: 5114, title: "Sen to Chihiro no Kamikakushi", title_english: "Spirited Away", year: 2001, score: 8.78 },
+    { mal_id: 199, title: "Sen to Chihiro no Kamikakushi", title_english: "Spirited Away", year: 2001, score: 8.78 },
+    { mal_id: 32281, title: "Kimi no Na wa.", title_english: "Your Name.", year: 2016, score: 8.83 },
+    { mal_id: 50594, title: "Suzume no Tojimari", title_english: "Suzume", year: 2022, score: 8.30 },
+    { mal_id: 28851, title: "Koe no Katachi", title_english: "A Silent Voice", year: 2016, score: 8.93 },
+    { mal_id: 523, title: "Tonari no Totoro", title_english: "My Neighbor Totoro", year: 1988, score: 8.18 },
+    { mal_id: 164, title: "Mononoke Hime", title_english: "Princess Mononoke", year: 1997, score: 8.65 },
+    { mal_id: 431, title: "Howl no Ugoku Shiro", title_english: "Howl's Moving Castle", year: 2004, score: 8.66 },
+    { mal_id: 578, title: "Hotaru no Haka", title_english: "Grave of the Fireflies", year: 1988, score: 8.51 },
+    { mal_id: 47, title: "Akira", year: 1988, score: 8.13 },
+    { mal_id: 38000, title: "Kimetsu no Yaiba: Mugen Ressha-hen", title_english: "Demon Slayer: Mugen Train", year: 2020, score: 8.30 },
+    { mal_id: 437, title: "Perfect Blue", year: 1997, score: 8.18 },
+    { mal_id: 43, title: "Koukaku Kidoutai", title_english: "Ghost in the Shell", year: 1995, score: 7.99 },
+    { mal_id: 1689, title: "Byousoku 5 Centimeter", title_english: "5 Centimeters per Second", year: 2007, score: 7.59 },
+  ],
+};
+
+function seedAnime(entry) {
+  return {
+    mal_id: entry.mal_id,
+    title: entry.title,
+    title_english: entry.title_english ?? null,
+    year: entry.year ?? null,
+    score: entry.score ?? null,
+    images: { webp: {}, jpg: {} },
+    _placeholder: true,
+  };
+}
+
+const INITIAL_BY_TYPE = {
+  tv: FALLBACK_TOP.tv.map(seedAnime),
+  movie: FALLBACK_TOP.movie.map(seedAnime),
+};
+
 export default function BestOfAllTimeSlider() {
   const [type, setType] = useState("tv");
-  const [byType, setByType] = useState({ tv: [], movie: [] });
-  const [loading, setLoading] = useState(true);
+  // Seed both tabs with the static editorial list so the slider renders the
+  // moment it mounts. The API enrichment below replaces them in-place if /
+  // when Jikan responds; if it never does, the seed stays visible.
+  const [byType, setByType] = useState(INITIAL_BY_TYPE);
+  const [enrichedTypes, setEnrichedTypes] = useState(() => new Set());
   const scrollerRef = useRef(null);
 
   const items = byType[type] ?? [];
 
   useEffect(() => {
     let cancelled = false;
-    // Skip fetching if we already have results cached locally for this type.
-    if (byType[type] && byType[type].length > 0) {
-      setLoading(false);
-      return undefined;
-    }
-    setLoading(true);
+    // Skip the network call if we already have API-enriched data for this tab.
+    if (enrichedTypes.has(type)) return undefined;
     getTopAnime(14, 1, type)
       .then((res) => {
         if (cancelled) return;
-        setByType((prev) => ({ ...prev, [type]: res.items ?? [] }));
-        setLoading(false);
+        if (Array.isArray(res.items) && res.items.length) {
+          setByType((prev) => ({ ...prev, [type]: res.items }));
+          setEnrichedTypes((prev) => {
+            const next = new Set(prev);
+            next.add(type);
+            return next;
+          });
+        }
       })
       .catch(() => {
-        if (!cancelled) setLoading(false);
+        /* keep the seed entries — graceful degradation */
       });
     return () => {
       cancelled = true;
     };
-  }, [type, byType]);
+  }, [type, enrichedTypes]);
 
   const scroll = (dir) => {
     const el = scrollerRef.current;
@@ -122,18 +184,14 @@ export default function BestOfAllTimeSlider() {
         ref={scrollerRef}
         className="-mx-1 flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-3"
       >
-        {loading && items.length === 0
-          ? Array.from({ length: 8 }).map((_, i) => (
-              <SkeletonArchCard key={i} palette={PALETTE[i % PALETTE.length]} />
-            ))
-          : items.map((a, i) => (
-              <ArchCard
-                key={a.mal_id}
-                anime={a}
-                rank={i + 1}
-                palette={PALETTE[i % PALETTE.length]}
-              />
-            ))}
+        {items.map((a, i) => (
+          <ArchCard
+            key={a.mal_id}
+            anime={a}
+            rank={i + 1}
+            palette={PALETTE[i % PALETTE.length]}
+          />
+        ))}
       </div>
     </section>
   );
@@ -243,17 +301,3 @@ function ArchCard({ anime, rank, palette }) {
   );
 }
 
-function SkeletonArchCard({ palette }) {
-  return (
-    <div className="w-40 shrink-0 snap-start sm:w-44 md:w-48">
-      <div
-        className="relative h-60 animate-pulse overflow-hidden [border-radius:50%_50%_12px_12px_/_30%_30%_12px_12px] sm:h-64"
-        style={{
-          background: `linear-gradient(180deg, ${palette.top} 0%, ${palette.bot} 100%)`,
-          opacity: 0.55,
-        }}
-      />
-      <div className="-mt-1 h-10 animate-pulse rounded-md bg-zinc-900 ring-1 ring-zinc-800" />
-    </div>
-  );
-}

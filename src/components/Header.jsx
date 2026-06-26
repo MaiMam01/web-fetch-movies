@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./Logo.jsx";
 import LanguageDropdown, { findLanguage } from "./LanguageDropdown.jsx";
@@ -9,7 +9,9 @@ import {
   searchCharacters,
   searchPeople,
 } from "../services/jikan.js";
-import AuthModal from "./AuthModal.jsx";
+// AuthModal only renders when the user clicks Sign in / Sign up — keep it
+// out of the initial bundle to trim ~4kB off every cold load.
+const AuthModal = lazy(() => import("./AuthModal.jsx"));
 import {
   IconMenu,
   IconSearch,
@@ -506,13 +508,15 @@ export default function Header() {
       </nav>
 
       {authMode && (
-        <AuthModal
-          mode={authMode}
-          onClose={() => setAuthMode(null)}
-          onSwitchMode={() =>
-            setAuthMode((m) => (m === "signup" ? "login" : "signup"))
-          }
-        />
+        <Suspense fallback={null}>
+          <AuthModal
+            mode={authMode}
+            onClose={() => setAuthMode(null)}
+            onSwitchMode={() =>
+              setAuthMode((m) => (m === "signup" ? "login" : "signup"))
+            }
+          />
+        </Suspense>
       )}
 
       {mobileOpen && (

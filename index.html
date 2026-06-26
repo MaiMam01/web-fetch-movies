@@ -17,6 +17,10 @@
     <link rel="preconnect" href="https://i.ytimg.com" crossorigin />
     <link rel="dns-prefetch" href="https://i.ytimg.com" />
 
+    <!-- Preload the local placeholder so missing-thumbnail cards never wait
+         on a second network round-trip. -->
+    <link rel="preload" as="image" href="/placeholder.svg" />
+
     <title>AnimeDB — IMDB for Anime</title>
     <meta
       name="description"

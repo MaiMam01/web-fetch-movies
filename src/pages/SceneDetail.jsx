@@ -264,6 +264,8 @@ function Player({ scene, youtubeId, fallbackImage }) {
         <img
           src={fallbackImage}
           alt={scene.title}
+          decoding="async"
+          fetchPriority="high"
           className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]"
         />
       )}
@@ -294,6 +296,8 @@ function SidebarRail({ anime, sameAnime }) {
           <img
             src={anime.images.webp.large_image_url}
             alt={anime.title}
+            loading="lazy"
+            decoding="async"
             className="aspect-[3/4] w-full object-cover"
           />
         )}

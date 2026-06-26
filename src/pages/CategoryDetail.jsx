@@ -215,6 +215,8 @@ function FeatureStrip({ backdrop, name, total }) {
         src={backdrop}
         alt=""
         aria-hidden
+        decoding="async"
+        fetchPriority="high"
         className="absolute inset-0 h-full w-full object-cover opacity-60"
       />
       <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/40 to-transparent" />

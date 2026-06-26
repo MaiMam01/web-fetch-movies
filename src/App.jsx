@@ -5,6 +5,7 @@ import Footer from "./components/Footer.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import ScrollProgress from "./components/ScrollProgress.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
+import RoutePrefetcher from "./components/RoutePrefetcher.jsx";
 
 // Landing is the entry point — keep eager so it streams without a flash.
 import Landing from "./pages/Landing.jsx";
@@ -51,6 +52,7 @@ export default function App() {
     <div className="flex min-h-screen flex-col text-zinc-100">
       <ScrollProgress />
       <ScrollToTop />
+      <RoutePrefetcher />
       <Header />
       <main className="flex-1">
         <ErrorBoundary>

@@ -200,6 +200,7 @@ export default function StoryPlayer({ stories, index, onClose, onChange }) {
                 <img
                   src={posterImg}
                   alt={story.title}
+                  decoding="async"
                   className="absolute inset-0 h-full w-full object-cover opacity-40 blur-[2px]"
                 />
               )}

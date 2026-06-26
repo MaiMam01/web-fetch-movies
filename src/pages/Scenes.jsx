@@ -270,6 +270,10 @@ function SceneHero({ anime, count }) {
           <img
             src={poster}
             alt={anime.title}
+            decoding="async"
+            fetchPriority="high"
+            width="112"
+            height="168"
             className="aspect-[2/3] w-24 flex-shrink-0 rounded-lg object-cover ring-1 ring-zinc-700 sm:w-28"
           />
         )}

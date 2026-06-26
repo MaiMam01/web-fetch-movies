@@ -23,6 +23,9 @@ export default function ProfileHero({
               src={cover}
               alt=""
               aria-hidden
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
               className="absolute inset-0 h-full w-full object-cover"
             />
           )}
@@ -36,6 +39,11 @@ export default function ProfileHero({
               <img
                 src={avatar}
                 alt={name}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+                width="160"
+                height="160"
                 className="aspect-square w-24 flex-shrink-0 translate-y-2 rounded-xl object-cover shadow-2xl ring-2 ring-zinc-950/40 sm:w-32 lg:w-40"
               />
             )}
