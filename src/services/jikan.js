@@ -310,6 +310,12 @@ export async function getEpisodes(malId, page = 1) {
   return data?.data ?? [];
 }
 
+export async function getEpisode(malId, epNum) {
+  if (!malId || !epNum) return null;
+  const data = await jget(`/anime/${malId}/episodes/${epNum}`);
+  return data?.data ?? null;
+}
+
 export async function getCharacters(malId) {
   if (!malId) return [];
   const data = await jget(`/anime/${malId}/characters`);

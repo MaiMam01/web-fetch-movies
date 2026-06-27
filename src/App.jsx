@@ -12,6 +12,7 @@ import Landing from "./pages/Landing.jsx";
 
 // All non-landing routes are split out into their own chunks.
 const AnimeDetail = lazy(() => import("./pages/AnimeDetail.jsx"));
+const EpisodeDetail = lazy(() => import("./pages/EpisodeDetail.jsx"));
 const Scenes = lazy(() => import("./pages/Scenes.jsx"));
 const Characters = lazy(() => import("./pages/Characters.jsx"));
 const CharacterDetail = lazy(() => import("./pages/CharacterDetail.jsx"));
@@ -61,6 +62,7 @@ export default function App() {
               <Route path="/" element={<Landing />} />
               <Route path="/top" element={<Landing />} />
               <Route path="/anime/:malId" element={<AnimeDetail />} />
+              <Route path="/anime/:malId/episode/:epNum" element={<EpisodeDetail />} />
               <Route path="/anime/:malId/scenes" element={<Scenes />} />
               <Route path="/scenes" element={<Scenes />} />
               <Route path="/scenes/:id" element={<SceneDetail />} />

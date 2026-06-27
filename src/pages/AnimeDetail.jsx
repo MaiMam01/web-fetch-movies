@@ -21,6 +21,7 @@ import {
   IconHeart,
   IconAlert,
   IconCheck,
+  IconChevronRight,
   StarRating,
   formatCompact,
 } from "../components/Icons.jsx";
@@ -107,6 +108,14 @@ export default function AnimeDetail() {
     <div className="text-zinc-100">
       <Hero anime={anime} sceneCount={animeScenes.length} />
 
+      <HighlightsStrip
+        scenes={animeScenes}
+        poster={
+          anime.images?.webp?.large_image_url ??
+          anime.images?.jpg?.large_image_url
+        }
+      />
+
       <div className="page-container">
         <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
           <FilterPills value={tab} onChange={setTab} options={TAB_OPTIONS(counts)} />
@@ -145,7 +154,7 @@ export default function AnimeDetail() {
         )}
 
         {showEpisodes && episodes.length > 0 && (
-          <section className="mt-12">
+          <section id="episodes" className="mt-12 scroll-mt-24">
             <SectionHeader
               eyebrow="Run order"
               title="Episodes"
@@ -153,32 +162,51 @@ export default function AnimeDetail() {
               count={episodes.length}
             />
             <ul className="overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/40">
-              {episodes.slice(0, 25).map((ep, i) => (
-                <li
-                  key={ep.mal_id}
-                  className="flex items-center gap-4 border-b border-zinc-800/60 px-4 py-3 transition last:border-b-0 hover:bg-zinc-900/70"
-                >
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-zinc-900 text-[11px] font-black tabular-nums text-zinc-300 ring-1 ring-zinc-800">
-                    {i + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-zinc-100">
-                      {ep.title || "Untitled"}
-                    </p>
-                    {ep.aired && (
-                      <p className="text-xs text-zinc-500">
-                        Aired {new Date(ep.aired).toLocaleDateString()}
-                      </p>
-                    )}
-                  </div>
-                  {ep.score ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-bold text-amber-200 ring-1 ring-amber-400/30">
-                      ★ {ep.score}
-                    </span>
-                  ) : null}
-                </li>
-              ))}
+              {episodes.slice(0, 25).map((ep, i) => {
+                const epScenesCount = animeScenes.filter(
+                  (s) => Number(s.episode) === Number(ep.mal_id)
+                ).length;
+                return (
+                  <li key={ep.mal_id} className="border-b border-zinc-800/60 last:border-b-0">
+                    <Link
+                      to={`/anime/${malId}/episode/${ep.mal_id}`}
+                      className="group flex items-center gap-3 px-4 py-3 transition hover:bg-zinc-900/70 sm:gap-4"
+                    >
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-zinc-900 text-[11px] font-black tabular-nums text-zinc-300 ring-1 ring-zinc-800 transition group-hover:bg-gradient-to-br group-hover:from-fuchsia-400 group-hover:via-violet-400 group-hover:to-cyan-300 group-hover:text-zinc-950 group-hover:ring-white/30">
+                        {i + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-zinc-100 group-hover:text-white">
+                          {ep.title || "Untitled"}
+                        </p>
+                        {ep.aired && (
+                          <p className="text-xs text-zinc-500">
+                            Aired {new Date(ep.aired).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                      {epScenesCount > 0 && (
+                        <span className="hidden shrink-0 items-center gap-1 rounded-full bg-fuchsia-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-fuchsia-200 ring-1 ring-fuchsia-400/30 sm:inline-flex">
+                          <IconPlay className="h-2.5 w-2.5" />
+                          {epScenesCount} {epScenesCount === 1 ? "scene" : "scenes"}
+                        </span>
+                      )}
+                      {ep.score ? (
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-bold text-amber-200 ring-1 ring-amber-400/30">
+                          ★ {ep.score}
+                        </span>
+                      ) : null}
+                      <IconChevronRight className="h-4 w-4 shrink-0 text-zinc-600 transition group-hover:translate-x-0.5 group-hover:text-fuchsia-300" />
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
+            {episodes.length > 25 && (
+              <p className="mt-3 text-center text-[11px] text-zinc-500">
+                Showing first 25 of {episodes.length} episodes
+              </p>
+            )}
           </section>
         )}
 
@@ -578,6 +606,49 @@ function SynopsisAndDetails({ anime, sceneCount }) {
           </dl>
         </div>
       </aside>
+    </section>
+  );
+}
+
+function HighlightsStrip({ scenes, poster }) {
+  if (!scenes || scenes.length === 0) return null;
+  // Surface up to 12 highlights; sort by spoiler-free first so the strip
+  // can be browsed without giving away the show's biggest moments.
+  const ordered = [...scenes].sort(
+    (a, b) => Number(!!a.spoiler) - Number(!!b.spoiler)
+  );
+  const visible = ordered.slice(0, 12);
+
+  return (
+    <section
+      aria-label="Scene highlights"
+      className="page-container mt-4"
+    >
+      <div className="mb-2.5 flex items-end justify-between gap-3">
+        <h2 className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-fuchsia-300">
+          <span
+            aria-hidden
+            className="h-1.5 w-1.5 rounded-full bg-fuchsia-400 shadow-[0_0_6px_currentColor]"
+          />
+          Scene highlights
+          <span className="rounded-full bg-zinc-900 px-1.5 py-0.5 text-[10px] font-black tabular-nums text-zinc-400 ring-1 ring-zinc-800">
+            {scenes.length}
+          </span>
+        </h2>
+      </div>
+      <ul className="-mx-2 flex gap-2 overflow-x-auto px-2 pb-1 scrollbar-thin sm:gap-3">
+        {visible.map((s) => (
+          <li key={s.id} className="w-40 shrink-0 sm:w-48">
+            <SceneTile scene={s} posterFallback={poster} />
+            <p className="mt-1.5 line-clamp-1 text-[11px] font-semibold text-zinc-300">
+              {s.character ? (
+                <span className="text-fuchsia-300">{s.character}: </span>
+              ) : null}
+              <span>{s.title}</span>
+            </p>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
