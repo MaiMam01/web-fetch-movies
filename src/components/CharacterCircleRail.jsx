@@ -73,7 +73,7 @@ export default function CharacterCircleRail() {
 
       <div
         ref={scrollerRef}
-        className="-mx-4 flex gap-3 overflow-x-auto overflow-y-visible px-4 pb-8 pt-6 sm:mx-0 sm:px-0"
+        className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-4 pt-12 sm:mx-0 sm:px-0"
       >
         {ITEMS.map((c) => (
           <CharacterCircle key={c.mal_id} character={c} />
