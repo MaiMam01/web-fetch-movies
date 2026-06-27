@@ -5,6 +5,7 @@ import {
   getEpisodes,
   getCharacters,
   getRecommendations,
+  getPictures,
 } from "../services/jikan.js";
 import scenesData from "../data/scenes.json";
 import CharacterCard from "../components/CharacterCard.jsx";
@@ -13,6 +14,7 @@ import SceneTile from "../components/SceneTile.jsx";
 import FilterPills from "../components/FilterPills.jsx";
 import RecommendedRail from "../components/RecommendedRail.jsx";
 import TagChips from "../components/TagChips.jsx";
+import SceneGalleryModal from "../components/SceneGalleryModal.jsx";
 import useLocalToggle from "../hooks/useLocalToggle.js";
 import {
   IconImage,
@@ -39,6 +41,8 @@ export default function AnimeDetail() {
   const [episodes, setEpisodes] = useState([]);
   const [characters, setCharacters] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
+  const [pictures, setPictures] = useState([]);
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("all");
@@ -57,15 +61,17 @@ export default function AnimeDetail() {
         const a = await getAnimeById(malId);
         if (cancelled) return;
         setAnime(a);
-        const [eps, chars, recs] = await Promise.all([
+        const [eps, chars, recs, pics] = await Promise.all([
           getEpisodes(malId).catch(() => []),
           getCharacters(malId).catch(() => []),
           getRecommendations(malId).catch(() => []),
+          getPictures(malId).catch(() => []),
         ]);
         if (cancelled) return;
         setEpisodes(eps);
         setCharacters(chars);
         setRecommendations(recs.slice(0, 12));
+        setPictures(pics);
       } catch (e) {
         if (!cancelled) setError(e.message);
       } finally {
@@ -100,13 +106,50 @@ export default function AnimeDetail() {
   const supportCharacters = characters.filter((c) => c.role !== "Main");
   const charsByGroup = [...mainCharacters, ...supportCharacters].slice(0, 18);
 
+  // Build the gallery image list from MAL pictures + the cover/trailer images
+  const galleryImages = (() => {
+    const list = [];
+    const seen = new Set();
+    const add = (url, caption) => {
+      if (!url || seen.has(url)) return;
+      seen.add(url);
+      list.push({ url, caption });
+    };
+    add(
+      anime.images?.webp?.large_image_url ?? anime.images?.jpg?.large_image_url,
+      "Cover"
+    );
+    add(anime.trailer?.images?.maximum_image_url, "Trailer");
+    for (const p of pictures) {
+      add(
+        p?.webp?.large_image_url ??
+          p?.webp?.image_url ??
+          p?.jpg?.large_image_url ??
+          p?.jpg?.image_url
+      );
+    }
+    return list;
+  })();
+
   const showScenes = tab === "all" || tab === "scenes";
   const showCharacters = tab === "all" || tab === "characters";
   const showEpisodes = tab === "all" || tab === "episodes";
 
   return (
     <div className="text-zinc-100">
-      <Hero anime={anime} sceneCount={animeScenes.length} />
+      <Hero
+        anime={anime}
+        sceneCount={animeScenes.length}
+        galleryCount={galleryImages.length}
+        onOpenGallery={() => setGalleryOpen(true)}
+      />
+
+      <SceneGalleryModal
+        open={galleryOpen}
+        onClose={() => setGalleryOpen(false)}
+        title={`${anime.title_english || anime.title} — Gallery`}
+        images={galleryImages}
+      />
 
       <HighlightsStrip
         scenes={animeScenes}
@@ -233,7 +276,7 @@ export default function AnimeDetail() {
   );
 }
 
-function Hero({ anime, sceneCount }) {
+function Hero({ anime, sceneCount, galleryCount = 0, onOpenGallery }) {
   const poster =
     anime.images?.webp?.large_image_url ?? anime.images?.jpg?.large_image_url;
   const bg =
@@ -408,6 +451,19 @@ function Hero({ anime, sceneCount }) {
                 <IconPlay className="h-4 w-4" />
                 Browse Scenes
               </Link>
+              {galleryCount > 0 && (
+                <button
+                  type="button"
+                  onClick={onOpenGallery}
+                  className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900/60 px-4 py-2 text-sm font-semibold text-zinc-200 transition hover:border-fuchsia-400/40 hover:bg-zinc-800"
+                >
+                  <IconImage className="h-4 w-4" />
+                  Gallery
+                  <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] font-bold tabular-nums text-zinc-300 ring-1 ring-zinc-700">
+                    {galleryCount}
+                  </span>
+                </button>
+              )}
               <a
                 href="/feedback"
                 className="inline-flex items-center gap-1.5 text-xs text-zinc-500 transition hover:text-zinc-300"

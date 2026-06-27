@@ -5,6 +5,7 @@ import ProfileNavStrip from "../components/ProfileNavStrip.jsx";
 import ProfileInfoGrid from "../components/ProfileInfoGrid.jsx";
 import AnimeGroupHeader from "../components/AnimeGroupHeader.jsx";
 import SuggestedReels from "../components/SuggestedReels.jsx";
+import SceneGalleryModal from "../components/SceneGalleryModal.jsx";
 import {
   IconHeart,
   IconShare,
@@ -18,12 +19,14 @@ import {
   IconCheck,
   IconChevronDown,
 } from "../components/Icons.jsx";
-import { getPersonFull } from "../services/jikan.js";
+import { getPersonFull, getPersonPictures } from "../services/jikan.js";
 import useLocalToggle from "../hooks/useLocalToggle.js";
 
 export default function VoiceActorDetail() {
   const { id } = useParams();
   const [person, setPerson] = useState(null);
+  const [pictures, setPictures] = useState([]);
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("overview");
@@ -42,6 +45,11 @@ export default function VoiceActorDetail() {
         const data = await getPersonFull(id);
         if (cancelled) return;
         setPerson(data);
+        getPersonPictures(id)
+          .then((pics) => {
+            if (!cancelled) setPictures(pics);
+          })
+          .catch(() => {});
       } catch (e) {
         if (!cancelled) setError(e.message);
       } finally {
@@ -173,8 +181,43 @@ export default function VoiceActorDetail() {
   const showAnimeGrid = tab === "anime";
   const showStaff = tab === "overview" || tab === "staff";
 
+  // Build gallery list: portrait + person pictures + character avatars they voice
+  const galleryImages = (() => {
+    const list = [];
+    const seen = new Set();
+    const add = (url, caption) => {
+      if (!url || seen.has(url)) return;
+      seen.add(url);
+      list.push({ url, caption });
+    };
+    add(avatar, person.name);
+    for (const p of pictures) {
+      add(
+        p?.webp?.image_url ??
+          p?.webp?.large_image_url ??
+          p?.jpg?.image_url ??
+          p?.jpg?.large_image_url
+      );
+    }
+    for (const v of voiceRoles) {
+      add(
+        v.character?.images?.webp?.image_url ??
+          v.character?.images?.jpg?.image_url,
+        v.character?.name
+      );
+    }
+    return list;
+  })();
+
   return (
     <div className="text-zinc-100">
+      <SceneGalleryModal
+        open={galleryOpen}
+        onClose={() => setGalleryOpen(false)}
+        title={`${person.name} — Gallery`}
+        images={galleryImages}
+      />
+
       <ProfileHero
         name={person.name}
         subtitle={person.alternate_names?.[0]}
@@ -238,6 +281,19 @@ export default function VoiceActorDetail() {
               <IconShare className="h-4 w-4" />
               Share
             </button>
+            {galleryImages.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setGalleryOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs font-bold text-zinc-200 transition hover:border-cyan-400/40 hover:bg-zinc-800"
+              >
+                <IconImage className="h-4 w-4" />
+                Gallery
+                <span className="rounded-full bg-zinc-800 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-zinc-300 ring-1 ring-zinc-700">
+                  {galleryImages.length}
+                </span>
+              </button>
+            )}
             <button
               type="button"
               onClick={toggleFollow}

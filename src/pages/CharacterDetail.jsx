@@ -7,6 +7,7 @@ import SceneTile from "../components/SceneTile.jsx";
 import AnimeGroupHeader from "../components/AnimeGroupHeader.jsx";
 import SuggestedReels from "../components/SuggestedReels.jsx";
 import RecommendedCharactersRail from "../components/RecommendedCharactersRail.jsx";
+import SceneGalleryModal from "../components/SceneGalleryModal.jsx";
 import {
   IconHeart,
   IconShare,
@@ -19,13 +20,15 @@ import {
   IconCheck,
   IconChevronDown,
 } from "../components/Icons.jsx";
-import { getCharacterFull } from "../services/jikan.js";
+import { getCharacterFull, getCharacterPictures } from "../services/jikan.js";
 import useLocalToggle from "../hooks/useLocalToggle.js";
 import scenesData from "../data/scenes.json";
 
 export default function CharacterDetail() {
   const { id } = useParams();
   const [character, setCharacter] = useState(null);
+  const [pictures, setPictures] = useState([]);
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("overview");
@@ -44,6 +47,11 @@ export default function CharacterDetail() {
         const data = await getCharacterFull(id);
         if (cancelled) return;
         setCharacter(data);
+        getCharacterPictures(id)
+          .then((pics) => {
+            if (!cancelled) setPictures(pics);
+          })
+          .catch(() => {});
       } catch (e) {
         if (!cancelled) setError(e.message);
       } finally {
@@ -172,8 +180,43 @@ export default function CharacterDetail() {
   const showAppearances = tab === "overview" || tab === "appearances";
   const showVoices = tab === "overview" || tab === "voices";
 
+  // Build gallery list: character pictures + main avatar + per-appearance posters
+  const galleryImages = (() => {
+    const list = [];
+    const seen = new Set();
+    const add = (url, caption) => {
+      if (!url || seen.has(url)) return;
+      seen.add(url);
+      list.push({ url, caption });
+    };
+    add(avatar, character.name);
+    for (const p of pictures) {
+      add(
+        p?.webp?.image_url ??
+          p?.webp?.large_image_url ??
+          p?.jpg?.image_url ??
+          p?.jpg?.large_image_url
+      );
+    }
+    for (const a of animeAppearances) {
+      add(
+        a.anime?.images?.webp?.large_image_url ??
+          a.anime?.images?.jpg?.large_image_url,
+        a.anime?.title
+      );
+    }
+    return list;
+  })();
+
   return (
     <div className="text-zinc-100">
+      <SceneGalleryModal
+        open={galleryOpen}
+        onClose={() => setGalleryOpen(false)}
+        title={`${character.name} — Gallery`}
+        images={galleryImages}
+      />
+
       <ProfileHero
         name={character.name}
         subtitle={character.name_kanji}
@@ -241,6 +284,19 @@ export default function CharacterDetail() {
               <IconShare className="h-4 w-4" />
               Share
             </button>
+            {galleryImages.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setGalleryOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs font-bold text-zinc-200 transition hover:border-fuchsia-400/40 hover:bg-zinc-800"
+              >
+                <IconImage className="h-4 w-4" />
+                Gallery
+                <span className="rounded-full bg-zinc-800 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-zinc-300 ring-1 ring-zinc-700">
+                  {galleryImages.length}
+                </span>
+              </button>
+            )}
             <button
               type="button"
               onClick={toggleFollow}

@@ -359,6 +359,12 @@ export async function getCharacterFull(id) {
   return data?.data ?? null;
 }
 
+export async function getCharacterPictures(id) {
+  if (!id) return [];
+  const data = await jget(`/characters/${id}/pictures`);
+  return data?.data ?? [];
+}
+
 export async function searchCharacters(query, limit = 20) {
   if (!query) return [];
   const data = await jget(
@@ -376,6 +382,12 @@ export async function getPersonFull(id) {
   if (!id) return null;
   const data = await jget(`/people/${id}/full`);
   return data?.data ?? null;
+}
+
+export async function getPersonPictures(id) {
+  if (!id) return [];
+  const data = await jget(`/people/${id}/pictures`);
+  return data?.data ?? [];
 }
 
 export async function searchPeople(query, limit = 20) {
