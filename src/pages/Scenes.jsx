@@ -74,6 +74,7 @@ export default function Scenes() {
   const [anime, setAnime] = useState(null);
   const [characters, setCharacters] = useState([]);
   const [posters, setPosters] = useState({});
+  const [animeMap, setAnimeMap] = useState({});
   const [sevFilter, setSevFilter] = useState("all");
   const [kindFilter, setKindFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
@@ -154,6 +155,13 @@ export default function Scenes() {
         }
         return next;
       });
+      setAnimeMap((prev) => {
+        const next = { ...prev };
+        for (const [id, a] of entries) {
+          if (a) next[id] = a;
+        }
+        return next;
+      });
     });
     return () => {
       cancelled = true;
@@ -230,12 +238,13 @@ export default function Scenes() {
                 ) : (
                   <AnimeRowHeader title={key} malId={group[0]?.mal_id} />
                 )}
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
+                <div className="grid grid-cols-1 gap-x-4 gap-y-7 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                   {group.map((s) => (
                     <SceneTile
                       key={s.id}
                       scene={s}
                       posterFallback={posters[s.mal_id]}
+                      anime={animeMap[s.mal_id]}
                     />
                   ))}
                 </div>
