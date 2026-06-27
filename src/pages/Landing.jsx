@@ -37,7 +37,9 @@ import {
   IconUser,
   IconRss,
   IconCheck,
+  IconCalendar,
 } from "../components/Icons.jsx";
+import SEED_TOP_MOVIES from "../data/topMovies.json";
 import { resolveFromTitles, getTopAnime } from "../services/jikan.js";
 import featured from "../data/featuredTitles.json";
 import SEED_TOP_ANIME from "../data/topAnimeList.json";
@@ -164,6 +166,10 @@ export default function Landing() {
       <Hero posters={topList} />
 
       <QuickJumpChips />
+
+      <SeasonChips />
+
+      <TopMovieChips />
 
       <Suspense
         fallback={
@@ -1319,6 +1325,164 @@ function QuickJumpChips() {
         ))}
       </ul>
     </nav>
+  );
+}
+
+// ─── SeasonChips ─────────────────────────────────────────────────────────
+// Horizontal slider of the last ~8 anime seasons. Each chip routes to the
+// search page pre-filtered for that season label so users get instantly-
+// relevant results without us needing a dedicated season landing page.
+
+const SEASON_NAMES = ["Winter", "Spring", "Summer", "Fall"];
+const SEASON_ACCENTS = {
+  Winter:
+    "ring-sky-400/30 text-sky-200 bg-sky-400/10 hover:bg-sky-400/15 hover:ring-sky-400/60 hover:shadow-[0_0_18px_-6px_rgba(56,189,248,0.55)]",
+  Spring:
+    "ring-emerald-400/30 text-emerald-200 bg-emerald-400/10 hover:bg-emerald-400/15 hover:ring-emerald-400/60 hover:shadow-[0_0_18px_-6px_rgba(52,211,153,0.55)]",
+  Summer:
+    "ring-amber-400/30 text-amber-200 bg-amber-400/10 hover:bg-amber-400/15 hover:ring-amber-400/60 hover:shadow-[0_0_18px_-6px_rgba(251,191,36,0.55)]",
+  Fall:
+    "ring-orange-400/30 text-orange-200 bg-orange-400/10 hover:bg-orange-400/15 hover:ring-orange-400/60 hover:shadow-[0_0_18px_-6px_rgba(251,146,60,0.55)]",
+};
+
+function buildRecentSeasons(count = 10) {
+  const now = new Date();
+  const month = now.getMonth(); // 0-based
+  const year = now.getFullYear();
+  const seasonIdx = Math.floor(month / 3); // 0=Win, 1=Spr, 2=Sum, 3=Fall
+
+  const seasons = [];
+  let y = year;
+  let i = seasonIdx;
+  for (let n = 0; n < count; n++) {
+    seasons.push({ name: SEASON_NAMES[i], year: y });
+    i -= 1;
+    if (i < 0) {
+      i = 3;
+      y -= 1;
+    }
+  }
+  return seasons;
+}
+
+function SeasonChips() {
+  const seasons = buildRecentSeasons(10);
+  const currentLabel = `${seasons[0].name} ${seasons[0].year}`;
+  return (
+    <section
+      aria-label="Browse by season"
+      className="-mx-4 mt-4 px-4 sm:mx-0 sm:px-0"
+    >
+      <div className="mb-2 flex items-center justify-between">
+        <p className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">
+          <IconCalendar className="h-3 w-3" />
+          Browse by season
+        </p>
+        <span className="hidden text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300 sm:inline">
+          Now airing · {currentLabel}
+        </span>
+      </div>
+      <div className="overflow-x-auto scrollbar-thin">
+        <ul className="flex w-max items-center gap-2 pb-1">
+          {seasons.map((s, idx) => {
+            const label = `${s.name} ${s.year}`;
+            const accent = SEASON_ACCENTS[s.name] ?? SEASON_ACCENTS.Spring;
+            return (
+              <li key={label}>
+                <Link
+                  to={`/search?q=${encodeURIComponent(`${label} anime`)}`}
+                  className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-bold ring-1 backdrop-blur-sm transition duration-200 hover:-translate-y-0.5 active:scale-[0.97] ${accent} ${
+                    idx === 0
+                      ? "shadow-[0_0_22px_-6px_rgba(52,211,153,0.55)]"
+                      : ""
+                  }`}
+                  title={`Anime from ${label}`}
+                >
+                  {idx === 0 ? (
+                    <span className="grid h-1.5 w-1.5 place-items-center rounded-full bg-emerald-300 shadow-[0_0_8px_currentColor]" />
+                  ) : (
+                    <IconCalendar className="h-3.5 w-3.5" />
+                  )}
+                  {label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+// ─── TopMovieChips ───────────────────────────────────────────────────────
+// Horizontal slider of the top anime movies. Each chip carries a tiny
+// poster + title and links straight to the anime detail page. Seeded from
+// the precomputed src/data/topMovies.json so it paints instantly.
+
+function TopMovieChips() {
+  if (!SEED_TOP_MOVIES?.length) return null;
+  return (
+    <section
+      aria-label="Top anime movies"
+      className="-mx-4 mt-4 px-4 sm:mx-0 sm:px-0"
+    >
+      <div className="mb-2 flex items-center justify-between">
+        <p className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">
+          <IconImage className="h-3 w-3" />
+          Top anime movies
+        </p>
+        <Link
+          to="/top?type=movie"
+          className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-300 hover:text-cyan-200"
+        >
+          See all →
+        </Link>
+      </div>
+      <div className="overflow-x-auto scrollbar-thin">
+        <ul className="flex w-max items-center gap-2 pb-1">
+          {SEED_TOP_MOVIES.map((m, idx) => {
+            const poster =
+              m.images?.webp?.small_image_url ||
+              m.images?.jpg?.small_image_url ||
+              m.images?.webp?.image_url ||
+              "/placeholder.svg";
+            const isTop3 = idx < 3;
+            return (
+              <li key={m.mal_id}>
+                <Link
+                  to={`/anime/${m.mal_id}`}
+                  className={`group inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-zinc-900/70 py-1 pl-1 pr-3.5 text-xs font-bold ring-1 backdrop-blur-sm transition duration-200 hover:-translate-y-0.5 active:scale-[0.97] ${
+                    isTop3
+                      ? "ring-fuchsia-400/40 text-fuchsia-100 hover:ring-fuchsia-400/70 hover:bg-fuchsia-500/10 hover:shadow-[0_0_18px_-6px_rgba(232,121,249,0.55)]"
+                      : "ring-zinc-800 text-zinc-200 hover:ring-cyan-400/50 hover:bg-cyan-500/10 hover:text-cyan-100"
+                  }`}
+                  title={m.title}
+                >
+                  <span className="relative grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-full bg-zinc-800 ring-1 ring-zinc-700">
+                    <img
+                      src={poster}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover transition group-hover:scale-110"
+                    />
+                  </span>
+                  <span className="line-clamp-1 max-w-[160px] sm:max-w-none">
+                    {m.title}
+                  </span>
+                  {m.score && (
+                    <span className="inline-flex items-center gap-0.5 rounded-full bg-zinc-950/70 px-1.5 py-0.5 text-[9px] font-black tabular-nums text-amber-300 ring-1 ring-amber-400/30">
+                      <IconStar className="h-2 w-2" />
+                      {m.score.toFixed(1)}
+                    </span>
+                  )}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </section>
   );
 }
 
