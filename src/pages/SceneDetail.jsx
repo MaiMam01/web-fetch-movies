@@ -6,17 +6,26 @@ import SceneActionBar from "../components/SceneActionBar.jsx";
 import SceneTile from "../components/SceneTile.jsx";
 import PersonCard from "../components/PersonCard.jsx";
 import SceneUploaderChip from "../components/SceneUploaderChip.jsx";
+import SceneGalleryModal from "../components/SceneGalleryModal.jsx";
 import {
   IconPlay,
   IconChevronRight,
   IconEye,
+  IconImage,
+  IconGrid,
+  IconFullscreen,
+  IconShare,
+  IconHeart,
+  IconMoreVertical,
   formatCompact,
 } from "../components/Icons.jsx";
 import {
   getAnimeById,
   getCharacters,
   getAnimeVideos,
+  getPictures,
 } from "../services/jikan.js";
+import useLocalToggle from "../hooks/useLocalToggle.js";
 import scenesData from "../data/scenes.json";
 
 const SEVERITY_LABEL = {
@@ -44,8 +53,11 @@ export default function SceneDetail() {
 function SceneDetailBody({ scene }) {
   const [anime, setAnime] = useState(null);
   const [characters, setCharacters] = useState([]);
-  const [trailer, setTrailer] = useState(null);
+  const [videos, setVideos] = useState(null);
+  const [pictures, setPictures] = useState([]);
   const [tab, setTab] = useState("related");
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [theater, setTheater] = useState(false);
 
   const allScenes = scenesData.scenes ?? [];
   const sameAnime = allScenes.filter(
@@ -63,15 +75,17 @@ function SceneDetailBody({ scene }) {
     let cancelled = false;
     async function run() {
       try {
-        const [a, chars, videos] = await Promise.all([
+        const [a, chars, vids, pics] = await Promise.all([
           getAnimeById(scene.mal_id).catch(() => null),
           getCharacters(scene.mal_id).catch(() => []),
           getAnimeVideos(scene.mal_id).catch(() => null),
+          getPictures(scene.mal_id).catch(() => []),
         ]);
         if (cancelled) return;
         setAnime(a);
         setCharacters(chars);
-        setTrailer(videos?.promo?.[0]?.trailer ?? a?.trailer ?? null);
+        setVideos(vids);
+        setPictures(pics);
       } catch (e) {
         console.warn("Scene detail fetch failed", e);
       }
@@ -81,6 +95,8 @@ function SceneDetailBody({ scene }) {
       cancelled = true;
     };
   }, [scene.mal_id]);
+
+  const trailer = videos?.promo?.[0]?.trailer ?? anime?.trailer ?? null;
 
   const featuredCharacters = useMemo(() => {
     if (!scene.character) return [];
@@ -110,18 +126,86 @@ function SceneDetailBody({ scene }) {
     anime?.images?.webp?.large_image_url ||
     anime?.images?.jpg?.large_image_url;
 
+  // Build a unified gallery: scene stills (same-anime) + anime poster +
+  // additional anime pictures + episode video stills + trailer thumbnail.
+  const galleryImages = useMemo(() => {
+    const out = [];
+    if (scene.image)
+      out.push({ url: scene.image, caption: scene.title, type: "scene" });
+    sameAnime.forEach((s) => {
+      if (s.image) out.push({ url: s.image, caption: s.title, type: "scene" });
+    });
+    if (trailer?.images?.maximum_image_url)
+      out.push({
+        url: trailer.images.maximum_image_url,
+        caption: "Trailer thumbnail",
+        type: "video",
+      });
+    pictures.forEach((p) => {
+      const url =
+        p?.webp?.large_image_url ||
+        p?.jpg?.large_image_url ||
+        p?.webp?.image_url ||
+        p?.jpg?.image_url;
+      if (url) out.push({ url, caption: anime?.title, type: "poster" });
+    });
+    videos?.episodes?.forEach((ep) => {
+      const url = ep?.images?.jpg?.image_url || ep?.images?.webp?.image_url;
+      if (url)
+        out.push({
+          url,
+          caption: ep.title ? `Ep ${ep.mal_id} · ${ep.title}` : `Ep ${ep.mal_id}`,
+          type: "video",
+        });
+    });
+    videos?.music_videos?.forEach((mv) => {
+      const url = mv?.video?.images?.maximum_image_url;
+      if (url)
+        out.push({
+          url,
+          caption: mv?.title ? `${mv.title} (MV)` : "Music video",
+          type: "video",
+        });
+    });
+    return out;
+  }, [scene.image, scene.title, sameAnime, trailer, pictures, videos, anime?.title]);
+
   return (
     <div className="page-container py-6">
       <Breadcrumbs anime={anime} sceneTitle={scene.title} />
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <Player
-          scene={scene}
-          youtubeId={youtubeId}
-          fallbackImage={playerImage}
-        />
-        <SidebarRail anime={anime} sameAnime={sameAnime} />
+      <div
+        className={`grid gap-6 ${
+          theater
+            ? "grid-cols-1"
+            : "lg:grid-cols-[minmax(0,1fr)_320px]"
+        }`}
+      >
+        <div className="min-w-0">
+          <Player
+            scene={scene}
+            youtubeId={youtubeId}
+            fallbackImage={playerImage}
+          />
+          <PlayerToolbar
+            sceneId={scene.id}
+            galleryCount={galleryImages.length}
+            theater={theater}
+            onToggleTheater={() => setTheater((t) => !t)}
+            onOpenGallery={() => setGalleryOpen(true)}
+            scene={scene}
+            anime={anime}
+          />
+        </div>
+        {!theater && <SidebarRail anime={anime} sameAnime={sameAnime} />}
       </div>
+
+      <SceneGalleryModal
+        open={galleryOpen}
+        onClose={() => setGalleryOpen(false)}
+        title={`${anime?.title ?? scene.anime_title} — Gallery`}
+        images={galleryImages}
+      />
 
       <ThumbnailStrip scenes={sameAnime.slice(0, 5)} />
 
@@ -133,7 +217,9 @@ function SceneDetailBody({ scene }) {
 
       <SceneUploaderChip anime={anime} scene={scene} />
 
-      <SceneActionBar scene={scene} />
+      <div id="scene-actions" className="scroll-mt-24">
+        <SceneActionBar scene={scene} />
+      </div>
 
       {scene.tags?.length > 0 && (
         <div className="mt-5 flex flex-wrap gap-2">
@@ -270,13 +356,17 @@ function Player({ scene, youtubeId, fallbackImage }) {
 
   if (playing && youtubeId) {
     return (
-      <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black ring-1 ring-fuchsia-400/30 shadow-[0_0_60px_-20px_rgba(232,121,249,0.6)]">
+      <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black ring-1 ring-fuchsia-400/40 shadow-[0_0_80px_-20px_rgba(232,121,249,0.7)]">
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -inset-0.5 rounded-2xl bg-gradient-to-br from-fuchsia-500/30 via-violet-500/15 to-cyan-400/30 opacity-40 blur-sm"
+        />
         <iframe
           src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1`}
           title={scene.title}
           allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
           allowFullScreen
-          className="h-full w-full"
+          className="relative h-full w-full"
         />
       </div>
     );
@@ -351,6 +441,156 @@ function Player({ scene, youtubeId, fallbackImage }) {
           Trailer unavailable — showing scene still
         </span>
       )}
+    </button>
+  );
+}
+
+function PlayerToolbar({
+  sceneId,
+  galleryCount,
+  theater,
+  onToggleTheater,
+  onOpenGallery,
+  scene,
+  anime,
+}) {
+  const [fav, toggleFav] = useLocalToggle(`scene:fav:${sceneId}`, false);
+
+  const handleShare = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const data = {
+      title: scene.title,
+      text: `Scene from ${anime?.title ?? scene.anime_title} on AnimeDB`,
+      url,
+    };
+    if (navigator?.share) {
+      try {
+        await navigator.share(data);
+      } catch {
+        /* user cancelled */
+      }
+    } else if (navigator?.clipboard) {
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        /* ignored */
+      }
+    }
+  };
+
+  const handleFullscreen = () => {
+    const root = document.querySelector("iframe[title]");
+    if (root?.requestFullscreen) root.requestFullscreen().catch(() => {});
+  };
+
+  return (
+    <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-zinc-900 bg-zinc-950/60 px-3 py-2">
+      <div className="flex items-center gap-1.5">
+        <ToolButton
+          label={fav ? "Favorited" : "Favorite"}
+          active={fav}
+          onClick={toggleFav}
+          accent="rose"
+        >
+          <IconHeart className="h-4 w-4" />
+        </ToolButton>
+        <ToolButton
+          label={`Gallery${galleryCount ? ` · ${galleryCount}` : ""}`}
+          onClick={onOpenGallery}
+          disabled={galleryCount === 0}
+          accent="fuchsia"
+        >
+          <IconImage className="h-4 w-4" />
+        </ToolButton>
+        <ToolButton
+          label={theater ? "Exit theater" : "Theater mode"}
+          active={theater}
+          onClick={onToggleTheater}
+          accent="cyan"
+        >
+          <IconGrid className="h-4 w-4" />
+        </ToolButton>
+      </div>
+
+      <div className="flex items-center gap-1.5">
+        <ToolButton label="Share" onClick={handleShare} accent="emerald">
+          <IconShare className="h-4 w-4" />
+        </ToolButton>
+        <ToolButton
+          label="Fullscreen"
+          onClick={handleFullscreen}
+          accent="violet"
+        >
+          <IconFullscreen className="h-4 w-4" />
+        </ToolButton>
+        <ToolButton label="More" accent="zinc" as="a" href="#scene-actions">
+          <IconMoreVertical className="h-4 w-4" />
+        </ToolButton>
+      </div>
+    </div>
+  );
+}
+
+const TOOL_ACCENTS = {
+  rose: {
+    on: "bg-rose-500/15 text-rose-200 ring-rose-400/40",
+    off: "text-zinc-300 ring-zinc-800 hover:bg-rose-500/10 hover:text-rose-200",
+  },
+  fuchsia: {
+    on: "bg-fuchsia-500/15 text-fuchsia-200 ring-fuchsia-400/40",
+    off: "text-zinc-300 ring-zinc-800 hover:bg-fuchsia-500/10 hover:text-fuchsia-200",
+  },
+  cyan: {
+    on: "bg-cyan-500/15 text-cyan-200 ring-cyan-400/40",
+    off: "text-zinc-300 ring-zinc-800 hover:bg-cyan-500/10 hover:text-cyan-200",
+  },
+  emerald: {
+    on: "bg-emerald-500/15 text-emerald-200 ring-emerald-400/40",
+    off: "text-zinc-300 ring-zinc-800 hover:bg-emerald-500/10 hover:text-emerald-200",
+  },
+  violet: {
+    on: "bg-violet-500/15 text-violet-200 ring-violet-400/40",
+    off: "text-zinc-300 ring-zinc-800 hover:bg-violet-500/10 hover:text-violet-200",
+  },
+  zinc: {
+    on: "bg-zinc-800 text-zinc-100 ring-zinc-700",
+    off: "text-zinc-400 ring-zinc-800 hover:bg-zinc-900 hover:text-zinc-100",
+  },
+};
+
+function ToolButton({
+  children,
+  label,
+  active = false,
+  disabled = false,
+  onClick,
+  accent = "fuchsia",
+  as = "button",
+  href,
+}) {
+  const a = TOOL_ACCENTS[accent] ?? TOOL_ACCENTS.fuchsia;
+  const cls = `group inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold ring-1 transition active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40 ${
+    active ? a.on : `bg-transparent ${a.off}`
+  }`;
+  if (as === "a" && href) {
+    return (
+      <a href={href} className={cls} aria-label={label}>
+        {children}
+        <span className="hidden sm:inline">{label}</span>
+      </a>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={cls}
+      aria-pressed={active}
+      aria-label={label}
+    >
+      {children}
+      <span className="hidden sm:inline">{label}</span>
     </button>
   );
 }
