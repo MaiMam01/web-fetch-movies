@@ -139,6 +139,10 @@ export default function Search() {
         setPagination(null);
         return;
       }
+      // Clear prior results immediately so users see a skeleton, not the old
+      // result set from a different query / tab.
+      setResults([]);
+      setPagination(null);
       try {
         setLoading(true);
         setError(null);

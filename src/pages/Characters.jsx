@@ -72,6 +72,7 @@ export default function Characters() {
   const [searchParams, setSearchParams] = useSearchParams();
   const animeId = Number(searchParams.get("anime")) || null;
   const activeTag = searchParams.get("tag") || null;
+  const sortFromUrl = searchParams.get("sort") || "trending";
 
   const selectedAnime = useMemo(
     () => ANIME_FILTERS.find((a) => a.mal_id === animeId) || null,
@@ -82,7 +83,19 @@ export default function Characters() {
   const [characters, setCharacters] = useState(SEED_TOP_CHARACTERS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [sort, setSort] = useState("trending");
+  const [sort, setSortState] = useState(sortFromUrl);
+
+  useEffect(() => {
+    setSortState(sortFromUrl);
+  }, [sortFromUrl]);
+
+  const setSort = (v) => {
+    setSortState(v);
+    const next = new URLSearchParams(searchParams);
+    if (!v || v === "trending") next.delete("sort");
+    else next.set("sort", v);
+    setSearchParams(next, { replace: true });
+  };
   // Bumping `retryNonce` forces the fetch effect to re-run when the user
   // clicks the Retry button (even if `page` and `animeId` haven't changed).
   const [retryNonce, setRetryNonce] = useState(0);

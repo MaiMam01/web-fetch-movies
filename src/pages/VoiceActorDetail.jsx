@@ -39,9 +39,13 @@ export default function VoiceActorDetail() {
 
   useEffect(() => {
     let cancelled = false;
+    setPerson(null);
+    setPictures([]);
+    setError(null);
+    setLoading(true);
+
     async function run() {
       try {
-        setLoading(true);
         const data = await getPersonFull(id);
         if (cancelled) return;
         setPerson(data);

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import AgeGate from "../components/AgeGate.jsx";
 import FilterPills from "../components/FilterPills.jsx";
 import SceneTile from "../components/SceneTile.jsx";
@@ -71,13 +71,47 @@ function sortScenes(list, order) {
 
 export default function Scenes() {
   const { malId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // URL query params drive filter/sort state so navbar links like
+  // `/scenes?severity=extreme` and `/scenes?sort=newest` actually work.
+  const sevFromUrl = searchParams.get("severity") || "all";
+  const kindFromUrl = searchParams.get("kind") || "all";
+  const sortFromUrl = searchParams.get("sort") || "newest";
+
   const [anime, setAnime] = useState(null);
   const [characters, setCharacters] = useState([]);
   const [posters, setPosters] = useState({});
   const [animeMap, setAnimeMap] = useState({});
-  const [sevFilter, setSevFilter] = useState("all");
-  const [kindFilter, setKindFilter] = useState("all");
-  const [sortOrder, setSortOrder] = useState("newest");
+  const [sevFilter, setSevFilterState] = useState(sevFromUrl);
+  const [kindFilter, setKindFilterState] = useState(kindFromUrl);
+  const [sortOrder, setSortOrderState] = useState(sortFromUrl);
+
+  // Keep local state in sync if the user navigates between query-param URLs.
+  useEffect(() => {
+    setSevFilterState(sevFromUrl);
+    setKindFilterState(kindFromUrl);
+    setSortOrderState(sortFromUrl);
+  }, [sevFromUrl, kindFromUrl, sortFromUrl]);
+
+  function updateQuery(key, value, defaultValue) {
+    const next = new URLSearchParams(searchParams);
+    if (!value || value === defaultValue) next.delete(key);
+    else next.set(key, value);
+    setSearchParams(next, { replace: true });
+  }
+  const setSevFilter = (v) => {
+    setSevFilterState(v);
+    updateQuery("severity", v, "all");
+  };
+  const setKindFilter = (v) => {
+    setKindFilterState(v);
+    updateQuery("kind", v, "all");
+  };
+  const setSortOrder = (v) => {
+    setSortOrderState(v);
+    updateQuery("sort", v, "newest");
+  };
 
   const all = scenesData.scenes ?? [];
   const baseScenes = useMemo(
@@ -194,8 +228,12 @@ export default function Scenes() {
   return (
     <AgeGate title="Scenes contain depictions of graphic violence">
       <div className="page-container py-6">
-        {malId && anime ? (
-          <SceneHero anime={anime} count={baseScenes.length} />
+        {malId ? (
+          anime ? (
+            <SceneHero anime={anime} count={baseScenes.length} />
+          ) : (
+            <SceneHeroSkeleton />
+          )
         ) : (
           <CatalogHero count={all.length} />
         )}
@@ -330,6 +368,26 @@ function SceneHero({ anime, count }) {
                 </>
               )}
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SceneHeroSkeleton() {
+  return (
+    <div className="rounded-3xl border border-zinc-800 bg-zinc-950/40 p-7">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+        <div className="h-32 w-24 animate-pulse rounded-xl bg-zinc-900" />
+        <div className="flex-1 space-y-3">
+          <div className="h-3 w-32 animate-pulse rounded bg-zinc-900" />
+          <div className="h-7 w-2/3 animate-pulse rounded bg-zinc-900" />
+          <div className="h-3 w-1/3 animate-pulse rounded bg-zinc-900" />
+          <div className="flex gap-2">
+            <div className="h-6 w-20 animate-pulse rounded-full bg-zinc-900" />
+            <div className="h-6 w-24 animate-pulse rounded-full bg-zinc-900" />
+            <div className="h-6 w-16 animate-pulse rounded-full bg-zinc-900" />
           </div>
         </div>
       </div>

@@ -41,9 +41,13 @@ export default function CharacterDetail() {
 
   useEffect(() => {
     let cancelled = false;
+    setCharacter(null);
+    setPictures([]);
+    setError(null);
+    setLoading(true);
+
     async function run() {
       try {
-        setLoading(true);
         const data = await getCharacterFull(id);
         if (cancelled) return;
         setCharacter(data);
@@ -160,9 +164,11 @@ export default function CharacterDetail() {
   if (character.name_kanji) metaLeft.push(["Kanji", character.name_kanji]);
   if (character.nicknames?.length)
     metaLeft.push(["Also known as", character.nicknames.slice(0, 2).join(", ")]);
-  if (japaneseVA) metaLeft.push(["Voice (JP)", japaneseVA.person.name]);
+  if (japaneseVA?.person?.name)
+    metaLeft.push(["Voice (JP)", japaneseVA.person.name]);
   const englishVA = character.voices?.find((v) => v.language === "English");
-  if (englishVA) metaLeft.push(["Voice (EN)", englishVA.person.name]);
+  if (englishVA?.person?.name)
+    metaLeft.push(["Voice (EN)", englishVA.person.name]);
 
   const mainRoleCount = animeAppearances.filter((a) => a.role === "Main").length;
   const metaRight = [
@@ -408,32 +414,35 @@ export default function CharacterDetail() {
               accent="amber"
             />
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-              {character.voices.slice(0, 10).map((v) => (
-                <Link
-                  key={v.person.mal_id}
-                  to={`/voice-actors/${v.person.mal_id}`}
-                  className="group flex items-center gap-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/50 p-2.5 transition hover:-translate-y-0.5 hover:border-fuchsia-400/40 hover:bg-zinc-900"
-                >
-                  <img
-                    src={
-                      v.person.images?.jpg?.image_url ??
-                      v.person.images?.webp?.image_url
-                    }
-                    alt={v.person.name}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-14 w-14 flex-shrink-0 rounded-xl object-cover ring-1 ring-zinc-800"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="line-clamp-1 text-sm font-bold text-zinc-100 group-hover:text-fuchsia-200">
-                      {v.person.name}
-                    </p>
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-                      {v.language}
-                    </p>
-                  </div>
-                </Link>
-              ))}
+              {character.voices
+                .filter((v) => v?.person?.mal_id != null)
+                .slice(0, 10)
+                .map((v) => (
+                  <Link
+                    key={`${v.person.mal_id}-${v.language}`}
+                    to={`/voice-actors/${v.person.mal_id}`}
+                    className="group flex items-center gap-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/50 p-2.5 transition hover:-translate-y-0.5 hover:border-fuchsia-400/40 hover:bg-zinc-900"
+                  >
+                    <img
+                      src={
+                        v.person.images?.jpg?.image_url ??
+                        v.person.images?.webp?.image_url
+                      }
+                      alt={v.person.name ?? "Voice actor"}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-14 w-14 flex-shrink-0 rounded-xl object-cover ring-1 ring-zinc-800"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="line-clamp-1 text-sm font-bold text-zinc-100 group-hover:text-fuchsia-200">
+                        {v.person.name ?? "Unknown"}
+                      </p>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                        {v.language}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
             </div>
           </section>
         )}

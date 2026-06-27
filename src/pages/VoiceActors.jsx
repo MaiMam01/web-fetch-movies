@@ -74,6 +74,7 @@ export default function VoiceActors() {
   const [searchParams, setSearchParams] = useSearchParams();
   const animeId = Number(searchParams.get("anime")) || null;
   const activeTag = searchParams.get("tag") || null;
+  const sortFromUrl = searchParams.get("sort") || "trending";
 
   const selectedAnime = useMemo(
     () => ANIME_FILTERS.find((a) => a.mal_id === animeId) || null,
@@ -84,8 +85,20 @@ export default function VoiceActors() {
   const [people, setPeople] = useState(SEED_TOP_PEOPLE);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [sort, setSort] = useState("trending");
+  const [sort, setSortState] = useState(sortFromUrl);
   const [retryNonce, setRetryNonce] = useState(0);
+
+  useEffect(() => {
+    setSortState(sortFromUrl);
+  }, [sortFromUrl]);
+
+  const setSort = (v) => {
+    setSortState(v);
+    const next = new URLSearchParams(searchParams);
+    if (!v || v === "trending") next.delete("sort");
+    else next.set("sort", v);
+    setSearchParams(next, { replace: true });
+  };
 
   useEffect(() => {
     setPage(1);

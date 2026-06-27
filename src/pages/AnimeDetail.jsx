@@ -55,9 +55,18 @@ export default function AnimeDetail() {
 
   useEffect(() => {
     let cancelled = false;
+    // Wipe prior anime before fetching so we don't render the previous title's
+    // hero/poster/episodes while the new fetch is in flight.
+    setAnime(null);
+    setEpisodes([]);
+    setCharacters([]);
+    setRecommendations([]);
+    setPictures([]);
+    setError(null);
+    setLoading(true);
+
     async function run() {
       try {
-        setLoading(true);
         const a = await getAnimeById(malId);
         if (cancelled) return;
         setAnime(a);

@@ -55,12 +55,30 @@ export default function EpisodeDetail() {
     );
   }, [allScenes, malId, epNumber]);
 
+  // Grouped scene list — declared up here so it isn't called after an early
+  // return below (Rules of Hooks).
+  const sceneGroups = useMemo(() => {
+    const map = new Map();
+    episodeScenes.forEach((s) => {
+      const key = s.character || "Notable moments";
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(s);
+    });
+    return Array.from(map.entries());
+  }, [episodeScenes]);
+
   useEffect(() => {
     let cancelled = false;
+    // Reset prior episode state immediately so we never flash stale title
+    // metadata when navigating between episodes/anime.
+    setAnime(null);
+    setEpisode(null);
+    setSiblings([]);
+    setError(null);
+    setLoading(true);
+
     async function run() {
       try {
-        setLoading(true);
-        setError(null);
         const [a, ep, list] = await Promise.all([
           getAnimeById(malId).catch(() => null),
           getEpisode(malId, epNumber).catch(() => null),
@@ -82,7 +100,7 @@ export default function EpisodeDetail() {
     };
   }, [malId, epNumber]);
 
-  if (loading && !anime && !episode) {
+  if (loading) {
     return <EpisodeSkeleton />;
   }
 
@@ -110,17 +128,6 @@ export default function EpisodeDetail() {
   const poster =
     anime?.images?.webp?.large_image_url ??
     anime?.images?.jpg?.large_image_url;
-
-  // Group this episode's scenes by character — matches AnimeDetail's pattern.
-  const sceneGroups = useMemo(() => {
-    const map = new Map();
-    episodeScenes.forEach((s) => {
-      const key = s.character || "Notable moments";
-      if (!map.has(key)) map.set(key, []);
-      map.get(key).push(s);
-    });
-    return Array.from(map.entries());
-  }, [episodeScenes]);
 
   return (
     <div className="page-container py-8 sm:py-10">

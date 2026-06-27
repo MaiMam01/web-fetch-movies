@@ -63,7 +63,7 @@ function CharacterCard({ character }) {
         <p className="text-[11px] uppercase tracking-wide text-zinc-500">
           {character.role}
         </p>
-        {va && (
+        {va?.person?.name && (
           <p className="line-clamp-1 text-[11px] text-fuchsia-300/80">
             CV: {va.person.name}
           </p>

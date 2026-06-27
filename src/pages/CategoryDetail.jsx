@@ -101,8 +101,23 @@ export default function CategoryDetail() {
 
   useEffect(() => {
     let cancelled = false;
-    const hasSeed = !!getSeed(id, page, type, orderBy, sortDir);
+    const seedHit = getSeed(id, page, type, orderBy, sortDir);
+    const hasSeed = !!seedHit;
+
+    // Swap immediately to whatever seed matches the new params (or clear out
+    // the prior category so users see a skeleton instead of stale results).
     setError(null);
+    if (hasSeed) {
+      setResults(seedHit.items ?? []);
+      setPagination({
+        last_visible_page: seedHit.last_visible_page ?? 1,
+        items: { total: seedHit.total ?? null },
+      });
+    } else {
+      setResults([]);
+      setPagination(null);
+    }
+
     async function run() {
       try {
         if (!hasSeed) setLoading(true);
@@ -118,8 +133,7 @@ export default function CategoryDetail() {
         if (r.data && r.data.length) setResults(r.data);
         if (r.pagination) setPagination(r.pagination);
       } catch (e) {
-        // Only surface a soft notice when we have nothing to show.
-        if (!cancelled && !hasSeed && results.length === 0) {
+        if (!cancelled && !hasSeed) {
           setError("Live data unavailable. Try again in a moment.");
         }
       } finally {
@@ -130,7 +144,6 @@ export default function CategoryDetail() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, page, type, orderBy, sortDir]);
 
   const updateParams = (next) => {
