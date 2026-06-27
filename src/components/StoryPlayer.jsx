@@ -8,6 +8,7 @@ import {
   IconChevronDown,
   IconChevronRight,
   IconClose,
+  IconExternalLink,
   IconEye,
   IconFlag,
   IconFullscreen,
@@ -587,10 +588,13 @@ function CenterPlayer({
             <IconChevronRight className="h-5 w-5" />
           </button>
 
-          {/* ────── ACTION RAIL — floats on right edge of the 9:16 frame ────── */}
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-20 flex items-center pr-2 sm:pr-3">
-            <div className="pointer-events-auto flex flex-col items-center gap-3.5">
-              {/* Avatar + follow */}
+          {/* ────── ACTION RAIL ──────────────────────────────────────────
+              Minimalist outline icons (no backdrop circles) floating on
+              the right edge of the 9:16 frame. Matches the TikTok-style
+              reference. Fullscreen lives on the opposite corner now. */}
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-20 flex items-center pr-3 pb-32 sm:pr-4 sm:pb-36">
+            <div className="pointer-events-auto flex flex-col items-center gap-5">
+              {/* Avatar + colored "+" follow tag */}
               <div className="relative">
                 {story.anime_mal_id ? (
                   <Link
@@ -607,10 +611,10 @@ function CenterPlayer({
                   type="button"
                   onClick={() => setFollowing((s) => !s)}
                   aria-label={following ? "Following" : "Follow"}
-                  className={`absolute -bottom-1.5 left-1/2 grid h-6 w-6 -translate-x-1/2 place-items-center rounded-full ring-2 ring-black transition ${
+                  className={`absolute -bottom-2 left-1/2 grid h-6 w-6 -translate-x-1/2 place-items-center rounded-md transition active:scale-95 ${
                     following
                       ? "bg-emerald-500 text-zinc-950"
-                      : `bg-gradient-to-r ${accent.gradient} text-zinc-950 shadow-[0_0_14px_-2px_rgba(232,121,249,0.6)]`
+                      : `bg-gradient-to-r ${accent.gradient} text-zinc-950 shadow-[0_0_14px_-2px_rgba(232,121,249,0.65)]`
                   }`}
                 >
                   {following ? (
@@ -621,52 +625,35 @@ function CenterPlayer({
                 </button>
               </div>
 
-              <RailButton
-                icon={
-                  <IconHeart
-                    className={`h-6 w-6 transition ${
-                      favorited
-                        ? "scale-110 fill-rose-500 text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.7)]"
-                        : "text-white"
-                    }`}
-                  />
-                }
-                label={formatCount(likeCount + (favorited ? 1 : 0))}
-                onClick={() => setFavorited((s) => !s)}
-              />
-
-              <RailButton
-                icon={<IconMessage className="h-6 w-6 text-white" />}
-                label={formatCount(commentCount)}
-              />
-
-              <RailButton
-                icon={
-                  muted ? (
-                    <IconVolumeMute className="h-6 w-6 text-white" />
-                  ) : (
-                    <IconVolumeOn className="h-6 w-6 text-white" />
-                  )
-                }
-                onClick={() => setMuted((s) => !s)}
-              />
-
+              {/* Thumbs up (with count) */}
               <RailButton
                 icon={
                   <IconThumbsUp
-                    className={`h-5 w-5 ${liked ? "text-cyan-300" : "text-white"}`}
+                    className={`h-7 w-7 transition ${
+                      liked
+                        ? "text-cyan-300 drop-shadow-[0_0_8px_rgba(103,232,249,0.7)]"
+                        : "text-white"
+                    }`}
+                    strokeWidth={liked ? 2.4 : 1.8}
                   />
                 }
+                label={formatCount(likeCount + (liked ? 1 : 0))}
                 onClick={() => {
                   setLiked((s) => !s);
                   if (disliked) setDisliked(false);
                 }}
               />
 
+              {/* Thumbs down (no count) */}
               <RailButton
                 icon={
                   <IconThumbsDown
-                    className={`h-5 w-5 ${disliked ? "text-rose-400" : "text-white"}`}
+                    className={`h-7 w-7 transition ${
+                      disliked
+                        ? "text-rose-400 drop-shadow-[0_0_8px_rgba(251,113,133,0.65)]"
+                        : "text-white"
+                    }`}
+                    strokeWidth={disliked ? 2.4 : 1.8}
                   />
                 }
                 onClick={() => {
@@ -675,28 +662,56 @@ function CenterPlayer({
                 }}
               />
 
+              {/* Share */}
               <RailButton
-                icon={<IconShare className="h-5 w-5 text-white" />}
-                label="Share"
+                icon={<IconShare className="h-7 w-7 text-white" strokeWidth={1.8} />}
               />
 
+              {/* Heart (favorite) */}
               <RailButton
-                icon={<IconFullscreen className="h-5 w-5 text-white" />}
-                onClick={toggleFullscreen}
+                icon={
+                  <IconHeart
+                    className={`h-7 w-7 transition ${
+                      favorited
+                        ? "scale-105 fill-rose-500 text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.7)]"
+                        : "text-white"
+                    }`}
+                    strokeWidth={favorited ? 0 : 1.8}
+                  />
+                }
+                onClick={() => setFavorited((s) => !s)}
+              />
+
+              {/* Mute / unmute */}
+              <RailButton
+                icon={
+                  muted ? (
+                    <IconVolumeMute
+                      className="h-7 w-7 text-white"
+                      strokeWidth={1.8}
+                    />
+                  ) : (
+                    <IconVolumeOn
+                      className="h-7 w-7 text-white"
+                      strokeWidth={1.8}
+                    />
+                  )
+                }
+                onClick={() => setMuted((s) => !s)}
               />
             </div>
           </div>
 
-          {/* Bottom caption */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black via-black/70 to-transparent pb-4 pt-12 sm:pb-5">
+          {/* ────── BOTTOM CAPTION ─────────────────────────────────────── */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black via-black/60 to-transparent pb-4 pt-16 sm:pb-5">
             <div className="pointer-events-auto px-4 pr-16 sm:px-5 sm:pr-20">
               {story.anime_mal_id ? (
                 <Link
                   to={`/anime/${story.anime_mal_id}`}
                   onClick={onClose}
-                  className="inline-flex items-center gap-1.5 text-sm font-bold text-white hover:underline"
+                  className="inline-flex items-center gap-1.5 text-base font-bold text-white hover:underline"
                 >
-                  <span className="line-clamp-1">@{slugify(channelTitle)}</span>
+                  <span className="line-clamp-1">{channelTitle}</span>
                   <span
                     className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-sky-500"
                     aria-label="Verified"
@@ -705,28 +720,42 @@ function CenterPlayer({
                   </span>
                 </Link>
               ) : (
-                <span className="text-sm font-bold text-white">
+                <span className="text-base font-bold text-white">
                   {channelTitle}
                 </span>
               )}
-              <p className="mt-1 text-sm leading-snug text-zinc-100 drop-shadow">
+
+              <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-zinc-200 drop-shadow">
                 <span
                   className={`mr-1.5 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] ring-1 ${accent.pill}`}
                 >
                   {KIND_LABEL[story.kind] ?? "Reel"}
                 </span>
-                <span className="font-semibold">{story.title}</span>
-                {channelTitle && (
-                  <>
-                    {" "}
-                    <span className="text-fuchsia-300">
-                      #{channelTitle.replace(/\s+/g, "")}
-                    </span>
-                  </>
-                )}
+                {story.title}
               </p>
+
+              {story.anime_mal_id && (
+                <Link
+                  to={`/anime/${story.anime_mal_id}`}
+                  onClick={onClose}
+                  className={`mt-3 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r ${accent.gradient} px-4 py-1.5 text-xs font-bold text-zinc-950 shadow-[0_0_20px_-6px_rgba(232,121,249,0.6)] ring-1 ring-white/30 transition hover:brightness-110 active:scale-[0.97]`}
+                >
+                  More of {channelTitle?.split(":")[0] ?? "this anime"}
+                  <IconExternalLink className="h-3.5 w-3.5" />
+                </Link>
+              )}
             </div>
           </div>
+
+          {/* ────── FULLSCREEN (bottom-right corner, off the rail) ────── */}
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            aria-label="Toggle fullscreen"
+            className="absolute bottom-4 right-3 z-20 grid h-9 w-9 place-items-center rounded-md text-white/90 transition hover:bg-white/10 sm:bottom-5 sm:right-4"
+          >
+            <IconFullscreen className="h-5 w-5" />
+          </button>
         </div>
       </div>
     </main>
@@ -924,13 +953,13 @@ function RailButton({ icon, label, onClick, ariaLabel }) {
       type="button"
       onClick={onClick}
       aria-label={ariaLabel ?? label}
-      className="group flex flex-col items-center gap-0.5"
+      className="group flex flex-col items-center gap-1 transition active:scale-95"
     >
-      <span className="grid h-11 w-11 place-items-center rounded-full bg-black/40 backdrop-blur transition group-hover:bg-black/65">
+      <span className="grid h-9 w-9 place-items-center rounded-full text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)] transition group-hover:scale-110 group-hover:text-fuchsia-200">
         {icon}
       </span>
       {label && (
-        <span className="text-[11px] font-black tabular-nums text-white drop-shadow">
+        <span className="text-[12px] font-black tabular-nums text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
           {label}
         </span>
       )}
