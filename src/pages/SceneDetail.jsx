@@ -100,15 +100,18 @@ function SceneDetailBody({ scene }) {
 
   const featuredCharacters = useMemo(() => {
     if (!scene.character) return [];
+    const needle = scene.character.toLowerCase();
     return characters
-      .filter((c) =>
-        c.character.name.toLowerCase().includes(scene.character.toLowerCase())
-      )
+      .filter((c) => c?.character?.name?.toLowerCase().includes(needle))
       .slice(0, 1);
   }, [characters, scene.character]);
 
   const recommendedPeople = useMemo(
-    () => characters.slice(0, 8).map((c) => c.character),
+    () =>
+      characters
+        .slice(0, 8)
+        .map((c) => c?.character)
+        .filter(Boolean),
     [characters]
   );
 

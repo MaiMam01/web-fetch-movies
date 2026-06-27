@@ -51,11 +51,12 @@ export default function SuggestedReels({
     let cancelled = false;
     async function run() {
       if (animeList.length === 0) {
+        if (cancelled) return;
         setLoading(false);
         setTiles([]);
         return;
       }
-      setLoading(true);
+      if (!cancelled) setLoading(true);
 
       const sources = animeList
         .map((entry) => entry.anime ?? entry)
@@ -119,6 +120,7 @@ export default function SuggestedReels({
         });
       }
 
+      if (cancelled) return;
       const interleaved = interleaveBySource(collected);
       setTiles(interleaved.slice(0, limit));
       setLoading(false);

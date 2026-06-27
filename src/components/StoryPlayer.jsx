@@ -796,16 +796,23 @@ function RightSidebar({
 
         {/* Avatar + stat row */}
         <div className="mt-3 flex items-center gap-3">
-          <Link
-            to={story.anime_mal_id ? `/anime/${story.anime_mal_id}` : "#"}
-            className="relative shrink-0"
-          >
-            <span
-              aria-hidden
-              className="absolute -inset-0.5 rounded-full bg-gradient-to-br from-fuchsia-400 via-violet-500 to-cyan-400 opacity-70 blur-[3px]"
-            />
-            <Avatar img={channelAvatar} alt={channelTitle} size="lg" />
-          </Link>
+          {story.anime_mal_id ? (
+            <Link to={`/anime/${story.anime_mal_id}`} className="relative shrink-0">
+              <span
+                aria-hidden
+                className="absolute -inset-0.5 rounded-full bg-gradient-to-br from-fuchsia-400 via-violet-500 to-cyan-400 opacity-70 blur-[3px]"
+              />
+              <Avatar img={channelAvatar} alt={channelTitle} size="lg" />
+            </Link>
+          ) : (
+            <span className="relative shrink-0">
+              <span
+                aria-hidden
+                className="absolute -inset-0.5 rounded-full bg-gradient-to-br from-fuchsia-400 via-violet-500 to-cyan-400 opacity-70 blur-[3px]"
+              />
+              <Avatar img={channelAvatar} alt={channelTitle} size="lg" />
+            </span>
+          )}
 
           {channelStats && (
             <ul className="grid flex-1 grid-cols-2 gap-x-3 gap-y-1.5 text-[11px]">

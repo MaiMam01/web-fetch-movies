@@ -83,6 +83,9 @@ export default function Characters() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [sort, setSort] = useState("trending");
+  // Bumping `retryNonce` forces the fetch effect to re-run when the user
+  // clicks the Retry button (even if `page` and `animeId` haven't changed).
+  const [retryNonce, setRetryNonce] = useState(0);
 
   // Reset paging when filter scope changes
   useEffect(() => {
@@ -121,7 +124,7 @@ export default function Characters() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, animeId]);
+  }, [page, animeId, retryNonce]);
 
   const sorted = [...characters].sort((a, b) => {
     if (sort === "alphabetical")
@@ -409,7 +412,7 @@ export default function Characters() {
           <span>{error}</span>
           <button
             type="button"
-            onClick={() => setPage((p) => p)}
+            onClick={() => setRetryNonce((n) => n + 1)}
             className="rounded-md border border-amber-400/40 bg-amber-500/10 px-2.5 py-1 font-semibold hover:bg-amber-500/20"
           >
             Retry

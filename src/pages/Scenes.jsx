@@ -183,8 +183,10 @@ export default function Scenes() {
   const vaByCharacter = useMemo(() => {
     const m = new Map();
     characters.forEach((c) => {
-      const va = c.voice_actors?.find((v) => v.language === "Japanese");
-      if (va) m.set(c.character.name, va.person.name);
+      const va = c?.voice_actors?.find((v) => v.language === "Japanese");
+      const cName = c?.character?.name;
+      const pName = va?.person?.name;
+      if (cName && pName) m.set(cName, pName);
     });
     return m;
   }, [characters]);

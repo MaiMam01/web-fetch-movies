@@ -143,12 +143,14 @@ export default function AnimeDetail() {
               count={charsByGroup.length}
             />
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 2xl:grid-cols-8">
-              {charsByGroup.map((c) => (
-                <CharacterCard
-                  key={`${c.character.mal_id}-${c.role ?? "any"}`}
-                  character={c}
-                />
-              ))}
+              {charsByGroup
+                .filter((c) => c?.character?.mal_id != null)
+                .map((c) => (
+                  <CharacterCard
+                    key={`${c.character.mal_id}-${c.role ?? "any"}`}
+                    character={c}
+                  />
+                ))}
             </div>
           </section>
         )}
@@ -495,8 +497,10 @@ function ScenesGroupedGrid({ scenes, characters }) {
   const vaByCharacter = useMemo(() => {
     const m = new Map();
     characters.forEach((c) => {
-      const va = c.voice_actors?.find((v) => v.language === "Japanese");
-      if (va) m.set(c.character.name, va.person.name);
+      const va = c?.voice_actors?.find((v) => v.language === "Japanese");
+      const cName = c?.character?.name;
+      const pName = va?.person?.name;
+      if (cName && pName) m.set(cName, pName);
     });
     return m;
   }, [characters]);

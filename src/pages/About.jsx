@@ -5,13 +5,9 @@ import {
   IconUser,
   IconPlay,
   IconImage,
-  IconStar,
   IconBell,
   IconAlert,
   IconHelp,
-  IconShare,
-  IconCheck,
-  IconHeart,
 } from "../components/Icons.jsx";
 
 const COPY_BY_SLUG = {

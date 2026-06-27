@@ -23,7 +23,6 @@ import {
   IconStar,
   IconHeart,
   IconHome,
-  IconEye,
   IconCalendar,
   IconGrid,
   IconAlert,
@@ -356,6 +355,7 @@ export default function Header() {
                 setTrendingOpen(false);
               }}
               placeholder="Search anime, characters, voice actors…"
+              aria-label="Search anime, characters, voice actors"
               className="w-full rounded-md border border-zinc-800 bg-zinc-900 py-2 pl-9 pr-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-brand-500 focus:outline-none"
             />
             <button
@@ -528,6 +528,7 @@ export default function Header() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search anime, characters…"
+              aria-label="Search anime, characters, voice actors"
               className="w-full rounded-md border border-zinc-800 bg-zinc-900 py-2.5 pl-9 pr-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-brand-500 focus:outline-none"
             />
           </form>

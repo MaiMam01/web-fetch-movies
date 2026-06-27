@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import SortDropdown from "../components/SortDropdown.jsx";
 import {
@@ -159,21 +159,14 @@ function timeAgo(min) {
 
 export default function Community() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = TABS.some((t) => t.id === searchParams.get("tab"))
-    ? searchParams.get("tab")
-    : "feed";
-  const [tab, setTab] = useState(initialTab);
+  // Derive the active tab directly from the URL so there's a single source
+  // of truth — no useState, no sync useEffect, no risk of the two drifting
+  // apart on back/forward navigation.
+  const urlTab = searchParams.get("tab");
+  const tab = TABS.some((t) => t.id === urlTab) ? urlTab : "feed";
   const [filter, setFilter] = useState("all");
 
-  useEffect(() => {
-    const urlTab = searchParams.get("tab");
-    if (urlTab && TABS.some((t) => t.id === urlTab) && urlTab !== tab) {
-      setTab(urlTab);
-    }
-  }, [searchParams, tab]);
-
   const handleTab = (id) => {
-    setTab(id);
     const next = new URLSearchParams(searchParams);
     if (id === "feed") {
       next.delete("tab");

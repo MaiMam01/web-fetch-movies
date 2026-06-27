@@ -18,11 +18,8 @@ export default function AnimeGroupHeader({ anime, badge, year, role }) {
   const colorClass =
     TYPE_COLORS[tag] || "bg-zinc-700/40 text-zinc-200 ring-zinc-600/40";
 
-  return (
-    <Link
-      to={malId ? `/anime/${malId}` : "#"}
-      className="group mb-3 inline-flex items-center gap-2"
-    >
+  const innerContent = (
+    <>
       <span className="block h-5 w-1 rounded bg-brand-500" />
       <span className="text-sm font-semibold text-brand-500">{title}</span>
       {yr && <span className="text-xs text-zinc-400">({yr})</span>}
@@ -36,7 +33,24 @@ export default function AnimeGroupHeader({ anime, badge, year, role }) {
           {role}
         </span>
       )}
-      <IconChevronRight className="h-4 w-4 text-zinc-500 transition group-hover:translate-x-0.5 group-hover:text-brand-500" />
+      {malId && (
+        <IconChevronRight className="h-4 w-4 text-zinc-500 transition group-hover:translate-x-0.5 group-hover:text-brand-500" />
+      )}
+    </>
+  );
+
+  if (!malId) {
+    return (
+      <div className="mb-3 inline-flex items-center gap-2">{innerContent}</div>
+    );
+  }
+
+  return (
+    <Link
+      to={`/anime/${malId}`}
+      className="group mb-3 inline-flex items-center gap-2"
+    >
+      {innerContent}
     </Link>
   );
 }

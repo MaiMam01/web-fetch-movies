@@ -85,6 +85,7 @@ export default function VoiceActors() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [sort, setSort] = useState("trending");
+  const [retryNonce, setRetryNonce] = useState(0);
 
   useEffect(() => {
     setPage(1);
@@ -121,7 +122,7 @@ export default function VoiceActors() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, animeId]);
+  }, [page, animeId, retryNonce]);
 
   const sorted = [...people].sort((a, b) => {
     if (sort === "alphabetical")
@@ -405,7 +406,7 @@ export default function VoiceActors() {
           <span>{error}</span>
           <button
             type="button"
-            onClick={() => setPage((p) => p)}
+            onClick={() => setRetryNonce((n) => n + 1)}
             className="rounded-md border border-amber-400/40 bg-amber-500/10 px-2.5 py-1 font-semibold hover:bg-amber-500/20"
           >
             Retry

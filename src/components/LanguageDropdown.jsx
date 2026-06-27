@@ -220,6 +220,7 @@ export default function LanguageDropdown({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search language…"
+                aria-label="Search language"
                 className="w-full bg-transparent text-xs text-zinc-100 placeholder:text-zinc-600 focus:outline-none"
               />
               {query && (
