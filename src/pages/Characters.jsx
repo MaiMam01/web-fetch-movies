@@ -13,6 +13,7 @@ import {
   IconPlus,
   IconStar,
 } from "../components/Icons.jsx";
+import HoverPopAvatar, { deriveYoutubeThumb } from "../components/HoverPopAvatar.jsx";
 
 const QUICK_TAGS = [
   "Main",
@@ -297,39 +298,40 @@ export default function Characters() {
           {ANIME_FILTERS.map((a) => {
             const isActive = animeId === a.mal_id;
             const poster =
-              a.images?.webp?.small_image_url ||
-              a.images?.jpg?.small_image_url ||
               a.images?.webp?.image_url ||
+              a.images?.jpg?.image_url ||
+              a.images?.webp?.small_image_url ||
               "/placeholder.svg";
+            const hoverThumb =
+              a.trailer?.images?.maximum_image_url ||
+              a.trailer?.images?.large_image_url ||
+              deriveYoutubeThumb(a.trailer) ||
+              a.images?.webp?.large_image_url ||
+              null;
             return (
-              <li key={a.mal_id} className="shrink-0">
+              <li key={a.mal_id} className="group/tile shrink-0">
                 <button
                   type="button"
                   onClick={() => setAnimeFilter(isActive ? null : a.mal_id)}
                   aria-pressed={isActive}
-                  className="group/tile flex w-[88px] flex-col items-center gap-2 text-center"
+                  className="flex w-[88px] flex-col items-center gap-2 text-center"
                 >
-                  <span
-                    className={`relative grid h-[72px] w-[72px] place-items-center overflow-hidden rounded-full ring-2 transition ${
-                      isActive
-                        ? "ring-cyan-300 shadow-[0_0_24px_-6px_rgba(103,232,249,0.55)]"
-                        : "ring-zinc-800 group-hover/tile:ring-zinc-600"
-                    }`}
-                  >
-                    <img
-                      src={poster}
-                      alt={a.title}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover transition group-hover/tile:scale-[1.05]"
-                    />
-                    {a.score && (
-                      <span className="absolute bottom-1 right-1 inline-flex items-center gap-0.5 rounded-full bg-zinc-950/90 px-1.5 py-0.5 text-[9px] font-bold text-amber-300 ring-1 ring-amber-400/30">
-                        <IconStar className="h-2 w-2" />
-                        {a.score?.toFixed(1)}
-                      </span>
-                    )}
-                  </span>
+                  <HoverPopAvatar
+                    src={poster}
+                    hoverSrc={hoverThumb}
+                    alt={a.title}
+                    active={isActive}
+                    size={72}
+                    activeRing="ring-cyan-300 shadow-[0_0_28px_-6px_rgba(103,232,249,0.6)]"
+                    topBadge={
+                      a.score ? (
+                        <span className="inline-flex items-center gap-0.5 rounded-full bg-zinc-950/90 px-1.5 py-0.5 text-[9px] font-bold text-amber-300 ring-1 ring-amber-400/30">
+                          <IconStar className="h-2 w-2" />
+                          {a.score.toFixed(1)}
+                        </span>
+                      ) : null
+                    }
+                  />
                   <span
                     className={`line-clamp-2 text-[11px] font-semibold leading-tight transition ${
                       isActive ? "text-cyan-200" : "text-zinc-300"

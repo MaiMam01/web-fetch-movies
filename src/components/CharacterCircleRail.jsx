@@ -21,6 +21,7 @@ const ITEMS = ICONIC.map((entry) => ({
     jpg: { image_url: entry.cached_image ?? null },
   },
   _label: entry.label,
+  _hoverImage: entry.hover_image ?? null,
 }));
 
 export default function CharacterCircleRail() {
@@ -72,7 +73,7 @@ export default function CharacterCircleRail() {
 
       <div
         ref={scrollerRef}
-        className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0"
+        className="-mx-4 flex gap-3 overflow-x-auto overflow-y-visible px-4 pb-8 pt-6 sm:mx-0 sm:px-0"
       >
         {ITEMS.map((c) => (
           <CharacterCircle key={c.mal_id} character={c} />

@@ -44,6 +44,7 @@ function hashIdx(str, mod) {
 function CharacterCircle({ character, label }) {
   const img =
     character.images?.webp?.image_url ?? character.images?.jpg?.image_url;
+  const hoverImg = character._hoverImage;
   const name = label ?? character._label ?? displayFirstName(character.name);
   const initial = (name || character.name || "?").trim().charAt(0).toUpperCase();
   const gradient =
@@ -51,21 +52,35 @@ function CharacterCircle({ character, label }) {
   return (
     <Link
       to={`/characters/${character.mal_id}`}
-      className="group flex w-16 shrink-0 flex-col items-center gap-1.5 text-center sm:w-[72px]"
+      className="group relative flex w-16 shrink-0 flex-col items-center gap-1.5 text-center sm:w-[72px]"
       title={character.name}
     >
-      <div className="rounded-full bg-gradient-to-br from-fuchsia-500 via-violet-500 to-cyan-400 p-[2px] transition duration-300 group-hover:scale-[1.08] group-hover:shadow-[0_0_18px_-4px_rgba(232,121,249,0.7)]">
-        <div className="overflow-hidden rounded-full bg-zinc-900">
+      <div className="z-0 rounded-full bg-gradient-to-br from-fuchsia-500 via-violet-500 to-cyan-400 p-[2px] transition-transform duration-300 ease-out will-change-transform group-hover:z-20 group-hover:-translate-y-3 group-hover:scale-[1.55] group-hover:shadow-[0_0_28px_-4px_rgba(232,121,249,0.7)]">
+        <div className="relative overflow-hidden rounded-full bg-zinc-900">
           {img ? (
-            <img
-              src={img}
-              alt={character.name}
-              loading="lazy"
-              decoding="async"
-              width="64"
-              height="64"
-              className="h-14 w-14 object-cover transition duration-500 group-hover:scale-[1.06] sm:h-16 sm:w-16"
-            />
+            <>
+              <img
+                src={img}
+                alt={character.name}
+                loading="lazy"
+                decoding="async"
+                width="64"
+                height="64"
+                className={`h-14 w-14 object-cover transition-opacity duration-300 sm:h-16 sm:w-16 ${
+                  hoverImg ? "group-hover:opacity-0" : "group-hover:scale-[1.06]"
+                }`}
+              />
+              {hoverImg && (
+                <img
+                  src={hoverImg}
+                  alt=""
+                  aria-hidden
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-14 w-14 scale-110 object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:h-16 sm:w-16"
+                />
+              )}
+            </>
           ) : (
             <div
               aria-hidden

@@ -89,7 +89,7 @@ export default function HScrollRail({
       <ul
         ref={scrollerRef}
         aria-label={ariaLabel}
-        className={`-mx-2 flex overflow-x-auto px-2 pb-1 scrollbar-thin ${itemGap}`}
+        className={`-mx-2 flex overflow-x-auto overflow-y-visible px-2 pb-6 pt-4 scrollbar-thin ${itemGap}`}
       >
         {children}
       </ul>

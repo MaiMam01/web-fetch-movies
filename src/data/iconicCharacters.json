@@ -3,138 +3,161 @@
     "id": 4304,
     "name": "Doraemon",
     "label": "Doraemon",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/4/279905.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/4/279905.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/12/93719.jpg"
   },
   {
     "id": 2951,
     "name": "Shinnosuke Nohara",
     "label": "Shin",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/12/137089.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/12/137089.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/10/3927.jpg"
   },
   {
     "id": 3891,
     "name": "Pikachu",
     "label": "Pikachu",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/10/289627.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/10/289627.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/10/81278.jpg"
   },
   {
     "id": 17,
     "name": "Naruto Uzumaki",
     "label": "Naruto",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/2/284121.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/2/284121.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/12/61330.jpg"
   },
   {
     "id": 13,
     "name": "Sasuke Uchiha",
     "label": "Sasuke",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/9/131317.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/9/131317.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/2/69196.jpg"
   },
   {
     "id": 246,
     "name": "Son Goku",
     "label": "Goku",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/15/72546.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/15/72546.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/9/46566.jpg"
   },
   {
     "id": 913,
     "name": "Vegeta",
     "label": "Vegeta",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/14/86185.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/14/86185.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/12/46863.jpg"
   },
   {
     "id": 40,
     "name": "Monkey D. Luffy",
     "label": "Luffy",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/9/310307.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/9/310307.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/9/55741.jpg"
   },
   {
     "id": 62,
     "name": "Roronoa Zoro",
     "label": "Zoro",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/3/100534.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/3/100534.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/16/94247.jpg"
   },
   {
     "id": 5,
     "name": "Ichigo Kurosaki",
     "label": "Ichigo",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/3/512788.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/3/512788.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/3/72326.jpg"
   },
   {
     "id": 80,
     "name": "Light Yagami",
     "label": "Light",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/6/63870.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/6/63870.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/4/26348.jpg"
   },
   {
     "id": 71,
     "name": "L Lawliet",
     "label": "L",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/10/249647.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/10/249647.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/4/26346.jpg"
   },
   {
     "id": 11,
     "name": "Edward Elric",
     "label": "Edward",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/9/72533.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/9/72533.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/11/47177.jpg"
   },
   {
     "id": 40882,
     "name": "Eren Yeager",
     "label": "Eren",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/10/216895.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/10/216895.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/8/172585.jpg"
   },
   {
     "id": 45627,
     "name": "Levi Ackerman",
     "label": "Levi",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/2/241413.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/2/241413.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/4/205157.jpg"
   },
   {
     "id": 40881,
     "name": "Mikasa Ackerman",
     "label": "Mikasa",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/9/215563.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/9/215563.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/2/206369.jpg"
   },
   {
     "id": 146156,
     "name": "Tanjiro Kamado",
     "label": "Tanjiro",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/6/386735.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/6/386735.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/10/316805.jpg"
   },
   {
     "id": 146157,
     "name": "Nezuko Kamado",
     "label": "Nezuko",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/2/378254.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/2/378254.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/2/316826.jpg"
   },
   {
     "id": 73935,
     "name": "Saitama",
     "label": "Saitama",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/11/294388.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/11/294388.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/4/198559.jpg"
   },
   {
     "id": 417,
     "name": "Lelouch Lamperouge",
     "label": "Lelouch",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/8/406163.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/8/406163.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/16/80310.jpg"
   },
   {
     "id": 1,
     "name": "Spike Spiegel",
     "label": "Spike",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/11/516853.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/11/516853.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/10/34138.jpg"
   },
   {
     "id": 27,
     "name": "Killua Zoldyck",
     "label": "Killua",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/2/327920.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/2/327920.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/12/47931.jpg"
   },
   {
     "id": 30,
     "name": "Gon Freecss",
     "label": "Gon",
-    "cached_image": "https://cdn.myanimelist.net/images/characters/3/174561.webp"
+    "cached_image": "https://cdn.myanimelist.net/images/characters/3/174561.webp",
+    "hover_image": "https://cdn.myanimelist.net/images/characters/9/30966.jpg"
   }
 ]
