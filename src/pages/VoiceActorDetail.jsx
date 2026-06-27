@@ -21,6 +21,7 @@ import {
 } from "../components/Icons.jsx";
 import { getPersonFull, getPersonPictures } from "../services/jikan.js";
 import useLocalToggle from "../hooks/useLocalToggle.js";
+import usePageTitle from "../hooks/usePageTitle.js";
 
 export default function VoiceActorDetail() {
   const { id } = useParams();
@@ -36,6 +37,8 @@ export default function VoiceActorDetail() {
   const [following, toggleFollow] = useLocalToggle(
     id ? `animedb:follow:person:${id}` : null
   );
+
+  usePageTitle(person?.name ?? null);
 
   useEffect(() => {
     let cancelled = false;

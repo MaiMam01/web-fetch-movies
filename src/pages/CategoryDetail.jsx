@@ -11,6 +11,7 @@ import SharedSortDropdown from "../components/SortDropdown.jsx";
 import { getGenres, getAnimeByGenre } from "../services/jikan.js";
 import SEED_CATEGORIES from "../data/categories.json";
 import SEED_GENRE_PAGES from "../data/genreAnimePage1.json";
+import usePageTitle from "../hooks/usePageTitle.js";
 
 // The seeded genre pages cover the default view only — page 1, sorted by
 // score desc, no type filter. We only use the seed if the user lands on
@@ -74,6 +75,8 @@ export default function CategoryDetail() {
     () => genres.find((g) => String(g.mal_id) === String(id)),
     [genres, id]
   );
+
+  usePageTitle(activeGenre ? `${activeGenre.name} Anime` : "Category");
 
   // Refresh genre list quietly in the background — the seeded list is good
   // enough for the chip row + breadcrumb on first paint.

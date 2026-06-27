@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Link } from "react-router-dom";
 import { IconStar, IconCalendar, IconPlay } from "./Icons.jsx";
+import SafeImage from "./SafeImage.jsx";
 
 /**
  * MAL-score-based "heat" tier for the score badge. Top tier shifts toward
@@ -52,21 +53,13 @@ function AnimeCard({ anime }) {
     >
       {/* Poster + overlays */}
       <div className="relative aspect-[2/3] w-full overflow-hidden bg-zinc-800">
-        {img ? (
-          <img
-            src={img}
-            alt={anime.title}
-            loading="lazy"
-            decoding="async"
-            width="320"
-            height="480"
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.06]"
-          />
-        ) : (
-          <div className="grid h-full place-items-center text-zinc-600">
-            No image
-          </div>
-        )}
+        <SafeImage
+          src={img}
+          alt={anime.title}
+          width="320"
+          height="480"
+          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.06]"
+        />
 
         {/* Bottom gradient veil — keeps top-left chip and bottom-row meta legible
             over busy artwork on hover */}

@@ -13,6 +13,7 @@ import {
 } from "../components/Icons.jsx";
 import { getAnimeById, getCharacters } from "../services/jikan.js";
 import useLocalToggle from "../hooks/useLocalToggle.js";
+import usePageTitle from "../hooks/usePageTitle.js";
 import scenesData from "../data/scenes.json";
 
 const SEVERITY_FILTERS = (counts) => [
@@ -72,6 +73,8 @@ function sortScenes(list, order) {
 export default function Scenes() {
   const { malId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  usePageTitle(malId ? "Scenes" : "Scene Catalog");
 
   // URL query params drive filter/sort state so navbar links like
   // `/scenes?severity=extreme` and `/scenes?sort=newest` actually work.

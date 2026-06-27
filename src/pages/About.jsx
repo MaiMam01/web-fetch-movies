@@ -9,6 +9,7 @@ import {
   IconAlert,
   IconHelp,
 } from "../components/Icons.jsx";
+import usePageTitle from "../hooks/usePageTitle.js";
 
 const COPY_BY_SLUG = {
   about: {
@@ -164,6 +165,8 @@ export default function About() {
     Object.keys(COPY_BY_SLUG).find((k) => location.pathname === `/${k}`) ||
     "about";
   const copy = COPY_BY_SLUG[key] || COPY_BY_SLUG.about;
+
+  usePageTitle(copy.title);
 
   const group = groupOf(key);
   const relatedItems = RELATED_GROUPS[group].filter((r) => r.slug !== key);

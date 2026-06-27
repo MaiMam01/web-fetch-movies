@@ -6,6 +6,7 @@ import {
   IconImage,
   IconGrid,
 } from "./Icons.jsx";
+import useModalA11y from "../hooks/useModalA11y.js";
 
 /**
  * Image gallery modal with contact-sheet mosaic + cinematic lightbox.
@@ -32,6 +33,14 @@ export default function SceneGalleryModal({ open, onClose, title, images }) {
   const [active, setActive] = useState(null); // index of image in lightbox
   const [density, setDensity] = useState(10); // columns target (controls cell size)
   const [zoom, setZoom] = useState(false); // lightbox zoom-to-actual toggle
+
+  const containerRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  useModalA11y({
+    open,
+    containerRef,
+    initialFocusRef: closeButtonRef,
+  });
 
   const unique = useMemo(() => {
     const seen = new Set();
@@ -74,16 +83,6 @@ export default function SceneGalleryModal({ open, onClose, title, images }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, active, unique.length, close]);
 
-  // Lock body scroll while open
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [open]);
-
   if (!open) return null;
 
   // Density → tailwind column counts (3 → 20)
@@ -104,7 +103,9 @@ export default function SceneGalleryModal({ open, onClose, title, images }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex flex-col bg-zinc-950/95 backdrop-blur"
+      ref={containerRef}
+      tabIndex={-1}
+      className="fixed inset-0 z-[100] flex flex-col bg-zinc-950/95 backdrop-blur focus:outline-none"
       role="dialog"
       aria-modal="true"
       aria-label={title}
@@ -113,6 +114,7 @@ export default function SceneGalleryModal({ open, onClose, title, images }) {
       <header className="flex items-center justify-between gap-3 border-b border-zinc-900 bg-zinc-950/90 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-3">
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={close}
             aria-label="Close gallery"

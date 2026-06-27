@@ -5,6 +5,7 @@ import SortDropdown from "../components/SortDropdown.jsx";
 import HScrollRail from "../components/HScrollRail.jsx";
 import ActiveFiltersBar from "../components/ActiveFiltersBar.jsx";
 import { getTopPeople, getCharacters } from "../services/jikan.js";
+import usePageTitle from "../hooks/usePageTitle.js";
 import SEED_TOP_PEOPLE from "../data/topPeople.json";
 import SEED_TOP_ANIME from "../data/topAnimeList.json";
 import {
@@ -76,6 +77,8 @@ export default function VoiceActors() {
   const activeTag = searchParams.get("tag") || null;
   const sortFromUrl = searchParams.get("sort") || "trending";
 
+  usePageTitle("Voice Actors");
+
   const selectedAnime = useMemo(
     () => ANIME_FILTERS.find((a) => a.mal_id === animeId) || null,
     [animeId]
@@ -108,33 +111,37 @@ export default function VoiceActors() {
     let cancelled = false;
     setError(null);
 
+    const isSeededRefresh = !animeId && page === 1;
+    if (isSeededRefresh) {
+      setPeople(SEED_TOP_PEOPLE);
+    } else {
+      setPeople([]);
+      setLoading(true);
+    }
+
     async function run() {
       try {
         if (animeId) {
-          setLoading(true);
           const raw = await getCharacters(animeId);
           if (cancelled) return;
           setPeople(extractVoiceActors(raw));
         } else {
-          const isBackgroundRefresh = page === 1 && people.length > 0;
-          if (!isBackgroundRefresh) setLoading(true);
           const data = await getTopPeople(page);
           if (cancelled) return;
           if (data && data.length) setPeople(data);
         }
       } catch (e) {
-        if (!cancelled && people.length === 0) {
+        if (!cancelled && !isSeededRefresh) {
           setError("Live data unavailable. Try again in a moment.");
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled && !isSeededRefresh) setLoading(false);
       }
     }
     run();
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, animeId, retryNonce]);
 
   const sorted = [...people].sort((a, b) => {

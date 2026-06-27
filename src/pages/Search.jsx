@@ -4,6 +4,7 @@ import AnimeCard from "../components/AnimeCard.jsx";
 import PersonCard from "../components/PersonCard.jsx";
 import Pagination from "../components/Pagination.jsx";
 import SortDropdown from "../components/SortDropdown.jsx";
+import usePageTitle from "../hooks/usePageTitle.js";
 import {
   IconSearch,
   IconStar,
@@ -107,6 +108,8 @@ export default function Search() {
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  usePageTitle(q ? `Search · "${q}"` : "Search");
   const [draft, setDraft] = useState(q);
   const [recent, setRecent] = useState(() => loadRecent());
   const inputRef = useRef(null);

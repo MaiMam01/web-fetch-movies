@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import SortDropdown from "../components/SortDropdown.jsx";
+import usePageTitle from "../hooks/usePageTitle.js";
 import {
   IconCheck,
   IconHeart,
@@ -158,6 +159,7 @@ function timeAgo(min) {
 }
 
 export default function Community() {
+  usePageTitle("Community");
   const [searchParams, setSearchParams] = useSearchParams();
   // Derive the active tab directly from the URL so there's a single source
   // of truth — no useState, no sync useEffect, no risk of the two drifting

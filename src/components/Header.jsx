@@ -138,6 +138,18 @@ export default function Header() {
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [trendingOpen, setTrendingOpen] = useState(false);
+
+  // Lock body scroll while the mobile drawer is open so users don't
+  // accidentally scroll the page behind the drawer when they're trying to
+  // scroll the menu itself.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [mobileOpen]);
   const [openNav, setOpenNav] = useState(null);
   const [accountOpen, setAccountOpen] = useState(false);
   const [authMode, setAuthMode] = useState(null);

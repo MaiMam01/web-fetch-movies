@@ -26,6 +26,7 @@ import {
   getPictures,
 } from "../services/jikan.js";
 import useLocalToggle from "../hooks/useLocalToggle.js";
+import usePageTitle from "../hooks/usePageTitle.js";
 import scenesData from "../data/scenes.json";
 
 const SEVERITY_LABEL = {
@@ -41,6 +42,10 @@ export default function SceneDetail() {
   const scene = useMemo(
     () => allScenes.find((s) => s.id === id),
     [allScenes, id]
+  );
+
+  usePageTitle(
+    scene ? `${scene.title} · ${scene.anime_title}` : "Scene not found"
   );
 
   return (

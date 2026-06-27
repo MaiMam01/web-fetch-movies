@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Logo from "./Logo.jsx";
+import useModalA11y from "../hooks/useModalA11y.js";
 
 export default function AuthModal({ mode = "signup", onClose, onSwitchMode }) {
   const [email, setEmail] = useState("");
@@ -9,16 +10,21 @@ export default function AuthModal({ mode = "signup", onClose, onSwitchMode }) {
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
 
+  const containerRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  useModalA11y({
+    open: true,
+    containerRef,
+    initialFocusRef: closeButtonRef,
+  });
+
   useEffect(() => {
     function onKey(e) {
       if (e.key === "Escape") onClose();
     }
     document.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
     };
   }, [onClose]);
 
@@ -26,7 +32,9 @@ export default function AuthModal({ mode = "signup", onClose, onSwitchMode }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      ref={containerRef}
+      tabIndex={-1}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 focus:outline-none"
       aria-modal="true"
       role="dialog"
       aria-labelledby="auth-title"
@@ -54,6 +62,7 @@ export default function AuthModal({ mode = "signup", onClose, onSwitchMode }) {
 
         {/* Close */}
         <button
+          ref={closeButtonRef}
           type="button"
           onClick={onClose}
           aria-label="Close"

@@ -4,6 +4,7 @@ import SortDropdown from "../components/SortDropdown.jsx";
 import { IconChevronRight, IconStar } from "../components/Icons.jsx";
 import { getGenres, getAnimeByGenre } from "../services/jikan.js";
 import SEED_CATEGORIES from "../data/categories.json";
+import usePageTitle from "../hooks/usePageTitle.js";
 
 const SORT_OPTIONS = [
   { value: "popular", label: "Most Popular" },
@@ -35,6 +36,7 @@ const FILTER_TABS = [
 ];
 
 export default function Categories() {
+  usePageTitle("Categories");
   const [filter, setFilter] = useState("genres");
   const [sortOrder, setSortOrder] = useState("popular");
   // Seed genres + backdrops directly from the baked JSON so the page is

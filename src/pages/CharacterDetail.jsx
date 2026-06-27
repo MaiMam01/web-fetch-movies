@@ -22,6 +22,7 @@ import {
 } from "../components/Icons.jsx";
 import { getCharacterFull, getCharacterPictures } from "../services/jikan.js";
 import useLocalToggle from "../hooks/useLocalToggle.js";
+import usePageTitle from "../hooks/usePageTitle.js";
 import scenesData from "../data/scenes.json";
 
 export default function CharacterDetail() {
@@ -38,6 +39,8 @@ export default function CharacterDetail() {
   const [following, toggleFollow] = useLocalToggle(
     id ? `animedb:follow:character:${id}` : null
   );
+
+  usePageTitle(character?.name ?? null);
 
   useEffect(() => {
     let cancelled = false;

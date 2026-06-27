@@ -123,16 +123,23 @@ export default function Landing() {
   }, []);
 
   // Fetch the requested page of the All-Time Top Rated grid. We cap at 10
-  // pages Ã— 20 items = 200 entries which is a sensible upper bound for a
-  // home page browse experience.
+  // pages × 20 items = 200 entries — a sensible upper bound for the home
+  // page browse experience.
   useEffect(() => {
     let cancelled = false;
-    // Page 1 is pre-seeded — refresh silently without flashing the skeleton.
-    // Other pages need a real network round-trip.
-    const isBackgroundRefresh = topPage === 1 && topList.length > 0;
+    // Page 1 is pre-seeded so we can refresh silently. For any other page
+    // (or when returning to page 1 after viewing page 2+) we must reset the
+    // list before fetching so users don't see the previous page's tiles
+    // briefly mislabelled as page N.
+    if (topPage === 1) {
+      setTopList(SEED_TOP_ANIME);
+    } else {
+      setTopList([]);
+      setTopLoading(true);
+    }
+
     async function loadTop() {
       try {
-        if (!isBackgroundRefresh) setTopLoading(true);
         const { items, pagination } = await getTopAnime(20, topPage);
         if (cancelled) return;
         if (items && items.length) setTopList(items);
@@ -140,16 +147,15 @@ export default function Landing() {
           setTopTotalPages(Math.min(10, pagination.last_visible_page));
         }
       } catch (e) {
-        if (!cancelled && !isBackgroundRefresh) setError(e.message);
+        if (!cancelled && topPage !== 1) setError(e.message);
       } finally {
-        if (!cancelled && !isBackgroundRefresh) setTopLoading(false);
+        if (!cancelled && topPage !== 1) setTopLoading(false);
       }
     }
     loadTop();
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topPage]);
 
   // Smooth-scroll the section into view when paginating so the user sees the

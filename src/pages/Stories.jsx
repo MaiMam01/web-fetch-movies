@@ -4,6 +4,7 @@ import StoryReel from "../components/StoryReel.jsx";
 import StoryPlayer from "../components/StoryPlayer.jsx";
 import SortDropdown from "../components/SortDropdown.jsx";
 import REELS from "../data/storyReels.json";
+import usePageTitle from "../hooks/usePageTitle.js";
 import {
   IconPlay,
   IconStar,
@@ -84,6 +85,8 @@ export default function Stories() {
   const [params, setParams] = useSearchParams();
   const tab = params.get("type") ?? "all";
   const sort = params.get("sort") ?? "trending";
+
+  usePageTitle("Stories");
 
   const setTab = (value) => {
     const next = new URLSearchParams(params);

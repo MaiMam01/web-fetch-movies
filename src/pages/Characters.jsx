@@ -5,6 +5,7 @@ import SortDropdown from "../components/SortDropdown.jsx";
 import HScrollRail from "../components/HScrollRail.jsx";
 import ActiveFiltersBar from "../components/ActiveFiltersBar.jsx";
 import { getTopCharacters, getCharacters } from "../services/jikan.js";
+import usePageTitle from "../hooks/usePageTitle.js";
 import SEED_TOP_CHARACTERS from "../data/topCharacters.json";
 import SEED_TOP_ANIME from "../data/topAnimeList.json";
 import {
@@ -74,6 +75,8 @@ export default function Characters() {
   const activeTag = searchParams.get("tag") || null;
   const sortFromUrl = searchParams.get("sort") || "trending";
 
+  usePageTitle("Characters");
+
   const selectedAnime = useMemo(
     () => ANIME_FILTERS.find((a) => a.mal_id === animeId) || null,
     [animeId]
@@ -110,33 +113,41 @@ export default function Characters() {
     let cancelled = false;
     setError(null);
 
+    // Decide whether we can keep the current list visible (page 1 of the top
+    // list, with a seeded grid already in place) or whether we should clear
+    // before fetching to avoid stale rows. Switching the anime filter or
+    // changing page must always swap to a clean slate.
+    const isSeededRefresh = !animeId && page === 1;
+    if (isSeededRefresh) {
+      setCharacters(SEED_TOP_CHARACTERS);
+    } else {
+      setCharacters([]);
+      setLoading(true);
+    }
+
     async function run() {
       try {
         if (animeId) {
-          setLoading(true);
           const raw = await getCharacters(animeId);
           if (cancelled) return;
           setCharacters(flattenAnimeCharacters(raw));
         } else {
-          const isBackgroundRefresh = page === 1 && characters.length > 0;
-          if (!isBackgroundRefresh) setLoading(true);
           const data = await getTopCharacters(page);
           if (cancelled) return;
           if (data && data.length) setCharacters(data);
         }
       } catch (e) {
-        if (!cancelled && characters.length === 0) {
+        if (!cancelled && !isSeededRefresh) {
           setError("Live data unavailable. Try again in a moment.");
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled && !isSeededRefresh) setLoading(false);
       }
     }
     run();
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, animeId, retryNonce]);
 
   const sorted = [...characters].sort((a, b) => {

@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Link } from "react-router-dom";
+import SafeImage from "./SafeImage.jsx";
 
 function CharacterCard({ character }) {
   const c = character.character;
@@ -17,34 +18,22 @@ function CharacterCard({ character }) {
       className="group relative block focus:outline-none"
     >
       <div className="relative z-0 aspect-[3/4] w-full overflow-hidden rounded-lg bg-zinc-900 ring-1 ring-zinc-800 transition-all duration-300 ease-out will-change-transform group-hover:z-20 group-hover:-translate-y-2 group-hover:scale-[1.08] group-hover:ring-2 group-hover:ring-fuchsia-400/70 group-hover:shadow-[0_18px_40px_-10px_rgba(232,121,249,0.55)]">
-        {img ? (
-          <>
-            <img
-              src={img}
-              alt={c.name}
-              loading="lazy"
-              decoding="async"
-              width="225"
-              height="300"
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-                vaImg ? "group-hover:opacity-0" : "group-hover:scale-[1.05]"
-              }`}
-            />
-            {vaImg && (
-              <img
-                src={vaImg}
-                alt=""
-                aria-hidden
-                loading="lazy"
-                decoding="async"
-                className="absolute inset-0 h-full w-full scale-[1.08] object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-              />
-            )}
-          </>
-        ) : (
-          <div className="grid h-full place-items-center text-zinc-700">
-            No image
-          </div>
+        <SafeImage
+          src={img}
+          alt={c.name}
+          width="225"
+          height="300"
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+            vaImg ? "group-hover:opacity-0" : "group-hover:scale-[1.05]"
+          }`}
+        />
+        {vaImg && (
+          <SafeImage
+            src={vaImg}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 h-full w-full scale-[1.08] object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          />
         )}
         <span
           aria-hidden

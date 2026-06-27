@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Link } from "react-router-dom";
 import { IconPlay, IconImage, IconHeart, formatCompact } from "./Icons.jsx";
+import SafeImage from "./SafeImage.jsx";
 
 const SEVERITY_STYLES = {
   mild: {
@@ -81,22 +82,18 @@ function SceneTile({ scene, posterFallback, anime, onClick }) {
       {/* ─── THUMBNAIL ─────────────────────────────────────────────── */}
       <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-zinc-900 ring-1 ring-zinc-800/80 transition-all duration-300 group-hover:ring-fuchsia-400/40 group-hover:shadow-[0_18px_40px_-18px_rgba(232,121,249,0.55)]">
         {scene.image ? (
-          <img
+          <SafeImage
             src={scene.image}
             alt={scene.title}
-            loading="lazy"
-            decoding="async"
             width="320"
             height="180"
             className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
           />
         ) : posterFallback ? (
           <>
-            <img
+            <SafeImage
               src={posterFallback}
               alt={animeTitle}
-              loading="lazy"
-              decoding="async"
               width="320"
               height="180"
               className="h-full w-full scale-110 object-cover opacity-50 blur-[1.5px] transition duration-500 group-hover:scale-[1.15] group-hover:opacity-60 group-hover:blur-[0.5px]"

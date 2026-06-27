@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Link } from "react-router-dom";
 import { IconHeart, StarRating, formatCompact } from "./Icons.jsx";
+import SafeImage from "./SafeImage.jsx";
 
 function PersonCard({ person, to, subtitle, stats = [], rating = null }) {
   const img =
@@ -15,34 +16,22 @@ function PersonCard({ person, to, subtitle, stats = [], rating = null }) {
   return (
     <Link to={to} className="group relative block">
       <div className="relative z-0 aspect-square w-full overflow-hidden rounded-md bg-zinc-900 ring-1 ring-zinc-800 transition-all duration-300 ease-out will-change-transform group-hover:z-20 group-hover:-translate-y-2 group-hover:scale-[1.18] group-hover:rounded-xl group-hover:ring-2 group-hover:ring-fuchsia-400/70 group-hover:shadow-[0_18px_40px_-10px_rgba(232,121,249,0.55)]">
-        {img ? (
-          <>
-            <img
-              src={img}
-              alt={name}
-              loading="lazy"
-              decoding="async"
-              width="300"
-              height="300"
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-                hoverImg ? "group-hover:opacity-0" : "group-hover:scale-[1.06]"
-              }`}
-            />
-            {hoverImg && (
-              <img
-                src={hoverImg}
-                alt=""
-                aria-hidden
-                loading="lazy"
-                decoding="async"
-                className="absolute inset-0 h-full w-full scale-[1.08] object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-              />
-            )}
-          </>
-        ) : (
-          <div className="grid h-full place-items-center text-zinc-700">
-            No image
-          </div>
+        <SafeImage
+          src={img}
+          alt={name}
+          width="300"
+          height="300"
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+            hoverImg ? "group-hover:opacity-0" : "group-hover:scale-[1.06]"
+          }`}
+        />
+        {hoverImg && (
+          <SafeImage
+            src={hoverImg}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 h-full w-full scale-[1.08] object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          />
         )}
         <span
           aria-hidden

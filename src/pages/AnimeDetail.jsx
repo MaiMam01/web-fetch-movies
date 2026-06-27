@@ -16,6 +16,7 @@ import RecommendedRail from "../components/RecommendedRail.jsx";
 import TagChips from "../components/TagChips.jsx";
 import SceneGalleryModal from "../components/SceneGalleryModal.jsx";
 import useLocalToggle from "../hooks/useLocalToggle.js";
+import usePageTitle from "../hooks/usePageTitle.js";
 import {
   IconImage,
   IconPlay,
@@ -52,6 +53,8 @@ export default function AnimeDetail() {
     () => allScenes.filter((s) => String(s.mal_id) === String(malId)),
     [allScenes, malId]
   );
+
+  usePageTitle(anime ? anime.title_english || anime.title : null);
 
   useEffect(() => {
     let cancelled = false;

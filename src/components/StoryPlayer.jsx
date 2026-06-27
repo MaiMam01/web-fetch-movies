@@ -27,6 +27,7 @@ import {
   IconVolumeMute,
   IconVolumeOn,
 } from "./Icons.jsx";
+import useModalA11y from "../hooks/useModalA11y.js";
 
 const QUALITY_OPTIONS = ["1080p HD", "720p HD", "480p", "240p"];
 
@@ -79,6 +80,8 @@ export default function StoryPlayer({ stories, index, onClose, onChange }) {
   const [following, setFollowing] = useState(false);
   const [searchDraft, setSearchDraft] = useState("");
 
+  useModalA11y({ open: true, containerRef });
+
   const next = useCallback(() => {
     if (index < total - 1) onChange(index + 1);
   }, [index, total, onChange]);
@@ -87,7 +90,8 @@ export default function StoryPlayer({ stories, index, onClose, onChange }) {
     if (index > 0) onChange(index - 1);
   }, [index, onChange]);
 
-  // Keyboard nav + body scroll lock
+  // Keyboard navigation — scroll lock and focus management live in
+  // useModalA11y so this effect is purely about key bindings.
   useEffect(() => {
     function onKey(e) {
       if (qualitySheetOpen) {
@@ -98,7 +102,6 @@ export default function StoryPlayer({ stories, index, onClose, onChange }) {
         if (e.key === "Escape") setMenuOpen(false);
         return;
       }
-      // Don't hijack while typing in the search field
       const tag = e.target?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
       if (e.key === "Escape") onClose();
@@ -107,11 +110,8 @@ export default function StoryPlayer({ stories, index, onClose, onChange }) {
       if (e.key === "m" || e.key === "M") setMuted((m) => !m);
     }
     document.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
     };
   }, [next, prev, onClose, menuOpen, qualitySheetOpen]);
 
@@ -216,7 +216,8 @@ export default function StoryPlayer({ stories, index, onClose, onChange }) {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[60] flex flex-col bg-zinc-950 text-zinc-100"
+      tabIndex={-1}
+      className="fixed inset-0 z-[60] flex flex-col bg-zinc-950 text-zinc-100 focus:outline-none"
       role="dialog"
       aria-modal="true"
     >
